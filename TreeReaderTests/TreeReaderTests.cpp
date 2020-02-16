@@ -90,7 +90,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithContainsFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<ContainsTextFilter>(L"g"));
+			FilterTree(CreateSimpleTree(), filtered, Contains(L"g"));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -102,7 +102,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithNotFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"f")));
+			FilterTree(CreateSimpleTree(), filtered, Not(Contains(L"f")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -121,7 +121,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<OrTextFilter>(make_shared<ContainsTextFilter>(L"f"), make_shared<ContainsTextFilter>(L"m")));
+			FilterTree(CreateSimpleTree(), filtered, Or(Contains(L"f"), Contains(L"m")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -135,7 +135,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<RemoveChildrenTreeFilter>(make_shared<TextTreeFilter>(make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"g")))));
+			FilterTree(CreateSimpleTree(), filtered, NoChild(Not(ContainsText(L"g"))));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -150,7 +150,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithMultiTextFilters)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"g")));
+			FilterTree(CreateSimpleTree(), filtered, Not(ContainsText(L"g")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -170,7 +170,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, make_shared<OrTextFilter>(make_shared<ContainsTextFilter>(L"d"), make_shared<ContainsTextFilter>(L"s")));
+			FilterTree(CreateSimpleTree(), filtered, Or(ContainsText(L"d"), ContainsText(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;

@@ -58,3 +58,9 @@ struct AndTextFilter : CombineTextFilter
 
    bool IsKept(const Text& text) override;
 };
+
+inline std::shared_ptr<PassTextFilter> Pass() { return std::make_shared<PassTextFilter>(); }
+inline std::shared_ptr<ContainsTextFilter> Contains(const Text& text) { return std::make_shared<ContainsTextFilter>(text); }
+inline std::shared_ptr<NotTextFilter> Not(const std::shared_ptr<TextFilter>& filter) { return std::make_shared<NotTextFilter>(filter); }
+inline std::shared_ptr<OrTextFilter> Or(const std::shared_ptr<TextFilter>& lhs, const std::shared_ptr<TextFilter>& rhs) { return std::make_shared<OrTextFilter>(lhs, rhs); }
+inline std::shared_ptr<AndTextFilter> And(const std::shared_ptr<TextFilter>& lhs, const std::shared_ptr<TextFilter>& rhs) { return std::make_shared<AndTextFilter>(lhs, rhs); }

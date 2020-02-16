@@ -63,6 +63,12 @@ private:
    size_t _removeUnderLevel = -1;
 };
 
+inline std::shared_ptr<TextTreeFilter> ContainsText(const Text& text) { return std::make_shared<TextTreeFilter>(std::make_shared<ContainsTextFilter>(text)); }
+inline std::shared_ptr<NotTreeFilter> Not(const std::shared_ptr<TreeFilter>& filter) { return std::make_shared<NotTreeFilter>(filter); }
+inline std::shared_ptr<OrTreeFilter> Or(const std::shared_ptr<TreeFilter>& lhs, const std::shared_ptr<TreeFilter>& rhs) { return std::make_shared<OrTreeFilter>(lhs, rhs); }
+inline std::shared_ptr<AndTreeFilter> And(const std::shared_ptr<TreeFilter>& lhs, const std::shared_ptr<TreeFilter>& rhs) { return std::make_shared<AndTreeFilter>(lhs, rhs); }
+inline std::shared_ptr<RemoveChildrenTreeFilter> NoChild(const std::shared_ptr<TreeFilter>& filter) { return std::make_shared<RemoveChildrenTreeFilter>(filter); }
+
 void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TextFilter>& filter);
 void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TreeFilter>& filter);
 
