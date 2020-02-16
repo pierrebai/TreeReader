@@ -1,0 +1,68 @@
+#include "TreeFilter.h"
+#include "TextTreeVisitor.h"
+
+void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TextFilter& filter)
+{
+   filteredTree.SourceTextLines = sourceTree.SourceTextLines;
+   filteredTree.Nodes.reserve(sourceTree.Nodes.size());
+
+   // This keeps the current branch of nodes we have created.
+   // We will keep one entry per source level, even when some
+   // levels were filtered out.
+   //
+   std::vector<size_t> filteredBranchIndexes;
+   std::vector<bool> fillChildren;
+
+   // To make the algorithm work the same way for the first node
+   // we pretend that we've seen a preceeding sibling of the level
+   // zero and did not keep it.
+   //
+   // So the current filtered branch for level zero is zero.
+   filteredBranchIndexes.push_back(0);
+   fillChildren.push_back(false);
+
+   VisitInOrder(sourceTree, 0, [&](const TextTree::Node& sourceNode, const size_t sourceIndex, const size_t sourceLevel)
+   {
+      filteredBranchIndexes.resize(sourceLevel + 1, -1);
+      fillChildren.resize(sourceLevel + 1, false);
+
+      // Either the index of the newly created filtered node if kept, or -1 if not kept.
+      size_t filteredIndex = -1;
+
+      if (filter.IsKept(*sourceNode.TextPtr))
+      {
+         // Connect to the nearest node in the branch.
+         for (size_t level = sourceLevel; level < filteredBranchIndexes.size(); --level)
+         {
+            if (filteredBranchIndexes[level] != -1)
+            {
+               // If the node is at the same level, do not add as a child.
+               if (level < sourceLevel && fillChildren[level])
+               {
+                  filteredIndex = filteredTree.AddChild(filteredBranchIndexes[level], sourceNode.TextPtr);
+               }
+               else
+               {
+                  filteredIndex = filteredTree.AddSibling(filteredBranchIndexes[level], sourceNode.TextPtr);
+               }
+               break;
+            }
+         }
+      }
+
+      // If kept, this node is the new active node for this level.
+      // If not kept, do not over-write a sibling node that may exists at this level.
+      filteredBranchIndexes.resize(sourceLevel + 1, -1);
+      if (filteredIndex != -1)
+         filteredBranchIndexes[sourceLevel] = filteredIndex;
+
+      // If the node is kept, start to add sub-node as children.
+      // If not kept, make any existing singling node begin to add node as sibling instead
+      // of children.
+      fillChildren.resize(sourceLevel + 1, false);
+      fillChildren[sourceLevel] = (filteredIndex != -1);
+
+      return true;
+   });
+}
+
