@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <memory>
+#include <vector>
 
 typedef std::wstring Text;
 
@@ -25,39 +27,34 @@ struct ContainsTextFilter : TextFilter
 
 struct CombineTextFilter : TextFilter
 {
-   TextFilter& Left;
-   TextFilter& Right;
+   std::vector<std::shared_ptr<TextFilter>> Filters;
 
-   CombineTextFilter(TextFilter& lhs, TextFilter& rhs) : Left(lhs), Right(rhs) { }
+   CombineTextFilter() = default;
+
+   CombineTextFilter(const std::shared_ptr<TextFilter>& lhs, const std::shared_ptr<TextFilter>& rhs) { Filters.push_back(lhs); Filters.push_back(rhs); }
 };
 
 struct NotTextFilter : TextFilter
 {
-   TextFilter& Filter;
+   std::shared_ptr<TextFilter> Filter;
 
-   NotTextFilter(TextFilter& filter) : Filter(filter) { }
+   NotTextFilter(const std::shared_ptr<TextFilter>& filter) : Filter(filter) { }
 
-   bool IsKept(const Text& text) override { return !Filter.IsKept(text); }
+   bool IsKept(const Text& text) override;
 };
 
 struct OrTextFilter : CombineTextFilter
 {
-   OrTextFilter(TextFilter& lhs, TextFilter& rhs) : CombineTextFilter(lhs, rhs) { }
+   OrTextFilter() = default;
+   OrTextFilter(const std::shared_ptr<TextFilter>& lhs, const std::shared_ptr<TextFilter>& rhs) : CombineTextFilter(lhs, rhs) { }
 
-   bool IsKept(const Text& text) override { return Left.IsKept(text) || Right.IsKept(text); }
+   bool IsKept(const Text& text) override;
 };
 
 struct AndTextFilter : CombineTextFilter
 {
-   AndTextFilter(TextFilter& lhs, TextFilter& rhs) : CombineTextFilter(lhs, rhs) { }
-
-   bool IsKept(const Text& text) override { return Left.IsKept(text) && Right.IsKept(text); }
-};
-
-struct MultiTextFilters : TextFilter
-{
-   std::vector<std::shared_ptr<TextFilter>> Filters;
-   size_t RootIndex = 0;
+   AndTextFilter() = default;
+   AndTextFilter(const std::shared_ptr<TextFilter>& lhs, const std::shared_ptr<TextFilter>& rhs) : CombineTextFilter(lhs, rhs) { }
 
    bool IsKept(const Text& text) override;
 };

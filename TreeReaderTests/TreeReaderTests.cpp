@@ -4,6 +4,7 @@
 #include <sstream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
 
 namespace TreeReaderTests
 {
@@ -13,7 +14,7 @@ namespace TreeReaderTests
 		
 		TEST_METHOD(PrintEmptyTree)
 		{
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << TextTree();
 
 			const wchar_t expectedOutput[] = L"";
@@ -33,7 +34,7 @@ namespace TreeReaderTests
 			size_t r0c0c0 = tree.AddChild(r0c0, &tree.SourceTextLines->at(4));
 			size_t r1 = tree.AddSibling(r0, &tree.SourceTextLines->at(5));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << tree;
 
 			const wchar_t expectedOutput[] =
@@ -48,7 +49,7 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTree)
 		{
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << CreateSimpleTree();
 
 			const wchar_t expectedOutput[] =
@@ -88,12 +89,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithContainsFilter)
 		{
-			ContainsTextFilter contains(L"g");
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, contains);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<ContainsTextFilter>(L"g"));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] = L"ghi\n";
@@ -102,13 +101,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithNotFilter)
 		{
-			ContainsTextFilter contains(L"f");
-			NotTextFilter not(contains);
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, not);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"f")));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -124,14 +120,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
-			ContainsTextFilter containsF(L"f");
-			ContainsTextFilter containsM(L"m");
-			OrTextFilter or(containsF, containsM);
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, or);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<OrTextFilter>(make_shared<ContainsTextFilter>(L"f"), make_shared<ContainsTextFilter>(L"m")));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -142,16 +134,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
 		{
-			ContainsTextFilter contains(L"g");
-			NotTextFilter not(contains);
-
-			TextTreeFilter textTreeFilter(not);
-			RemoveChildrenTreeFilter remove(textTreeFilter);
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, remove);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<RemoveChildrenTreeFilter>(make_shared<TextTreeFilter>(make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"g")))));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -163,16 +149,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithMultiTextFilters)
 		{
-			MultiTextFilters filters;
-
-			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"g"));
-			filters.Filters.push_back(std::make_shared<NotTextFilter>(*filters.Filters[0]));
-			filters.RootIndex = 1;
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, filters);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<NotTextFilter>(make_shared<ContainsTextFilter>(L"g")));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -189,17 +169,10 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
-			MultiTextFilters filters;
-
-			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"d"));
-			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"s"));
-			filters.Filters.push_back(std::make_shared<OrTextFilter>(*filters.Filters[0], *filters.Filters[1]));
-			filters.RootIndex = 2;
-
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, filters);
+			FilterTree(CreateSimpleTree(), filtered, make_shared<OrTextFilter>(make_shared<ContainsTextFilter>(L"d"), make_shared<ContainsTextFilter>(L"s")));
 
-			std::wostringstream sstream;
+			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -210,9 +183,9 @@ namespace TreeReaderTests
 
 	private:
 
-		std::shared_ptr<TextLines> CreateTextLines()
+		shared_ptr<TextLines> CreateTextLines()
 		{
-			auto textLines = std::make_shared<TextLines>();
+			auto textLines = make_shared<TextLines>();
 
 			textLines->push_back(L"abc");
 			textLines->push_back(L"def");

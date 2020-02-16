@@ -1,28 +1,44 @@
 #include "TreeFilter.h"
 #include "TextTreeVisitor.h"
 
-bool MultiTextFilters::IsKept(const Text& text)
+bool NotTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
 {
-   if (RootIndex < Filters.size())
-      return Filters[RootIndex]->IsKept(text);
-   else
-      return true;
+   return !Filter || !Filter->IsKept(node, index, level);
+}
+
+bool OrTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+{
+   for (const auto& filter : Filters)
+      if (filter && filter->IsKept(node, index, level))
+         return true;
+   return false;
+}
+
+bool AndTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+{
+   for (const auto& filter : Filters)
+      if (filter && !filter->IsKept(node, index, level))
+         return false;
+   return true;
 }
 
 bool TextTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
 {
-   return Filter.IsKept(*node.TextPtr);
+   return !Filter || Filter->IsKept(*node.TextPtr);
 }
 
 bool RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
 {
+   if (!Filter)
+      return true;
+
    if (level > _removeUnderLevel)
       return false;
 
    if (level <= _removeUnderLevel)
       _removeUnderLevel = -1;
 
-   const bool kept = Filter.IsKept(node, index, level);
+   const bool kept = Filter->IsKept(node, index, level);
    if (kept)
       return true;
 
@@ -30,22 +46,19 @@ bool RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, 
    return kept;
 }
 
-bool MultiTreeFilters::IsKept(const TextTree::Node& node, size_t index, size_t level)
+void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TextFilter>& filter)
 {
-   if (RootIndex < Filters.size())
-      return Filters[RootIndex]->IsKept(node, index, level);
-   else
-      return true;
+   FilterTree(sourceTree, filteredTree, std::make_shared<TextTreeFilter>(filter));
 }
 
-void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TextFilter& filter)
+void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TreeFilter>& filter)
 {
-   TextTreeFilter treeFilter(filter);
-   FilterTree(sourceTree, filteredTree, treeFilter);
-}
+   if (!filter)
+   {
+      filteredTree = sourceTree;
+      return;
+   }
 
-void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
-{
    filteredTree.SourceTextLines = sourceTree.SourceTextLines;
    filteredTree.Nodes.reserve(sourceTree.Nodes.size());
 
@@ -72,7 +85,7 @@ void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& 
       // Either the index of the newly created filtered node if kept, or -1 if not kept.
       size_t filteredIndex = -1;
 
-      if (filter.IsKept(sourceNode, sourceIndex, sourceLevel))
+      if (filter->IsKept(sourceNode, sourceIndex, sourceLevel))
       {
          // Connect to the nearest node in the branch.
          for (size_t level = sourceLevel; level < filteredBranchIndexes.size(); --level)

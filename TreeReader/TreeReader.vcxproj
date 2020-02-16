@@ -158,6 +158,7 @@
     <ClInclude Include="TreeReader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="TextFilter.cpp" />
     <ClCompile Include="TextTree.cpp" />
     <ClCompile Include="TextTreeVisitor.cpp" />
     <ClCompile Include="TreeFilter.cpp" />
