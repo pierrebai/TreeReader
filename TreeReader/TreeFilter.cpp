@@ -1,7 +1,50 @@
 #include "TreeFilter.h"
 #include "TextTreeVisitor.h"
 
+bool MultiTextFilters::IsKept(const Text& text)
+{
+   if (RootIndex < Filters.size())
+      return Filters[RootIndex]->IsKept(text);
+   else
+      return true;
+}
+
+bool TextTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+{
+   return Filter.IsKept(*node.TextPtr);
+}
+
+bool RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+{
+   if (level > _removeUnderLevel)
+      return false;
+
+   if (level <= _removeUnderLevel)
+      _removeUnderLevel = -1;
+
+   const bool kept = Filter.IsKept(node, index, level);
+   if (kept)
+      return true;
+
+   _removeUnderLevel = level;
+   return kept;
+}
+
+bool MultiTreeFilters::IsKept(const TextTree::Node& node, size_t index, size_t level)
+{
+   if (RootIndex < Filters.size())
+      return Filters[RootIndex]->IsKept(node, index, level);
+   else
+      return true;
+}
+
 void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TextFilter& filter)
+{
+   TextTreeFilter treeFilter(filter);
+   FilterTree(sourceTree, filteredTree, treeFilter);
+}
+
+void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
 {
    filteredTree.SourceTextLines = sourceTree.SourceTextLines;
    filteredTree.Nodes.reserve(sourceTree.Nodes.size());
@@ -29,7 +72,7 @@ void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TextFilter& 
       // Either the index of the newly created filtered node if kept, or -1 if not kept.
       size_t filteredIndex = -1;
 
-      if (filter.IsKept(*sourceNode.TextPtr))
+      if (filter.IsKept(sourceNode, sourceIndex, sourceLevel))
       {
          // Connect to the nearest node in the branch.
          for (size_t level = sourceLevel; level < filteredBranchIndexes.size(); --level)

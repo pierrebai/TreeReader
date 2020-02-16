@@ -11,8 +11,6 @@ struct TreeVisitor
    virtual bool Visit(const TextTree::Node& node, size_t index, size_t level) = 0;
 };
 
-void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor);
-
 typedef std::function<bool(const TextTree::Node & node, size_t index, size_t level)> NodeVisitFunction;
 
 struct SimpleTreeVisitor : TreeVisitor
@@ -29,4 +27,5 @@ struct SimpleTreeVisitor : TreeVisitor
    }
 };
 
-void VisitInOrder(const TextTree& tree, size_t index, const std::function<bool(const TextTree::Node & node, size_t index, size_t level)>& func);
+void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor);
+void VisitInOrder(const TextTree& tree, size_t index, const NodeVisitFunction& func);

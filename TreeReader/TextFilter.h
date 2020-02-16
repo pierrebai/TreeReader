@@ -9,6 +9,11 @@ struct TextFilter
    virtual bool IsKept(const Text& text) = 0;
 };
 
+struct PassTextFilter : TextFilter
+{
+   bool IsKept(const Text& text) override { return true; }
+};
+
 struct ContainsTextFilter : TextFilter
 {
    const Text Contained;
@@ -47,4 +52,12 @@ struct AndTextFilter : CombineTextFilter
    AndTextFilter(TextFilter& lhs, TextFilter& rhs) : CombineTextFilter(lhs, rhs) { }
 
    bool IsKept(const Text& text) override { return Left.IsKept(text) && Right.IsKept(text); }
+};
+
+struct MultiTextFilters : TextFilter
+{
+   std::vector<std::shared_ptr<TextFilter>> Filters;
+   size_t RootIndex = 0;
+
+   bool IsKept(const Text& text) override;
 };

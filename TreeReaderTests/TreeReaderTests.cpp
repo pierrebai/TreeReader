@@ -14,7 +14,6 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintEmptyTree)
 		{
 			std::wostringstream sstream;
-
 			sstream << TextTree();
 
 			const wchar_t expectedOutput[] = L"";
@@ -35,7 +34,6 @@ namespace TreeReaderTests
 			size_t r1 = tree.AddSibling(r0, &tree.SourceTextLines->at(5));
 
 			std::wostringstream sstream;
-
 			sstream << tree;
 
 			const wchar_t expectedOutput[] =
@@ -51,7 +49,6 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTree)
 		{
 			std::wostringstream sstream;
-
 			sstream << CreateSimpleTree();
 
 			const wchar_t expectedOutput[] =
@@ -91,12 +88,12 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithContainsFilter)
 		{
-			std::wostringstream sstream;
-
-			TextTree filtered;
 			ContainsTextFilter contains(L"g");
 
+			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, contains);
+
+			std::wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] = L"ghi\n";
@@ -105,13 +102,13 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithNotFilter)
 		{
-			std::wostringstream sstream;
-
-			TextTree filtered;
 			ContainsTextFilter contains(L"f");
 			NotTextFilter not(contains);
 
+			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, not);
+
+			std::wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
@@ -127,19 +124,87 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
-			std::wostringstream sstream;
-
-			TextTree filtered;
 			ContainsTextFilter containsF(L"f");
 			ContainsTextFilter containsM(L"m");
 			OrTextFilter or(containsF, containsM);
 
+			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, or);
+
+			std::wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
 				L"def\n"
 				L"mno\n";
+			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+		}
+
+		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
+		{
+			ContainsTextFilter contains(L"g");
+			NotTextFilter not(contains);
+
+			TextTreeFilter textTreeFilter(not);
+			RemoveChildrenTreeFilter remove(textTreeFilter);
+
+			TextTree filtered;
+			FilterTree(CreateSimpleTree(), filtered, remove);
+
+			std::wostringstream sstream;
+			sstream << filtered;
+
+			const wchar_t expectedOutput[] =
+				L"abc\n"
+				L"  def\n"
+				L"    jkl\n";
+			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+		}
+
+		TEST_METHOD(PrintSimpleTreeWithMultiTextFilters)
+		{
+			MultiTextFilters filters;
+
+			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"g"));
+			filters.Filters.push_back(std::make_shared<NotTextFilter>(*filters.Filters[0]));
+			filters.RootIndex = 1;
+
+			TextTree filtered;
+			FilterTree(CreateSimpleTree(), filtered, filters);
+
+			std::wostringstream sstream;
+			sstream << filtered;
+
+			const wchar_t expectedOutput[] =
+				L"abc\n"
+				L"  def\n"
+				L"    jkl\n"
+				L"  mno\n"
+				L"    pqr\n"
+				L"    stu\n"
+				L"      vwx\n";
+			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+		}
+
+
+		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
+		{
+			MultiTextFilters filters;
+
+			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"d"));
+			filters.Filters.push_back(std::make_shared<ContainsTextFilter>(L"s"));
+			filters.Filters.push_back(std::make_shared<OrTextFilter>(*filters.Filters[0], *filters.Filters[1]));
+			filters.RootIndex = 2;
+
+			TextTree filtered;
+			FilterTree(CreateSimpleTree(), filtered, filters);
+
+			std::wostringstream sstream;
+			sstream << filtered;
+
+			const wchar_t expectedOutput[] =
+				L"def\n"
+				L"stu\n";
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
