@@ -3,6 +3,8 @@
 
 namespace TreeReader
 {
+   using namespace std;
+
    bool NotTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
       return !Filter || !Filter->IsKept(node, index, level);
@@ -48,12 +50,12 @@ namespace TreeReader
       return kept;
    }
 
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TextFilter>& filter)
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TextFilter>& filter)
    {
-      FilterTree(sourceTree, filteredTree, std::make_shared<TextTreeFilter>(filter));
+      FilterTree(sourceTree, filteredTree, make_shared<TextTreeFilter>(filter));
    }
 
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const std::shared_ptr<TreeFilter>& filter)
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TreeFilter>& filter)
    {
       if (!filter)
       {
@@ -68,8 +70,8 @@ namespace TreeReader
       // We will keep one entry per source level, even when some
       // levels were filtered out.
       //
-      std::vector<size_t> filteredBranchIndexes;
-      std::vector<bool> fillChildren;
+      vector<size_t> filteredBranchIndexes;
+      vector<bool> fillChildren;
 
       // To make the algorithm work the same way for the first node
       // we pretend that we've seen a preceeding sibling of the level

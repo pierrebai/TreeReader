@@ -2,12 +2,14 @@
 
 namespace TreeReader
 {
+   using namespace std;
+
    void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor)
    {
       if (index >= tree.Nodes.size())
          return;
 
-      std::vector<size_t> goBack;
+      vector<size_t> goBack;
 
       size_t level = 0;
       while (true)

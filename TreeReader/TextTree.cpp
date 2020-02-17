@@ -3,6 +3,8 @@
 
 namespace TreeReader
 {
+   using namespace std;
+
    size_t TextTree::AddChild(size_t index, const Text* TextPtr)
    {
       const size_t newIndex = Nodes.size();
@@ -67,7 +69,7 @@ namespace TreeReader
       return CountSiblings(Nodes[index].FirstChildIndex);
    }
 
-   std::wostream& operator<<(std::wostream& stream, const TextTree& tree)
+   wostream& operator<<(wostream& stream, const TextTree& tree)
    {
       VisitInOrder(tree, 0, [&stream](const TextTree::Node& node, size_t index, size_t level)
       {

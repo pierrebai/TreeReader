@@ -4,3 +4,4 @@
 #include "TextFilter.h"
 #include "TreeFilter.h"
 #include "TextTreeVisitor.h"
+#include "SimpleTreeReader.h"
