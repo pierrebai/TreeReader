@@ -5,6 +5,11 @@ namespace TreeReader
 {
    using namespace std;
 
+   bool AcceptTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   {
+      return true;
+   }
+
    bool ContainsTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
       return node.TextPtr->find(Contained) != wstring::npos;
@@ -36,23 +41,46 @@ namespace TreeReader
       return true;
    }
 
-   bool RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   bool ApplyUnderTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      if (!Filter)
+      if (!Filter || !Under)
          return true;
 
-      if (level > _removeUnderLevel)
-         return false;
+      // If we have found a match previously for the under filter,
+      // then apply the other filter while we're still in levels deeper
+      // than where we found the match.
+      if (level > _applyOtherFilterUnderLevel)
+         return Filter->IsKept(node, index, level);
 
-      if (level <= _removeUnderLevel)
-         _removeUnderLevel = -1;
+      // If we've reach back up to the level where we found the match previously,
+      // then stop applying the olther filter.
+      if (level <= _applyOtherFilterUnderLevel)
+         _applyOtherFilterUnderLevel = -1;
 
-      const bool kept = Filter->IsKept(node, index, level);
-      if (kept)
+      // If the node doesn't match the under filter, don't apply the other filter.
+      // Just accept the node.
+      const bool kept = Under->IsKept(node, index, level);
+      if (!kept)
          return true;
 
-      _removeUnderLevel = level;
+      // If we reach here, the under filter matched, so we will apply the other filter
+      // to nodes under this one.
+      //
+      // Record the level at which we must come back up to to stop applying the other filter.
+      _applyOtherFilterUnderLevel = level;
+
+      // If the other filter must be applied to the node matching the under filter,
+      // apply it here.
+      if (IncludeSelf)
+         return Filter->IsKept(node, index, level);
+
       return kept;
+
+   }
+
+   bool LevelRangeTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   {
+      return level >= MinLevel && level <= MaxLevel;
    }
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TreeFilter>& filter)

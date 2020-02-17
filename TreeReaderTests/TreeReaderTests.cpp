@@ -161,19 +161,83 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, NoChild(Not(Contains(L"g"))));
+			FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g")));
 
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
-				L"abc\n"
-				L"  def\n"
-				L"    jkl\n";
+         const wchar_t expectedOutput[] =
+            L"abc\n"
+            L"  def\n"
+            L"    jkl\n"
+            L"  ghi\n";
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithNotRegex)
+      TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g"), true));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"abc\n"
+            L"  def\n"
+            L"    jkl\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithLevelRangeFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, LevelRange(2, 3));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"jkl\n"
+            L"mno\n"
+            L"  pqr\n"
+            L"  stu\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithMinLevelFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, MinLevel(2));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"jkl\n"
+            L"mno\n"
+            L"  pqr\n"
+            L"  stu\n"
+            L"    vwx\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithMaxLevelFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, MaxLevel(1));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"abc\n"
+            L"  def\n"
+            L"  ghi\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithNotRegex)
 		{
 			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, Not(Regex(L"[g]")));
