@@ -161,7 +161,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, NoChild(Not(ContainsText(L"g"))));
+			FilterTree(CreateSimpleTree(), filtered, NoChild(Not(Contains(L"g"))));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -173,10 +173,10 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithMultiTextFilters)
+		TEST_METHOD(PrintSimpleTreeWithNotRegex)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Not(ContainsText(L"g")));
+			FilterTree(CreateSimpleTree(), filtered, Not(Regex(L"[g]")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -196,7 +196,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Or(ContainsText(L"d"), ContainsText(L"s")));
+			FilterTree(CreateSimpleTree(), filtered, Or(Contains(L"d"), Contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;

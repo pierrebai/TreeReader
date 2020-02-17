@@ -156,7 +156,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="SimpleTreeReader.h" />
-    <ClInclude Include="TextFilter.h" />
     <ClInclude Include="TextTree.h" />
     <ClInclude Include="TextTreeVisitor.h" />
     <ClInclude Include="TreeFilter.h" />
@@ -164,7 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleTreeReader.cpp" />
-    <ClCompile Include="TextFilter.cpp" />
     <ClCompile Include="TextTree.cpp" />
     <ClCompile Include="TextTreeVisitor.cpp" />
     <ClCompile Include="TreeFilter.cpp" />

@@ -5,6 +5,16 @@ namespace TreeReader
 {
    using namespace std;
 
+   bool ContainsTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   {
+      return node.TextPtr->find(Contained) != wstring::npos;
+   }
+
+   bool RegexTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   {
+      return regex_search(*node.TextPtr, Regex);
+   }
+
    bool NotTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
       return !Filter || !Filter->IsKept(node, index, level);
@@ -26,11 +36,6 @@ namespace TreeReader
       return true;
    }
 
-   bool TextTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
-   {
-      return !Filter || Filter->IsKept(*node.TextPtr);
-   }
-
    bool RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
       if (!Filter)
@@ -48,11 +53,6 @@ namespace TreeReader
 
       _removeUnderLevel = level;
       return kept;
-   }
-
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TextFilter>& filter)
-   {
-      FilterTree(sourceTree, filteredTree, make_shared<TextTreeFilter>(filter));
    }
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TreeFilter>& filter)
