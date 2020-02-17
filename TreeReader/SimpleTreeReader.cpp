@@ -17,19 +17,20 @@ namespace TreeReader
 
    static std::pair<size_t, size_t> GetIndent(const wstring& buffer, size_t count, const ReadSimpleTextTreeOptions& options)
    {
-      size_t indent = 0;
+      wsmatch match;
+      if (!regex_search(buffer, match, options.IndentRegex))
+         return make_pair(0, 0);
 
-      for (size_t i = 0; i < count; ++i)
-      {
-         switch (buffer[i])
-         {
-            case L' ':  indent++; break;
-            case L'\t': indent += options.TabSize; break;
-            default:    return make_pair(indent, i);
-         }
-      }
+      // Calculate the indent. One space per character, except tabs which count for TabSize
+      // characters. Since tabs were already counted for 1, we only add one less than TabSize
+      // for each.
+      wstring indentText = match[0].str();
+      size_t indent = indentText.length();
+      for (wchar_t c : indentText)
+         if (c == L'\t')
+            indent += options.TabSize - 1;
 
-      return make_pair(indent, count);
+      return make_pair(indent, match.length());
    }
 
    TextTree ReadSimpleTextTree(wistream& stream, const ReadSimpleTextTreeOptions& options)

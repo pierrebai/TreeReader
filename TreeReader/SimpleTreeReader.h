@@ -3,12 +3,14 @@
 #include "TextTree.h"
 
 #include <filesystem>
+#include <regex>
 
 namespace TreeReader
 {
    struct ReadSimpleTextTreeOptions
    {
       size_t TabSize = 8;
+      std::wregex IndentRegex = std::wregex(L"^[ \t]*");
    };
 
    TextTree ReadSimpleTextTree(const std::filesystem::path& path, const ReadSimpleTextTreeOptions& options = ReadSimpleTextTreeOptions());
