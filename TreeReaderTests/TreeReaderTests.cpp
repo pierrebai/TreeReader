@@ -174,7 +174,40 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-      TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
+		TEST_METHOD(PrintSimpleTreeWithUnder)
+		{
+			TextTree filtered;
+			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), Contains(L"s"), false));
+
+			wostringstream sstream;
+			sstream << filtered;
+
+			const wchar_t expectedOutput[] =
+				L"abc\n"
+				L"  def\n"
+				L"    jkl\n"
+				L"  ghi\n"
+				L"    stu\n";
+			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+		}
+
+		TEST_METHOD(PrintSimpleTreeWithUnderAndSelf)
+		{
+			TextTree filtered;
+			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), Contains(L"s"), true));
+
+			wostringstream sstream;
+			sstream << filtered;
+
+			const wchar_t expectedOutput[] =
+				L"abc\n"
+				L"  def\n"
+				L"    jkl\n"
+				L"  stu\n";
+			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+		}
+
+		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
       {
          TextTree filtered;
          FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g"), true));

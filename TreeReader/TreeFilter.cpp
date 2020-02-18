@@ -4,47 +4,60 @@
 namespace TreeReader
 {
    using namespace std;
+   using Result = TreeFilter::Result;
+   constexpr Result Keep{ false, false, true };
+   constexpr Result Drop{ false, false, false };
+   constexpr Result Stop{ true, false, false };
+   constexpr Result DropAndSkip{ false, true, false };
+   constexpr Result KeepAndSkip{ false, true, true };
 
-   bool AcceptTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result AcceptTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      return true;
+      return Keep;
    }
 
-   bool ContainsTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result ContainsTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      return node.TextPtr->find(Contained) != wstring::npos;
+      return (node.TextPtr->find(Contained) != wstring::npos) ? Keep : Drop;
    }
 
-   bool RegexTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result RegexTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      return regex_search(*node.TextPtr, Regex);
+      return regex_search(*node.TextPtr, Regex) ? Keep : Drop;
    }
 
-   bool NotTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result NotTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      return !Filter || !Filter->IsKept(node, index, level);
+      if (!Filter)
+         return Keep;
+
+      Result result = Filter->IsKept(node, index, level);
+      result.Keep = !result.Keep;
+      return result;
    }
 
-   bool OrTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result OrTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
+      Result result = Drop;
       for (const auto& filter : Filters)
-         if (filter && filter->IsKept(node, index, level))
-            return true;
-      return false;
+         if (filter)
+            result = result | filter->IsKept(node, index, level);
+      return result;
    }
 
-   bool AndTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result AndTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
+      Result result = Keep;
       for (const auto& filter : Filters)
-         if (filter && !filter->IsKept(node, index, level))
-            return false;
-      return true;
+         if (filter)
+            result = result & filter->IsKept(node, index, level);
+      return result;
    }
 
-   bool ApplyUnderTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result ApplyUnderTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
       if (!Filter || !Under)
-         return true;
+         return Keep;
 
       // If we have found a match previously for the under filter,
       // then apply the other filter while we're still in levels deeper
@@ -59,9 +72,9 @@ namespace TreeReader
 
       // If the node doesn't match the under filter, don't apply the other filter.
       // Just accept the node.
-      const bool kept = Under->IsKept(node, index, level);
-      if (!kept)
-         return true;
+      const Result kept = Under->IsKept(node, index, level);
+      if (!kept.Keep)
+         return Keep;
 
       // If we reach here, the under filter matched, so we will apply the other filter
       // to nodes under this one.
@@ -78,9 +91,26 @@ namespace TreeReader
 
    }
 
-   bool LevelRangeTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      return level >= MinLevel && level <= MaxLevel;
+      if (!Filter)
+         return Keep;
+
+      if (!Filter->IsKept(node, index, level).Keep)
+         return Keep;
+
+      return RemoveSelf ? DropAndSkip : KeepAndSkip;
+   }
+
+   Result LevelRangeTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   {
+      if (level < MinLevel)
+         return Drop;
+
+      if (level <= MaxLevel)
+         return Keep;
+
+      return DropAndSkip;
    }
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TreeFilter>& filter)
@@ -117,7 +147,8 @@ namespace TreeReader
          // Either the index of the newly created filtered node if kept, or -1 if not kept.
          size_t filteredIndex = -1;
 
-         if (filter->IsKept(sourceNode, sourceIndex, sourceLevel))
+         const Result result = filter->IsKept(sourceNode, sourceIndex, sourceLevel);
+         if (result.Keep)
          {
             // Connect to the nearest node in the branch.
             for (size_t level = sourceLevel; level < filteredBranchIndexes.size(); --level)
@@ -150,7 +181,7 @@ namespace TreeReader
          fillChildren.resize(sourceLevel + 1, false);
          fillChildren[sourceLevel] = (filteredIndex != -1);
 
-         return true;
+         return result;
       });
    }
 }

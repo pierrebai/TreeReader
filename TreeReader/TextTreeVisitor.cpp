@@ -3,6 +3,7 @@
 namespace TreeReader
 {
    using namespace std;
+   using Result = TreeVisitor::Result;
 
    void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor)
    {
@@ -18,15 +19,16 @@ namespace TreeReader
          {
             const TextTree::Node& node = tree.Nodes[index];
 
-            if (!visitor.Visit(node, index, level))
+            const Result result = visitor.Visit(node, index, level);
+            if (result.Stop)
                break;
 
-            if (node.FirstChildIndex != -1)
+            if (!result.SkipChildren && node.FirstChildIndex != -1)
             {
                goBack.push_back(node.NextSiblingIndex);
                index = node.FirstChildIndex;
                level++;
-               if (!visitor.GoDeeper(level))
+               if (visitor.GoDeeper(level).Stop)
                   break;
             }
             else
@@ -43,7 +45,7 @@ namespace TreeReader
             index = goBack.back();
             goBack.pop_back();
             level--;
-            if (!visitor.GoHigher(level))
+            if (visitor.GoHigher(level).Stop)
                break;
          }
       }

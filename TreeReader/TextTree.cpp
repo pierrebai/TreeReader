@@ -78,7 +78,7 @@ namespace TreeReader
 
          stream << *node.TextPtr << L"\n";
 
-         return true;
+         return TreeVisitor::Result();
       });
 
       return stream;

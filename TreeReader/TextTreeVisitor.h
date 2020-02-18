@@ -8,12 +8,18 @@ namespace TreeReader
 {
    struct TreeVisitor
    {
-      virtual bool GoDeeper(size_t deeperLevel) = 0;
-      virtual bool GoHigher(size_t higherLevel) = 0;
-      virtual bool Visit(const TextTree::Node& node, size_t index, size_t level) = 0;
+      struct Result
+      {
+         bool Stop = false;
+         bool SkipChildren = false;
+      };
+
+      virtual Result GoDeeper(size_t deeperLevel) = 0;
+      virtual Result GoHigher(size_t higherLevel) = 0;
+      virtual Result Visit(const TextTree::Node& node, size_t index, size_t level) = 0;
    };
 
-   typedef std::function<bool(const TextTree::Node & node, size_t index, size_t level)> NodeVisitFunction;
+   typedef std::function<TreeVisitor::Result(const TextTree::Node & node, size_t index, size_t level)> NodeVisitFunction;
 
    struct SimpleTreeVisitor : TreeVisitor
    {
@@ -21,9 +27,9 @@ namespace TreeReader
 
       SimpleTreeVisitor(NodeVisitFunction f) : Func(f) {}
 
-      bool GoDeeper(size_t deeperLevel) override { return true; }
-      bool GoHigher(size_t higherLevel) override { return true; }
-      bool Visit(const TextTree::Node& node, size_t index, size_t level) override
+      Result GoDeeper(size_t deeperLevel) override { return Result(); }
+      Result GoHigher(size_t higherLevel) override { return Result(); }
+      Result Visit(const TextTree::Node& node, size_t index, size_t level) override
       {
          return Func(node, index, level);
       }
