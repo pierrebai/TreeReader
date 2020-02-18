@@ -230,7 +230,7 @@ namespace TreeReader
       {
          bool includeSelf;
          wchar_t comma;
-         sstream >> skipws >> includeSelf >> skipws >> comma;
+         sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
 
          auto under = ConvertTextToFilter(sstream);
 
@@ -247,7 +247,7 @@ namespace TreeReader
       {
          bool removeSelf;
          wchar_t comma;
-         sstream >> skipws >> removeSelf >> skipws >> comma;
+         sstream >> skipws >> boolalpha >> removeSelf >> skipws >> comma;
 
          auto filter = ConvertTextToFilter(sstream);
 
