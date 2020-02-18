@@ -329,6 +329,19 @@ namespace TreeReaderTests
          Assert::AreEqual(L"\"abc\"", rebuilt->Contained.c_str());
       }
 
+      TEST_METHOD(ConvertToTextRegexFilter)
+      {
+         auto accept = Regex(L"[abc]*");
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: regex [ \"[abc]*\" ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<RegexTreeFilter>(ConvertTextToFilters(text));
+         Assert::IsTrue(rebuilt != nullptr);
+         Assert::AreEqual(L"[abc]*", rebuilt->RegexTextForm.c_str());
+      }
+
       TEST_METHOD(ConvertToTextNotAcceptFilter)
       {
          auto accept = Not(All());

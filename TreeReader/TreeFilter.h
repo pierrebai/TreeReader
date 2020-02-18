@@ -51,9 +51,10 @@ namespace TreeReader
 
    struct RegexTreeFilter : TreeFilter
    {
+      std::wstring RegexTextForm;
       std::wregex Regex;
 
-      RegexTreeFilter(const std::wregex& reg) : Regex(reg) { }
+      RegexTreeFilter(const std::wstring& reg) : RegexTextForm(reg), Regex(std::wregex(reg)) { }
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
    };
@@ -132,8 +133,8 @@ namespace TreeReader
 
    inline std::shared_ptr<AcceptTreeFilter> All() { return std::make_shared<AcceptTreeFilter>(); }
    inline std::shared_ptr<ContainsTreeFilter> Contains(const Text& text) { return std::make_shared<ContainsTreeFilter>(text); }
-   inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(std::wregex(reg)); }
-   inline std::shared_ptr<RegexTreeFilter> Regex(const std::wregex& reg) { return std::make_shared<RegexTreeFilter>(reg); }
+   inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(reg ? reg : L""); }
+   inline std::shared_ptr<RegexTreeFilter> Regex(const std::wstring& reg) { return std::make_shared<RegexTreeFilter>(reg); }
    inline std::shared_ptr<NotTreeFilter> Not(const TreeFilterPtr& filter) { return std::make_shared<NotTreeFilter>(filter); }
    inline std::shared_ptr<OrTreeFilter> Or(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<OrTreeFilter>(lhs, rhs); }
    inline std::shared_ptr<AndTreeFilter> And(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<AndTreeFilter>(lhs, rhs); }

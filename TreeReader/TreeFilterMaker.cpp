@@ -28,8 +28,7 @@ namespace TreeReader
       wstring ConvertFilterToText(const RegexTreeFilter& filter)
       {
          wostringstream sstream;
-         // sstream << L"regex [ " << quoted(filter.Regex) << L" ]"; // TODO: keep original non-regex form.
-         sstream << L"regex [" << L"]";
+         sstream << L"regex [ " << quoted(filter.RegexTextForm) << L" ]";
          return sstream.str();
       }
 
@@ -142,7 +141,6 @@ namespace TreeReader
          // Eat the closing ']'.
          wchar_t brace;
          sstream >> skipws >> brace;
-         // TODO: assert that it is a ']'
       }
 
       template <>
@@ -166,8 +164,8 @@ namespace TreeReader
       template <>
       TreeFilterPtr ConvertTextToFilter<RegexTreeFilter>(wistringstream& sstream)
       {
-         wregex regex;
-         //sstream >> skipws >> quoted(regex);
+         wstring regex;
+         sstream >> skipws >> quoted(regex);
 
          EatClosingBrace(sstream);
 
