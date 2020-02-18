@@ -42,7 +42,7 @@ namespace TreeReader
 
    struct ContainsTreeFilter : TreeFilter
    {
-      const Text Contained;
+      Text Contained;
 
       ContainsTreeFilter(const Text& text) : Contained(text) { }
 
@@ -51,7 +51,7 @@ namespace TreeReader
 
    struct RegexTreeFilter : TreeFilter
    {
-      const std::wregex Regex;
+      std::wregex Regex;
 
       RegexTreeFilter(const std::wregex& reg) : Regex(reg) { }
 
@@ -65,6 +65,7 @@ namespace TreeReader
       CombineTreeFilter() = default;
 
       CombineTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { Filters.push_back(lhs); Filters.push_back(rhs); }
+      CombineTreeFilter(const std::vector<TreeFilterPtr>& filters) : Filters(filters) {}
    };
 
    struct NotTreeFilter : TreeFilter
@@ -80,6 +81,7 @@ namespace TreeReader
    {
       OrTreeFilter() = default;
       OrTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
+      OrTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
    };
@@ -88,6 +90,7 @@ namespace TreeReader
    {
       AndTreeFilter() = default;
       AndTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
+      AndTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
    };

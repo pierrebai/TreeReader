@@ -159,6 +159,7 @@
     <ClInclude Include="TextTree.h" />
     <ClInclude Include="TextTreeVisitor.h" />
     <ClInclude Include="TreeFilter.h" />
+    <ClInclude Include="TreeFilterMaker.h" />
     <ClInclude Include="TreeReader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,7 @@
     <ClCompile Include="TextTree.cpp" />
     <ClCompile Include="TextTreeVisitor.cpp" />
     <ClCompile Include="TreeFilter.cpp" />
+    <ClCompile Include="TreeFilterMaker.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

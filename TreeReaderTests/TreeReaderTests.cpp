@@ -304,7 +304,79 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-	private:
+      TEST_METHOD(ConvertToTextAcceptFilter)
+      {
+         auto accept = All();
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: accept [ ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextContainsFilter)
+      {
+         auto accept = Contains(L"\"abc\"");
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: contains [ \"\\\"abc\\\"\" ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextNotAcceptFilter)
+      {
+         auto accept = Not(All());
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: not [ accept [ ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextOrFilter)
+      {
+         auto accept = Or(Contains(L"a"), Contains(L"b"));
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: or [ contains [ \"a\" ], contains [ \"b\" ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextAndFilter)
+      {
+         auto accept = And(Contains(L"a"), All());
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: and [ contains [ \"a\" ], accept [ ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextUnderFilter)
+      {
+         auto accept = Under(Contains(L"a"), All(), true);
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: under [ true, contains [ \"a\" ], accept [ ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextRemoveChildrenFilter)
+      {
+         auto accept = NoChild(Contains(L"abc"));
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: no-child [ false, contains [ \"abc\" ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextRangeFilter)
+      {
+         auto accept = LevelRange(7, 9);
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: range [ 7, 9 ]", text.c_str());
+      }
+
+   private:
 
 		shared_ptr<TextLines> CreateTextLines()
 		{
