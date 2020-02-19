@@ -54,41 +54,41 @@ namespace TreeReader
       return result;
    }
 
-   Result ApplyUnderTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
+   Result UnderTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)
    {
-      if (!Filter || !Under)
+      if (!Filter)
          return Keep;
 
       // If we have found a match previously for the under filter,
-      // then apply the other filter while we're still in levels deeper
+      // then keep the nodes while we're still in levels deeper
       // than where we found the match.
-      if (level > _applyOtherFilterUnderLevel)
-         return Filter->IsKept(node, index, level);
+      if (level > _keepAllNodesUnderLevel)
+         return Keep;
 
       // If we've reach back up to the level where we found the match previously,
-      // then stop applying the olther filter.
-      if (level <= _applyOtherFilterUnderLevel)
-         _applyOtherFilterUnderLevel = -1;
+      // then stop keeping nodes. We do this by making the apply under level very large.
+      if (level <= _keepAllNodesUnderLevel)
+         _keepAllNodesUnderLevel = -1;
 
       // If the node doesn't match the under filter, don't apply the other filter.
       // Just accept the node.
-      const Result kept = Under->IsKept(node, index, level);
-      if (!kept.Keep)
-         return Keep;
+      Result result = Filter->IsKept(node, index, level);
+      if (!result.Keep)
+         return result;
 
-      // If we reach here, the under filter matched, so we will apply the other filter
-      // to nodes under this one.
+      // If we reach here, the under filter matched, so we will start accepting
+      // the nodes under this one.
       //
-      // Record the level at which we must come back up to to stop applying the other filter.
-      _applyOtherFilterUnderLevel = level;
+      // Record the level at which we must come back up to to stop accepting nodes
+      // without checking the filter.
+      _keepAllNodesUnderLevel = level;
 
-      // If the other filter must be applied to the node matching the under filter,
+      // If the filter must not keep the matching node, then set Keep to false here.
       // apply it here.
-      if (IncludeSelf)
-         return Filter->IsKept(node, index, level);
+      if (!IncludeSelf)
+         result.Keep = false;
 
-      return kept;
-
+      return result;
    }
 
    Result RemoveChildrenTreeFilter::IsKept(const TextTree::Node& node, size_t index, size_t level)

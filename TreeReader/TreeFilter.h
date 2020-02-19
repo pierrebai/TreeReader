@@ -96,19 +96,18 @@ namespace TreeReader
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
    };
 
-   struct ApplyUnderTreeFilter : TreeFilter
+   struct UnderTreeFilter : TreeFilter
    {
-      TreeFilterPtr Under;
       TreeFilterPtr Filter;
       bool IncludeSelf = false;
 
-      ApplyUnderTreeFilter(const TreeFilterPtr& under, const TreeFilterPtr& filter, bool includeSelf = false)
-         : Under(under), Filter(filter), IncludeSelf(includeSelf) {}
+      UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
+         : Filter(filter), IncludeSelf(includeSelf) {}
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
 
       private:
-      size_t _applyOtherFilterUnderLevel = -1;
+         size_t _keepAllNodesUnderLevel = -1;
    };
 
    struct RemoveChildrenTreeFilter : TreeFilter
@@ -138,7 +137,7 @@ namespace TreeReader
    inline std::shared_ptr<NotTreeFilter> Not(const TreeFilterPtr& filter) { return std::make_shared<NotTreeFilter>(filter); }
    inline std::shared_ptr<OrTreeFilter> Or(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<OrTreeFilter>(lhs, rhs); }
    inline std::shared_ptr<AndTreeFilter> And(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<AndTreeFilter>(lhs, rhs); }
-   inline std::shared_ptr<ApplyUnderTreeFilter> Under(const TreeFilterPtr& under, const TreeFilterPtr& filter, bool includeSelf = false) { return std::make_shared<ApplyUnderTreeFilter>(under, filter, includeSelf); }
+   inline std::shared_ptr<UnderTreeFilter> Under(const TreeFilterPtr& filter, bool includeSelf = true) { return std::make_shared<UnderTreeFilter>(filter, includeSelf); }
    inline std::shared_ptr<RemoveChildrenTreeFilter> NoChild(const TreeFilterPtr& filter, bool removeSelf = false) { return std::make_shared<RemoveChildrenTreeFilter>(filter, removeSelf); }
    inline std::shared_ptr<LevelRangeTreeFilter> LevelRange(size_t min, size_t max) { return std::make_shared<LevelRangeTreeFilter>(min, max); }
    inline std::shared_ptr<LevelRangeTreeFilter> MinLevel(size_t level) { return LevelRange(level, -1); }

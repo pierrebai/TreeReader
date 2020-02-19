@@ -177,34 +177,31 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithUnder)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), Contains(L"s"), false));
+			FilterTree(CreateSimpleTree(), filtered, And(Under(Contains(L"g"), false), Contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
-				L"abc\n"
-				L"  def\n"
-				L"    jkl\n"
-				L"  ghi\n"
-				L"    stu\n";
+				L"stu\n";
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
 		TEST_METHOD(PrintSimpleTreeWithUnderAndSelf)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), Contains(L"s"), true));
+			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), true));
 
 			wostringstream sstream;
 			sstream << filtered;
 
 			const wchar_t expectedOutput[] =
-				L"abc\n"
-				L"  def\n"
-				L"    jkl\n"
-				L"  stu\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+            L"ghi\n"
+            L"  mno\n"
+            L"    pqr\n"
+            L"    stu\n"
+            L"      vwx\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
 		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
@@ -400,23 +397,20 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextUnderFilter)
       {
-         auto accept = Under(Contains(L"a"), All(), true);
+         auto accept = Under(Contains(L"a"), true);
 
          const wstring text = ConvertFiltersToText(accept);
 
-         Assert::AreEqual(L"V1: under [ true, contains [ \"a\" ], accept [ ] ]", text.c_str());
+         Assert::AreEqual(L"V1: under [ true, contains [ \"a\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<ApplyUnderTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<UnderTreeFilter>(ConvertTextToFilters(text));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::IsTrue(rebuilt->IncludeSelf);
 
-         auto under = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Under);
+         auto under = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
          Assert::IsTrue(under != nullptr);
          Assert::AreEqual(L"a", under->Contained.c_str());
-
-         auto subFilter = dynamic_pointer_cast<AcceptTreeFilter>(rebuilt->Filter);
-         Assert::IsTrue(subFilter != nullptr);
       }
 
       TEST_METHOD(ConvertToTextRemoveChildrenFilter)

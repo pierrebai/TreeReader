@@ -76,10 +76,10 @@ namespace TreeReader
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const ApplyUnderTreeFilter& filter)
+      wstring ConvertFilterToText(const UnderTreeFilter& filter)
       {
          wostringstream sstream;
-         sstream << L"under [ " << boolalpha << filter.IncludeSelf << L", " << ConvertFilterToText(filter.Under) << L", " << ConvertFilterToText(filter.Filter) << L" ]";
+         sstream << L"under [ " << boolalpha << filter.IncludeSelf << L", " << ConvertFilterToText(filter.Filter) << L" ]";
          return sstream.str();
       }
 
@@ -107,7 +107,7 @@ namespace TreeReader
          CALL_CONVERTER(NotTreeFilter)
          CALL_CONVERTER(OrTreeFilter)
          CALL_CONVERTER(AndTreeFilter)
-         CALL_CONVERTER(ApplyUnderTreeFilter)
+         CALL_CONVERTER(UnderTreeFilter)
          CALL_CONVERTER(RemoveChildrenTreeFilter)
          CALL_CONVERTER(LevelRangeTreeFilter)
 
@@ -224,20 +224,17 @@ namespace TreeReader
       }
 
       template <>
-      TreeFilterPtr ConvertTextToFilter<ApplyUnderTreeFilter>(wistringstream& sstream)
+      TreeFilterPtr ConvertTextToFilter<UnderTreeFilter>(wistringstream& sstream)
       {
          bool includeSelf;
          wchar_t comma;
          sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
 
-         auto under = ConvertTextToFilter(sstream);
-
-         sstream >> skipws >> comma;
          auto filter = ConvertTextToFilter(sstream);
 
          EatClosingBrace(sstream);
 
-         return make_shared<ApplyUnderTreeFilter>(under, filter, includeSelf);
+         return make_shared<UnderTreeFilter>(filter, includeSelf);
       }
 
       template <>
@@ -280,7 +277,7 @@ namespace TreeReader
          CALL_CONVERTER(L"not", NotTreeFilter)
          CALL_CONVERTER(L"or", OrTreeFilter)
          CALL_CONVERTER(L"and", AndTreeFilter)
-         CALL_CONVERTER(L"under", ApplyUnderTreeFilter)
+         CALL_CONVERTER(L"under", UnderTreeFilter)
          CALL_CONVERTER(L"no-child", RemoveChildrenTreeFilter)
          CALL_CONVERTER(L"range", LevelRangeTreeFilter)
 
