@@ -121,6 +121,7 @@ namespace TreeReader
          return;
       }
 
+      filteredTree.Nodes.clear();
       filteredTree.SourceTextLines = sourceTree.SourceTextLines;
       filteredTree.Nodes.reserve(sourceTree.Nodes.size());
 
