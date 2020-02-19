@@ -44,6 +44,7 @@ namespace TreeReader
    {
       Text Contained;
 
+      ContainsTreeFilter() = default;
       ContainsTreeFilter(const Text& text) : Contained(text) { }
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
@@ -54,6 +55,7 @@ namespace TreeReader
       std::wstring RegexTextForm;
       std::wregex Regex;
 
+      RegexTreeFilter() = default;
       RegexTreeFilter(const std::wstring& reg) : RegexTextForm(reg), Regex(std::wregex(reg)) { }
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
@@ -73,6 +75,7 @@ namespace TreeReader
    {
       TreeFilterPtr Filter;
 
+      NotTreeFilter() = default;
       NotTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
@@ -99,8 +102,9 @@ namespace TreeReader
    struct UnderTreeFilter : TreeFilter
    {
       TreeFilterPtr Filter;
-      bool IncludeSelf = false;
+      bool IncludeSelf = true;
 
+      UnderTreeFilter() = default;
       UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
          : Filter(filter), IncludeSelf(includeSelf) {}
 
@@ -115,6 +119,7 @@ namespace TreeReader
       TreeFilterPtr Filter;
       bool RemoveSelf = false;
 
+      RemoveChildrenTreeFilter() = default;
       RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf) : Filter(filter), RemoveSelf(removeSelf) { }
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
@@ -125,6 +130,7 @@ namespace TreeReader
       size_t MinLevel;
       size_t MaxLevel;
 
+      LevelRangeTreeFilter() = default;
       LevelRangeTreeFilter(size_t minLevel, size_t maxLevel) : MinLevel(minLevel), MaxLevel(maxLevel) {}
 
       Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;

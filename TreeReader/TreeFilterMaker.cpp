@@ -39,7 +39,7 @@ namespace TreeReader
          return sstream.str();
       }
 
-      wstring ConvertFiltersToText(std::vector<TreeFilterPtr> filters)
+      wstring ConvertFiltersToText(vector<TreeFilterPtr> filters)
       {
          wostringstream sstream;
 
@@ -134,7 +134,7 @@ namespace TreeReader
       template <class T>
       TreeFilterPtr ConvertTextToFilter(wistringstream& sstream);
 
-      TreeFilterPtr ConvertTextToFilter(wistringstream& sstream);
+      TreeFilterPtr ConvertTextToFilters(wistringstream& sstream);
 
       void EatClosingBrace(wistringstream& sstream)
       {
@@ -175,16 +175,16 @@ namespace TreeReader
       template <>
       TreeFilterPtr ConvertTextToFilter<NotTreeFilter>(wistringstream& sstream)
       {
-         auto filter = ConvertTextToFilter(sstream);
+         auto filter = ConvertTextToFilters(sstream);
 
          EatClosingBrace(sstream);
 
          return make_shared<NotTreeFilter>(filter);
       }
 
-      std::vector<TreeFilterPtr> ConvertTextToMultiFilters(wistringstream& sstream)
+      vector<TreeFilterPtr> ConvertTextToMultiFilters(wistringstream& sstream)
       {
-         std::vector<TreeFilterPtr> filters;
+         vector<TreeFilterPtr> filters;
 
          while (true)
          {
@@ -195,7 +195,7 @@ namespace TreeReader
             if (comma == L']')
                break;
 
-            auto filter = ConvertTextToFilter(sstream);
+            auto filter = ConvertTextToFilters(sstream);
             if (filter)
                filters.push_back(filter);
          }
@@ -230,7 +230,7 @@ namespace TreeReader
          wchar_t comma;
          sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
 
-         auto filter = ConvertTextToFilter(sstream);
+         auto filter = ConvertTextToFilters(sstream);
 
          EatClosingBrace(sstream);
 
@@ -244,7 +244,7 @@ namespace TreeReader
          wchar_t comma;
          sstream >> skipws >> boolalpha >> removeSelf >> skipws >> comma;
 
-         auto filter = ConvertTextToFilter(sstream);
+         auto filter = ConvertTextToFilters(sstream);
 
          EatClosingBrace(sstream);
 
@@ -263,7 +263,7 @@ namespace TreeReader
          return make_shared<LevelRangeTreeFilter>(minLevel, maxLevel);
       }
 
-      TreeFilterPtr ConvertTextToFilter(wistringstream& sstream)
+      TreeFilterPtr ConvertTextToFilters(wistringstream& sstream)
       {
          #define CALL_CONVERTER(a,b) if (name == a) { return ConvertTextToFilter<b>(sstream); } else
 
@@ -297,9 +297,149 @@ namespace TreeReader
       if (text.starts_with(L"V1: "))
       {
          wistringstream sstream(text.substr(4));
-         return V1::ConvertTextToFilter(sstream);
+         return V1::ConvertTextToFilters(sstream);
       }
 
       return {};
+   }
+
+   namespace S1
+   {
+      static vector<wstring> split(const wstring& s, wchar_t delim = L' ')
+      {
+         vector<wstring> result;
+         wistringstream iss(s);
+         wstring item;
+         while (getline(iss, item, delim))
+            result.emplace_back(item);
+         return result;
+      }
+
+      static wstring join(const vector<wstring>& parts, wchar_t delim = L' ')
+      {
+         wstring result;
+
+         auto pos = parts.begin();
+         const auto end = parts.end();
+         if (pos != end)
+         {
+            result += *pos++;
+         }
+
+         while (pos != end)
+         {
+            result += delim;
+            result += *pos++;
+         }
+
+         return result;
+      }
+
+      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts)
+      {
+         auto topAnd = make_shared<AndTreeFilter>();
+         TreeFilterPtr* neededFilter = nullptr;
+         vector<TreeFilterPtr>* neededFilters = nullptr;
+         bool needMultiFilters = false;
+
+         auto AddFilter = [&](const TreeFilterPtr& filter)
+         {
+            if (neededFilter)
+            {
+               *neededFilter = filter;
+               neededFilter = nullptr;
+            }
+            else if (neededFilters)
+            {
+               neededFilters->push_back(filter);
+               if (!needMultiFilters)
+                  neededFilters = nullptr;
+            }
+            else
+            {
+               topAnd->Filters.push_back(filter);
+            }
+         };
+
+         while (parts.size() > 0)
+         {
+            const wstring part = move(parts.back());
+            parts.pop_back();
+
+            if (part == L"!")
+            {
+               auto filter = make_shared<NotTreeFilter>();
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
+            }
+            else if (part == L"|")
+            {
+               auto filter = make_shared<OrTreeFilter>();
+               AddFilter(filter);
+               neededFilters = &filter->Filters;
+            }
+            else if (part == L"&")
+            {
+               auto filter = make_shared<AndTreeFilter>();
+               AddFilter(filter);
+               neededFilters = &filter->Filters;
+            }
+            else if (part == L"(")
+            {
+               if (neededFilters)
+                  needMultiFilters = true;
+               else
+                  AddFilter(ConvertTextToFilters(parts));
+            }
+            else if (part == L")")
+            {
+               if (needMultiFilters)
+               {
+                  needMultiFilters = false;
+                  neededFilters = nullptr;
+                  neededFilter = nullptr;
+               }
+               else
+               {
+                  // Assume we were recursed into.
+                  return topAnd;
+               }
+            }
+            else if (part.starts_with(L"\""))
+            {
+               if (part.ends_with(L"\""))
+               {
+                  wstring text = part.substr(1, part.size() - 2);
+                  auto filter = Contains(text);
+                  AddFilter(filter);
+               }
+            }
+            else if (part == L">")
+            {
+               auto filter = make_shared<UnderTreeFilter>();
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
+            }
+            else
+            {
+               auto filter = Contains(part);
+               AddFilter(filter);
+            }
+         }
+
+         return topAnd;
+      }
+
+      TreeFilterPtr ConvertTextToFilters(const wstring& text)
+      {
+         vector<wstring> parts = split(text);
+         reverse(parts.begin(), parts.end());
+         return ConvertTextToFilters(parts);
+      }
+   }
+
+   TreeFilterPtr ConvertSimpleTextToFilters(const wstring& text)
+   {
+      return S1::ConvertTextToFilters(text);
    }
 }
