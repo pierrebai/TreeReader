@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeReader", "TreeReader\Tr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeReaderTests", "TreeReaderTests\TreeReaderTests.vcxproj", "{98D8B84F-A84B-45EA-95B3-B8D0DA31FDC8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeFilter", "TreeFilter\TreeFilter.vcxproj", "{E7976236-7551-4FCA-92E9-417B9D1441A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{98D8B84F-A84B-45EA-95B3-B8D0DA31FDC8}.Release|x64.Build.0 = Release|x64
 		{98D8B84F-A84B-45EA-95B3-B8D0DA31FDC8}.Release|x86.ActiveCfg = Release|Win32
 		{98D8B84F-A84B-45EA-95B3-B8D0DA31FDC8}.Release|x86.Build.0 = Release|Win32
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Debug|x64.ActiveCfg = Debug|x64
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Debug|x64.Build.0 = Debug|x64
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Debug|x86.ActiveCfg = Debug|Win32
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Debug|x86.Build.0 = Debug|Win32
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Release|x64.ActiveCfg = Release|x64
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Release|x64.Build.0 = Release|x64
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Release|x86.ActiveCfg = Release|Win32
+		{E7976236-7551-4FCA-92E9-417B9D1441A5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
