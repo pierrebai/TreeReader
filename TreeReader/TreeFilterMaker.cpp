@@ -9,37 +9,37 @@ namespace TreeReader
 
    namespace V1
    {
-      wstring ConvertFilterToText(const TreeFilterPtr& filter);
+      wstring ConvertFilterToText(const TreeFilterPtr& filter, size_t indent);
 
-      wstring ConvertFilterToText(const AcceptTreeFilter& filter)
+      wstring ConvertFilterToText(const AcceptTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"accept [ ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const ContainsTreeFilter& filter)
+      wstring ConvertFilterToText(const ContainsTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"contains [ " << quoted(filter.Contained) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const RegexTreeFilter& filter)
+      wstring ConvertFilterToText(const RegexTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"regex [ " << quoted(filter.RegexTextForm) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const NotTreeFilter& filter)
+      wstring ConvertFilterToText(const NotTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"not [ " << ConvertFilterToText(filter.Filter) << L" ]";
+         sstream << L"not [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFiltersToText(vector<TreeFilterPtr> filters)
+      wstring ConvertFiltersToText(vector<TreeFilterPtr> filters, size_t indent)
       {
          wostringstream sstream;
 
@@ -48,58 +48,59 @@ namespace TreeReader
 
          if (begin != end)
          {
-            sstream << ConvertFilterToText(*begin);
+            sstream << ConvertFilterToText(*begin, indent);
             ++begin;
          }
 
          while (begin != end)
          {
             sstream << L", ";
-            sstream << ConvertFilterToText(*begin);
+            sstream << ConvertFilterToText(*begin, indent);
             ++begin;
          }
 
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const OrTreeFilter& filter)
+      wstring ConvertFilterToText(const OrTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"or [ " << ConvertFiltersToText(filter.Filters) << L" ]";
+         sstream << L"or [ " << ConvertFiltersToText(filter.Filters, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const AndTreeFilter& filter)
+      wstring ConvertFilterToText(const AndTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"and [ " << ConvertFiltersToText(filter.Filters) << L" ]";
+         sstream << L"and [ " << ConvertFiltersToText(filter.Filters, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const UnderTreeFilter& filter)
+      wstring ConvertFilterToText(const UnderTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"under [ " << boolalpha << filter.IncludeSelf << L", " << ConvertFilterToText(filter.Filter) << L" ]";
+         sstream << L"under [ " << boolalpha << filter.IncludeSelf << L", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const RemoveChildrenTreeFilter& filter)
+      wstring ConvertFilterToText(const RemoveChildrenTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"no-child [ " << boolalpha << filter.RemoveSelf << L", " << ConvertFilterToText(filter.Filter) << L" ]";
+         sstream << L"no-child [ " << boolalpha << filter.RemoveSelf << L", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const LevelRangeTreeFilter& filter)
+      wstring ConvertFilterToText(const LevelRangeTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"range [ " << filter.MinLevel << L", " << filter.MaxLevel << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const TreeFilter& filter)
+      wstring ConvertFilterToText(const TreeFilter& filter, size_t indent)
       {
-         #define CALL_CONVERTER(a) if (const a* ptr = dynamic_cast<const a *>(&filter)) { return ConvertFilterToText(*ptr); }
+         wstring indentText = wstring(L"\n") + wstring(indent, L' ');
+         #define CALL_CONVERTER(a) if (const a* ptr = dynamic_cast<const a *>(&filter)) { return indentText + ConvertFilterToText(*ptr, indent); }
 
          CALL_CONVERTER(AcceptTreeFilter)
          CALL_CONVERTER(ContainsTreeFilter)
@@ -116,18 +117,18 @@ namespace TreeReader
          return {};
       }
 
-      wstring ConvertFilterToText(const TreeFilterPtr& filter)
+      wstring ConvertFilterToText(const TreeFilterPtr& filter, size_t indent)
       {
          if (!filter)
             return {};
 
-         return ConvertFilterToText(*filter);
+         return ConvertFilterToText(*filter, indent);
       }
 
       wstring ConvertFiltersToText(const TreeFilterPtr& filter)
       {
          wostringstream sstream;
-         sstream << L"V1: " << ConvertFilterToText(filter);
+         sstream << L"V1: " << ConvertFilterToText(filter, 0);
          return sstream.str();
       }
 
@@ -335,12 +336,10 @@ namespace TreeReader
          return result;
       }
 
-      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts)
+      void ConvertTextToFilters(vector<wstring>& parts, vector<TreeFilterPtr>& toFill)
       {
-         auto topAnd = make_shared<AndTreeFilter>();
          TreeFilterPtr* neededFilter = nullptr;
          vector<TreeFilterPtr>* neededFilters = nullptr;
-         bool needMultiFilters = false;
 
          auto AddFilter = [&](const TreeFilterPtr& filter)
          {
@@ -348,16 +347,17 @@ namespace TreeReader
             {
                *neededFilter = filter;
                neededFilter = nullptr;
+               neededFilters = nullptr;
             }
             else if (neededFilters)
             {
                neededFilters->push_back(filter);
-               if (!needMultiFilters)
-                  neededFilters = nullptr;
+               neededFilter = nullptr;
+               neededFilters = nullptr;
             }
             else
             {
-               topAnd->Filters.push_back(filter);
+               toFill.push_back(filter);
             }
          };
 
@@ -386,24 +386,19 @@ namespace TreeReader
             }
             else if (part == L"(")
             {
-               if (neededFilters)
-                  needMultiFilters = true;
-               else
-                  AddFilter(ConvertTextToFilters(parts));
+               if (!neededFilters)
+               {
+                  auto filter = make_shared<AndTreeFilter>();
+                  AddFilter(filter);
+                  neededFilters = &filter->Filters;
+               }
+               ConvertTextToFilters(parts, *neededFilters);
+               neededFilters = nullptr;
             }
             else if (part == L")")
             {
-               if (needMultiFilters)
-               {
-                  needMultiFilters = false;
-                  neededFilters = nullptr;
-                  neededFilter = nullptr;
-               }
-               else
-               {
-                  // Assume we were recursed into.
-                  return topAnd;
-               }
+               // Assume we were recursed into.
+               return;
             }
             else if (part.starts_with(L"\""))
             {
@@ -426,15 +421,15 @@ namespace TreeReader
                AddFilter(filter);
             }
          }
-
-         return topAnd;
       }
 
       TreeFilterPtr ConvertTextToFilters(const wstring& text)
       {
          vector<wstring> parts = split(text);
          reverse(parts.begin(), parts.end());
-         return ConvertTextToFilters(parts);
+         auto topAnd = make_shared<AndTreeFilter>();
+         ConvertTextToFilters(parts, topAnd->Filters);
+         return topAnd;
       }
    }
 

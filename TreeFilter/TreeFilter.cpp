@@ -5,9 +5,18 @@
 using namespace std;
 using namespace TreeReader;
 
-static TreeFilterPtr CreateFilter(const wstring& filterText, bool useV1)
+struct Options
 {
-   TreeFilterPtr filter = useV1 ? ConvertTextToFilters(filterText) : ConvertSimpleTextToFilters(filterText);
+   bool UseV1 = false;
+   bool IsInteractive = false;
+   bool Debug = false;
+};
+
+static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
+{
+   TreeFilterPtr filter = opt.UseV1 ? ConvertTextToFilters(filterText) : ConvertSimpleTextToFilters(filterText);
+   if (opt.Debug)
+      wcout << L"Filters: " << ConvertFiltersToText(filter) << endl;
    if (filter)
       return filter;
 
@@ -17,9 +26,8 @@ static TreeFilterPtr CreateFilter(const wstring& filterText, bool useV1)
 
 int wmain(int argc, wchar_t** argv)
 {
+   Options options;
    wstring file;
-   bool useV1 = false;
-   bool isInteractive = false;
    wstring filterText;
 
    for (int i = 1; i < argc; ++i)
@@ -27,11 +35,15 @@ int wmain(int argc, wchar_t** argv)
       const wstring arg = argv[i];
       if (arg == L"-v1" || arg == L"--v1")
       {
-         useV1 = true;
+         options.UseV1 = true;
       }
       else if (arg == L"-i" || arg == L"--interactive")
       {
-         isInteractive = true;
+         options.IsInteractive = true;
+      }
+      else if (arg == L"-d" || arg == L"--debug")
+      {
+         options.Debug = true;
       }
       else if (file.empty())
       {
@@ -45,7 +57,7 @@ int wmain(int argc, wchar_t** argv)
       }
    }
 
-   if (file.empty() || (!isInteractive && filterText.empty()))
+   if (file.empty() || (!options.IsInteractive && filterText.empty()))
    {
       wcerr << L"Usage: " << argv[0] << L" <tree-file> <filter-description>" << std::endl;
       return 1;
@@ -54,7 +66,7 @@ int wmain(int argc, wchar_t** argv)
    TreeFilterPtr filter;
    if (!filterText.empty())
    {
-      filter = CreateFilter(filterText, useV1);
+      filter = CreateFilter(filterText, options);
       if (!filter)
       {
          return 1;
@@ -72,7 +84,7 @@ int wmain(int argc, wchar_t** argv)
          wcout << filtered << endl;
       }
 
-      if (!isInteractive)
+      if (!options.IsInteractive)
          break;
 
       wcout << L"New filter: "; 
@@ -81,6 +93,6 @@ int wmain(int argc, wchar_t** argv)
       if (!wcin)
          break;
       filterText = buffer;
-      filter = CreateFilter(filterText, useV1);
+      filter = CreateFilter(filterText, options);
    }
 }
