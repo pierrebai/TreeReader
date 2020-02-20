@@ -30,14 +30,24 @@ namespace TreeReader
       };
 
       virtual ~TreeFilter() {};
-      virtual Result IsKept(const TextTree::Node& node, size_t index, size_t level) = 0;
+      virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) = 0;
    };
 
    typedef std::shared_ptr<TreeFilter> TreeFilterPtr;
 
    struct AcceptTreeFilter : TreeFilter
    {
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+   };
+
+   struct StopTreeFilter : TreeFilter
+   {
+      bool Keep = true;
+
+      StopTreeFilter() = default;
+      StopTreeFilter(bool keep) : Keep(keep) {}
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct ContainsTreeFilter : TreeFilter
@@ -47,7 +57,7 @@ namespace TreeReader
       ContainsTreeFilter() = default;
       ContainsTreeFilter(const Text& text) : Contained(text) { }
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct RegexTreeFilter : TreeFilter
@@ -58,7 +68,7 @@ namespace TreeReader
       RegexTreeFilter() = default;
       RegexTreeFilter(const std::wstring& reg) : RegexTextForm(reg), Regex(std::wregex(reg)) { }
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct CombineTreeFilter : TreeFilter
@@ -78,7 +88,7 @@ namespace TreeReader
       NotTreeFilter() = default;
       NotTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct OrTreeFilter : CombineTreeFilter
@@ -87,7 +97,7 @@ namespace TreeReader
       OrTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
       OrTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct AndTreeFilter : CombineTreeFilter
@@ -96,7 +106,7 @@ namespace TreeReader
       AndTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
       AndTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct UnderTreeFilter : TreeFilter
@@ -108,7 +118,7 @@ namespace TreeReader
       UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
          : Filter(filter), IncludeSelf(includeSelf) {}
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
 
       private:
          size_t _keepAllNodesUnderLevel = -1;
@@ -122,7 +132,7 @@ namespace TreeReader
       RemoveChildrenTreeFilter() = default;
       RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf) : Filter(filter), RemoveSelf(removeSelf) { }
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
    struct LevelRangeTreeFilter : TreeFilter
@@ -133,10 +143,35 @@ namespace TreeReader
       LevelRangeTreeFilter() = default;
       LevelRangeTreeFilter(size_t minLevel, size_t maxLevel) : MinLevel(minLevel), MaxLevel(maxLevel) {}
 
-      Result IsKept(const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
+   struct IfSubTreeTreeFilter : TreeFilter
+   {
+      TreeFilterPtr Filter;
+
+      IfSubTreeTreeFilter() = default;
+      IfSubTreeTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+
+   private:
+      TextTree _filtered;
+   };
+
+   struct IfSiblingTreeFilter : TreeFilter
+   {
+      TreeFilterPtr Filter;
+
+      IfSiblingTreeFilter() = default;
+      IfSiblingTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+   };
+
+
    inline std::shared_ptr<AcceptTreeFilter> All() { return std::make_shared<AcceptTreeFilter>(); }
+   inline std::shared_ptr<StopTreeFilter> Stop() { return std::make_shared<StopTreeFilter>(); }
    inline std::shared_ptr<ContainsTreeFilter> Contains(const Text& text) { return std::make_shared<ContainsTreeFilter>(text); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(reg ? reg : L""); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const std::wstring& reg) { return std::make_shared<RegexTreeFilter>(reg); }
@@ -148,7 +183,27 @@ namespace TreeReader
    inline std::shared_ptr<LevelRangeTreeFilter> LevelRange(size_t min, size_t max) { return std::make_shared<LevelRangeTreeFilter>(min, max); }
    inline std::shared_ptr<LevelRangeTreeFilter> MinLevel(size_t level) { return LevelRange(level, -1); }
    inline std::shared_ptr<LevelRangeTreeFilter> MaxLevel(size_t level) { return LevelRange(0, level); }
+   inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
+   inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
+
+   struct FilterTreeVisitor : SimpleTreeVisitor
+   {
+      TextTree& FilteredTree;
+      TreeFilterPtr Filter;
+
+      FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
+
+      Result Visit(const TextTree& tree, const TextTree::Node& sourceNode, const size_t sourceIndex, const size_t sourceLevel) override;
+
+   private:
+      // This keeps the current branch of nodes we have created.
+      // We will keep one entry per source level, even when some
+      // levels were filtered out.
+      std::vector<size_t> _filteredBranchIndexes;
+      std::vector<bool> _fillChildren;
+   };
+
 }
 

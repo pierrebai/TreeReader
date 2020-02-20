@@ -5,7 +5,7 @@ namespace TreeReader
    using namespace std;
    using Result = TreeVisitor::Result;
 
-   void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor)
+   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, TreeVisitor& visitor)
    {
       if (index >= tree.Nodes.size())
          return;
@@ -19,7 +19,7 @@ namespace TreeReader
          {
             const TextTree::Node& node = tree.Nodes[index];
 
-            const Result result = visitor.Visit(node, index, level);
+            const Result result = visitor.Visit(tree, node, index, level);
             if (result.Stop)
                break;
 
@@ -33,7 +33,7 @@ namespace TreeReader
             }
             else
             {
-               index = node.NextSiblingIndex;
+               index = siblings ? node.NextSiblingIndex : -1;
             }
          }
          else if (goBack.empty())
@@ -51,9 +51,9 @@ namespace TreeReader
       }
    }
 
-   void VisitInOrder(const TextTree& tree, size_t index, const NodeVisitFunction& func)
+   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, const NodeVisitFunction& func)
    {
-      SimpleTreeVisitor visitor(func);
-      VisitInOrder(tree, index, visitor);
+      FunctionTreeVisitor visitor(func);
+      VisitInOrder(tree, index, siblings, visitor);
    }
 }

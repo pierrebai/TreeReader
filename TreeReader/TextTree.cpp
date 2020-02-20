@@ -71,7 +71,7 @@ namespace TreeReader
 
    wostream& operator<<(wostream& stream, const TextTree& tree)
    {
-      VisitInOrder(tree, 0, [&stream](const TextTree::Node& node, size_t index, size_t level)
+      VisitInOrder(tree, 0, [&stream](const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
       {
          for (size_t indent = 0; indent < level; ++indent)
             stream << L"  ";

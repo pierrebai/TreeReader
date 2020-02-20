@@ -51,6 +51,13 @@ namespace TreeReader
          return sstream.str();
       }
 
+      wstring ConvertFilterToText(const StopTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"stop [ ]";
+         return sstream.str();
+      }
+
       wstring ConvertFilterToText(const ContainsTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
@@ -69,6 +76,20 @@ namespace TreeReader
       {
          wostringstream sstream;
          sstream << L"not [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
+         return sstream.str();
+      }
+
+      wstring ConvertFilterToText(const IfSubTreeTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"if-sub [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
+         return sstream.str();
+      }
+
+      wstring ConvertFilterToText(const IfSiblingTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"if-sib [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
@@ -136,9 +157,12 @@ namespace TreeReader
          #define CALL_CONVERTER(a) if (const a* ptr = dynamic_cast<const a *>(&filter)) { return indentText + ConvertFilterToText(*ptr, indent); }
 
          CALL_CONVERTER(AcceptTreeFilter)
+         CALL_CONVERTER(StopTreeFilter)
          CALL_CONVERTER(ContainsTreeFilter)
          CALL_CONVERTER(RegexTreeFilter)
          CALL_CONVERTER(NotTreeFilter)
+         CALL_CONVERTER(IfSubTreeTreeFilter)
+         CALL_CONVERTER(IfSiblingTreeFilter)
          CALL_CONVERTER(OrTreeFilter)
          CALL_CONVERTER(AndTreeFilter)
          CALL_CONVERTER(UnderTreeFilter)
@@ -185,6 +209,13 @@ namespace TreeReader
       }
 
       template <>
+      TreeFilterPtr ConvertTextToFilter<StopTreeFilter>(wistringstream& sstream)
+      {
+         EatClosingBrace(sstream);
+         return Stop();
+      }
+
+      template <>
       TreeFilterPtr ConvertTextToFilter<ContainsTreeFilter>(wistringstream& sstream)
       {
          wstring contained;
@@ -192,7 +223,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<ContainsTreeFilter>(contained);
+         return Contains(contained);
       }
 
       template <>
@@ -203,7 +234,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<RegexTreeFilter>(regex);
+         return Regex(regex);
       }
 
       template <>
@@ -213,7 +244,27 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<NotTreeFilter>(filter);
+         return Not(filter);
+      }
+
+      template <>
+      TreeFilterPtr ConvertTextToFilter<IfSubTreeTreeFilter>(wistringstream& sstream)
+      {
+         auto filter = ConvertTextToFilters(sstream);
+
+         EatClosingBrace(sstream);
+
+         return IfSubTree(filter);
+      }
+
+      template <>
+      TreeFilterPtr ConvertTextToFilter<IfSiblingTreeFilter>(wistringstream& sstream)
+      {
+         auto filter = ConvertTextToFilters(sstream);
+
+         EatClosingBrace(sstream);
+
+         return IfSibling(filter);
       }
 
       vector<TreeFilterPtr> ConvertTextToMultiFilters(wistringstream& sstream)
@@ -268,7 +319,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<UnderTreeFilter>(filter, includeSelf);
+         return Under(filter, includeSelf);
       }
 
       template <>
@@ -282,7 +333,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<RemoveChildrenTreeFilter>(filter, removeSelf);
+         return NoChild(filter, removeSelf);
       }
 
       template<>
@@ -294,7 +345,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<LevelRangeTreeFilter>(minLevel, maxLevel);
+         return LevelRange(minLevel, maxLevel);
       }
 
       TreeFilterPtr ConvertTextToFilters(wistringstream& sstream)
@@ -309,11 +360,14 @@ namespace TreeReader
          CALL_CONVERTER(L"contains", ContainsTreeFilter)
          CALL_CONVERTER(L"regex", RegexTreeFilter)
          CALL_CONVERTER(L"not", NotTreeFilter)
+         CALL_CONVERTER(L"if-sub", IfSubTreeTreeFilter)
+         CALL_CONVERTER(L"if-sib", IfSiblingTreeFilter)
          CALL_CONVERTER(L"or", OrTreeFilter)
          CALL_CONVERTER(L"and", AndTreeFilter)
          CALL_CONVERTER(L"under", UnderTreeFilter)
          CALL_CONVERTER(L"no-child", RemoveChildrenTreeFilter)
          CALL_CONVERTER(L"range", LevelRangeTreeFilter)
+         CALL_CONVERTER(L"stop", StopTreeFilter)
 
          #undef CALL_CONVERTER
 
@@ -346,7 +400,7 @@ namespace TreeReader
          TreeFilterPtr* neededFilter = nullptr;
          shared_ptr<CombineTreeFilter> currentCombiner;
 
-         auto AddFilter = [&](const TreeFilterPtr& filter, bool asCombiner = false)
+         auto AddFilter = [&](TreeFilterPtr filter, bool asCombiner = false)
          {
             if (neededFilter)
             {
@@ -362,14 +416,19 @@ namespace TreeReader
                if (auto combiner = dynamic_pointer_cast<CombineTreeFilter>(filter); asCombiner && combiner)
                {
                   currentCombiner = combiner;
+                  filter = nullptr;
                }
                else
                {
                   currentCombiner = make_shared<AndTreeFilter>();
-                  currentCombiner->Filters.push_back(filter);
                }
+
                currentCombiner->Filters.push_back(previous);
                previous = nullptr;
+
+               if (filter)
+                  currentCombiner->Filters.push_back(filter);
+
                if (!result)
                   result = currentCombiner;
             }
@@ -395,6 +454,18 @@ namespace TreeReader
             if (part == L"!")
             {
                auto filter = make_shared<NotTreeFilter>();
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
+            }
+            else if (part == L"?=")
+            {
+               auto filter = make_shared<IfSiblingTreeFilter>();
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
+            }
+            else if (part == L"?>")
+            {
+               auto filter = make_shared<IfSubTreeTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
@@ -433,11 +504,34 @@ namespace TreeReader
                   AddFilter(filter);
                }
             }
+            else if (part == L"<=")
+            {
+               if (parts.size() > 0)
+               {
+                  const wstring countText = move(parts.back());
+                  parts.pop_back();
+
+                  wistringstream sstream(countText);
+                  size_t count;
+                  sstream >> count;
+
+                  auto filter = MaxLevel(count);
+                  AddFilter(filter);
+               }
+            }
             else if (part == L">")
             {
                auto filter = make_shared<UnderTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
+            }
+            else if (part == L"#")
+            {
+               AddFilter(Stop());
+            }
+            else if (part == L"*")
+            {
+               AddFilter(All());
             }
             else
             {

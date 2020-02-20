@@ -144,7 +144,48 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithOrFilter)
+      TEST_METHOD(PrintSimpleTreeWithIfSubTreeFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, IfSubTree(Contains(L"f")));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"abc\n"
+            L"  def\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndStopFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, And(IfSubTree(Contains(L"f")), Stop()));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"abc\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithIfSiblingFilter)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, IfSibling(Contains(L"t")));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"pqr\n"
+            L"stu\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
 			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, Or(Contains(L"f"), Contains(L"m")));
@@ -313,6 +354,18 @@ namespace TreeReaderTests
          Assert::IsTrue(rebuilt != nullptr);
       }
 
+      TEST_METHOD(ConvertToTextStopFilter)
+      {
+         auto accept = Stop();
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: \nstop [ ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<StopTreeFilter>(ConvertTextToFilters(text));
+         Assert::IsTrue(rebuilt != nullptr);
+      }
+
       TEST_METHOD(ConvertToTextContainsFilter)
       {
          auto accept = Contains(L"\"abc\"");
@@ -444,6 +497,33 @@ namespace TreeReaderTests
 
          Assert::AreEqual<size_t>(7, rebuilt->MinLevel);
          Assert::AreEqual<size_t>(9, rebuilt->MaxLevel);
+      }
+
+      TEST_METHOD(ConvertSimpleText)
+      {
+         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & # ) ) ");
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nor [ \n and [ \n  contains [ \"a\" ], \n  contains [ \"b\" ], \n  not [ \n   contains [ \"c\" ] ] ], \n or [ \n  under [ true, \n   contains [ \"d\" ] ], \n  and [ \n   range [ 0, 3 ], \n   accept [ ], \n   stop [ ] ] ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertSimpleTextWithIfSibling)
+      {
+         auto filter = ConvertSimpleTextToFilters(L"a ?= b");
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n if-sib [ \n  contains [ \"b\" ] ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertSimpleTextWithIfSubTree)
+      {
+         auto filter = ConvertSimpleTextToFilters(L"a ?> b");
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n if-sub [ \n  contains [ \"b\" ] ] ]", text.c_str());
       }
 
    private:
