@@ -7,6 +7,39 @@ namespace TreeReader
 {
    using namespace std;
 
+   namespace
+   {
+      vector<wstring> split(const wstring& s, wchar_t delim = L' ')
+      {
+         vector<wstring> result;
+         wistringstream iss(s);
+         wstring item;
+         while (getline(iss, item, delim))
+            result.emplace_back(item);
+         return result;
+      }
+
+      wstring join(const vector<wstring>& parts, wchar_t delim = L' ')
+      {
+         wstring result;
+
+         auto pos = parts.begin();
+         const auto end = parts.end();
+         if (pos != end)
+         {
+            result += *pos++;
+         }
+
+         while (pos != end)
+         {
+            result += delim;
+            result += *pos++;
+         }
+
+         return result;
+      }
+   }
+
    namespace V1
    {
       wstring ConvertFilterToText(const TreeFilterPtr& filter, size_t indent);
@@ -306,58 +339,51 @@ namespace TreeReader
 
    namespace S1
    {
-      static vector<wstring> split(const wstring& s, wchar_t delim = L' ')
+      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts)
       {
-         vector<wstring> result;
-         wistringstream iss(s);
-         wstring item;
-         while (getline(iss, item, delim))
-            result.emplace_back(item);
-         return result;
-      }
-
-      static wstring join(const vector<wstring>& parts, wchar_t delim = L' ')
-      {
-         wstring result;
-
-         auto pos = parts.begin();
-         const auto end = parts.end();
-         if (pos != end)
-         {
-            result += *pos++;
-         }
-
-         while (pos != end)
-         {
-            result += delim;
-            result += *pos++;
-         }
-
-         return result;
-      }
-
-      void ConvertTextToFilters(vector<wstring>& parts, vector<TreeFilterPtr>& toFill)
-      {
+         TreeFilterPtr result;
+         TreeFilterPtr previous;
          TreeFilterPtr* neededFilter = nullptr;
-         vector<TreeFilterPtr>* neededFilters = nullptr;
+         shared_ptr<CombineTreeFilter> currentCombiner;
 
-         auto AddFilter = [&](const TreeFilterPtr& filter)
+         auto AddFilter = [&](const TreeFilterPtr& filter, bool asCombiner = false)
          {
             if (neededFilter)
             {
                *neededFilter = filter;
                neededFilter = nullptr;
-               neededFilters = nullptr;
             }
-            else if (neededFilters)
+            else if (currentCombiner)
             {
-               neededFilters->push_back(filter);
-               neededFilter = nullptr;
-               neededFilters = nullptr;
+               currentCombiner->Filters.push_back(filter);
+            }
+            else if (previous)
+            {
+               if (auto combiner = dynamic_pointer_cast<CombineTreeFilter>(filter); asCombiner && combiner)
+               {
+                  currentCombiner = combiner;
+               }
+               else
+               {
+                  currentCombiner = make_shared<AndTreeFilter>();
+                  currentCombiner->Filters.push_back(filter);
+               }
+               currentCombiner->Filters.push_back(previous);
+               previous = nullptr;
+               if (!result)
+                  result = currentCombiner;
             }
             else
             {
-               toFill.push_back(filter);
+               if (auto combiner = dynamic_pointer_cast<CombineTreeFilter>(filter); asCombiner && combiner)
+               {
+                  currentCombiner = combiner;
+                  result = currentCombiner;
+               }
+               else
+               {
+                  previous = filter;
+               }
             }
          };
 
@@ -374,31 +400,29 @@ namespace TreeReader
             }
             else if (part == L"|")
             {
-               auto filter = make_shared<OrTreeFilter>();
-               AddFilter(filter);
-               neededFilters = &filter->Filters;
+               if (!dynamic_pointer_cast<OrTreeFilter>(currentCombiner))
+               {
+                  auto filter = make_shared<OrTreeFilter>();
+                  AddFilter(filter, true);
+               }
             }
             else if (part == L"&")
             {
-               auto filter = make_shared<AndTreeFilter>();
-               AddFilter(filter);
-               neededFilters = &filter->Filters;
+               if (!dynamic_pointer_cast<AndTreeFilter>(currentCombiner))
+               {
+                  auto filter = make_shared<AndTreeFilter>();
+                  AddFilter(filter, true);
+               }
             }
             else if (part == L"(")
             {
-               if (!neededFilters)
-               {
-                  auto filter = make_shared<AndTreeFilter>();
-                  AddFilter(filter);
-                  neededFilters = &filter->Filters;
-               }
-               ConvertTextToFilters(parts, *neededFilters);
-               neededFilters = nullptr;
+               auto filter = ConvertTextToFilters(parts);
+               AddFilter(filter);
             }
             else if (part == L")")
             {
                // Assume we were recursed into.
-               return;
+               break;
             }
             else if (part.starts_with(L"\""))
             {
@@ -421,15 +445,15 @@ namespace TreeReader
                AddFilter(filter);
             }
          }
+
+         return result ? result : previous;
       }
 
       TreeFilterPtr ConvertTextToFilters(const wstring& text)
       {
          vector<wstring> parts = split(text);
          reverse(parts.begin(), parts.end());
-         auto topAnd = make_shared<AndTreeFilter>();
-         ConvertTextToFilters(parts, topAnd->Filters);
-         return topAnd;
+         return ConvertTextToFilters(parts);
       }
    }
 
