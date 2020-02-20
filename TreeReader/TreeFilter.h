@@ -50,6 +50,16 @@ namespace TreeReader
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
    };
 
+   struct UntilTreeFilter : TreeFilter
+   {
+      TreeFilterPtr Filter;
+
+      UntilTreeFilter() = default;
+      UntilTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+   };
+
    struct ContainsTreeFilter : TreeFilter
    {
       Text Contained;
@@ -172,6 +182,7 @@ namespace TreeReader
 
    inline std::shared_ptr<AcceptTreeFilter> All() { return std::make_shared<AcceptTreeFilter>(); }
    inline std::shared_ptr<StopTreeFilter> Stop() { return std::make_shared<StopTreeFilter>(); }
+   inline std::shared_ptr<UntilTreeFilter> Until(const TreeFilterPtr& filter) { return std::make_shared<UntilTreeFilter>(filter); }
    inline std::shared_ptr<ContainsTreeFilter> Contains(const Text& text) { return std::make_shared<ContainsTreeFilter>(text); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(reg ? reg : L""); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const std::wstring& reg) { return std::make_shared<RegexTreeFilter>(reg); }

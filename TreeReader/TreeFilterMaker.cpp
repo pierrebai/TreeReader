@@ -58,6 +58,13 @@ namespace TreeReader
          return sstream.str();
       }
 
+      wstring ConvertFilterToText(const UntilTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"until [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
+         return sstream.str();
+      }
+
       wstring ConvertFilterToText(const ContainsTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
@@ -158,6 +165,7 @@ namespace TreeReader
 
          CALL_CONVERTER(AcceptTreeFilter)
          CALL_CONVERTER(StopTreeFilter)
+         CALL_CONVERTER(UntilTreeFilter)
          CALL_CONVERTER(ContainsTreeFilter)
          CALL_CONVERTER(RegexTreeFilter)
          CALL_CONVERTER(NotTreeFilter)
@@ -213,6 +221,16 @@ namespace TreeReader
       {
          EatClosingBrace(sstream);
          return Stop();
+      }
+
+      template <>
+      TreeFilterPtr ConvertTextToFilter<UntilTreeFilter>(wistringstream& sstream)
+      {
+         auto filter = ConvertTextToFilters(sstream);
+
+         EatClosingBrace(sstream);
+
+         return Until(filter);
       }
 
       template <>
@@ -368,6 +386,7 @@ namespace TreeReader
          CALL_CONVERTER(L"no-child", RemoveChildrenTreeFilter)
          CALL_CONVERTER(L"range", LevelRangeTreeFilter)
          CALL_CONVERTER(L"stop", StopTreeFilter)
+         CALL_CONVERTER(L"until", UntilTreeFilter)
 
          #undef CALL_CONVERTER
 
@@ -451,25 +470,25 @@ namespace TreeReader
             const wstring part = move(parts.back());
             parts.pop_back();
 
-            if (part == L"!")
+            if (part == L"!" || part == L"not")
             {
                auto filter = make_shared<NotTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"?=")
+            else if (part == L"?=" || part == L"sibling")
             {
                auto filter = make_shared<IfSiblingTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"?>")
+            else if (part == L"?>" || part == L"child")
             {
                auto filter = make_shared<IfSubTreeTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"|")
+            else if (part == L"|" || part == L"or")
             {
                if (!dynamic_pointer_cast<OrTreeFilter>(currentCombiner))
                {
@@ -477,7 +496,7 @@ namespace TreeReader
                   AddFilter(filter, true);
                }
             }
-            else if (part == L"&")
+            else if (part == L"&" || part == L"and")
             {
                if (!dynamic_pointer_cast<AndTreeFilter>(currentCombiner))
                {
@@ -504,7 +523,7 @@ namespace TreeReader
                   AddFilter(filter);
                }
             }
-            else if (part == L"<=")
+            else if (part == L"<=" || part == L"max")
             {
                if (parts.size() > 0)
                {
@@ -519,17 +538,23 @@ namespace TreeReader
                   AddFilter(filter);
                }
             }
-            else if (part == L">")
+            else if (part == L">" || part == L"under")
             {
                auto filter = make_shared<UnderTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"#")
+            else if (part == L"#" || part == L"stop")
             {
                AddFilter(Stop());
             }
-            else if (part == L"*")
+            else if (part == L"~" || part == L"until")
+            {
+               auto filter = make_shared<UntilTreeFilter>();
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
+            }
+            else if (part == L"*" || part == L"all")
             {
                AddFilter(All());
             }
