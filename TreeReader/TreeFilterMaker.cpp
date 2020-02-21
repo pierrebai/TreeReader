@@ -488,7 +488,7 @@ namespace TreeReader
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"|" || part == L"or")
+            else if (part == L"|" || part == L"or" || part == L"any")
             {
                if (!dynamic_pointer_cast<OrTreeFilter>(currentCombiner))
                {
@@ -496,7 +496,7 @@ namespace TreeReader
                   AddFilter(filter, true);
                }
             }
-            else if (part == L"&" || part == L"and")
+            else if (part == L"&" || part == L"and" || part == L"all")
             {
                if (!dynamic_pointer_cast<AndTreeFilter>(currentCombiner))
                {

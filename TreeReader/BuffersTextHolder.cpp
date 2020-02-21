@@ -20,12 +20,13 @@ namespace TreeReader
 
             Holder->TextBuffers.emplace_back(make_shared<BuffersTextHolder::Buffer>());
             auto buffer = Holder->TextBuffers.back();
-            buffer->resize(bufferSize);
+            // Note: allocate one more character to be able to always put a terminating null.
+            buffer->resize(bufferSize + 1);
             if (amountReadSoFar > 0)
                memcpy(buffer->data(), line, amountReadSoFar);
 
             line = buffer->data();
-            BufferEnd = line + buffer->size();
+            BufferEnd = line + bufferSize;
             PosInBuffer = line + amountReadSoFar;
 
             stream.read(PosInBuffer, BufferEnd - PosInBuffer);
