@@ -213,7 +213,7 @@ namespace TreeReader
       TreeFilterPtr ConvertTextToFilter<AcceptTreeFilter>(wistringstream& sstream)
       {
          EatClosingBrace(sstream);
-         return All();
+         return Accept();
       }
 
       template <>
@@ -313,7 +313,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<OrTreeFilter>(filters);
+         return Any(filters);
       }
 
       template <>
@@ -323,7 +323,7 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return make_shared<AndTreeFilter>(filters);
+         return All(filters);
       }
 
       template <>
@@ -554,9 +554,9 @@ namespace TreeReader
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"*" || part == L"all")
+            else if (part == L"*" || part == L"accept")
             {
-               AddFilter(All());
+               AddFilter(Accept());
             }
             else
             {

@@ -318,7 +318,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextAcceptFilter)
       {
-         auto accept = All();
+         auto accept = Accept();
 
          const wstring text = ConvertFiltersToText(accept);
 
@@ -368,7 +368,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextNotAcceptFilter)
       {
-         auto accept = Not(All());
+         auto accept = Not(Accept());
 
          const wstring text = ConvertFiltersToText(accept);
 
@@ -403,7 +403,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextAndFilter)
       {
-         auto accept = And(Contains(L"a"), All());
+         auto accept = And(Contains(L"a"), Accept());
 
          const wstring text = ConvertFiltersToText(accept);
 

@@ -4,6 +4,9 @@
 
 namespace TreeReader
 {
+   // Holds text as a vector of raw characters buffers.
+   // Uses indirection to make sure each buffer does not change address.
+
    struct BuffersTextHolder : TextHolder
    {
       typedef std::vector<wchar_t> Buffer;
@@ -12,6 +15,8 @@ namespace TreeReader
 
       Buffers TextBuffers;
    };
+
+   // Read text lines from an input stream and stores them in the holder.
 
    struct BuffersTextHolderReader
    {

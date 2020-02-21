@@ -6,24 +6,37 @@
 
 namespace TreeReader
 {
+   // A visitor that access each node of a tree one by one.
+
    struct TreeVisitor
    {
+      // Possible result of visiting a node: stop or not, skip children or not.
+
       struct Result
       {
          bool Stop = false;
          bool SkipChildren = false;
       };
 
+      // Called when going deeper in the tree. (Before visitin gthe deeper nodes.)
       virtual Result GoDeeper(size_t deeperLevel) = 0;
+
+      // Called when going higher in the tree. (Before visitin gthe higher nodes.)
       virtual Result GoHigher(size_t higherLevel) = 0;
+
+      // Called when visiting a node.
       virtual Result Visit(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) = 0;
    };
+
+   // Simple visitor that doesn't need to know that it is going deeper or higher.
 
    struct SimpleTreeVisitor : TreeVisitor
    {
       Result GoDeeper(size_t deeperLevel) override { return Result(); }
       Result GoHigher(size_t higherLevel) override { return Result(); }
    };
+
+   // A visitor that delegates to a function when visiting each node.
 
    typedef std::function<TreeVisitor::Result(const TextTree & tree, const TextTree::Node & node, size_t index, size_t level)> NodeVisitFunction;
 
@@ -38,6 +51,12 @@ namespace TreeReader
          return Func(tree, node, index, level);
       }
    };
+
+   // Visits each node of a tree in order.
+   //
+   // That is, visit each node before its children and visits its children before its siblings.
+   //
+   // Allows starting from an arbitrary node and not visiting the siblings of that initial node.
 
    void VisitInOrder(const TextTree& tree, size_t index, bool siblings, TreeVisitor& visitor);
    void VisitInOrder(const TextTree& tree, size_t index, bool siblings, const NodeVisitFunction& func);

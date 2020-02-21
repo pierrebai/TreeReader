@@ -7,15 +7,24 @@
 
 namespace TreeReader
 {
+   // Holds whatever is necessary to make the raw text pointer valid for the lifetime of a text tree.
+
    struct TextHolder
    {
       virtual ~TextHolder() = default;
    };
 
-   typedef std::wstring Text;
+   // The tree of text.
+   //
+   // Contains a vector of nodes, forming a tree structure.
+   // Each node contains its text and the index of the next sibling and the first child.
+   //
+   // Use a TextHolder to make the text used by the tree nodes valid.
 
    struct TextTree
    {
+      // Each node contains its text and the index of the next sibling and the first child.
+
       struct Node
       {
          // Index into the source text lines.
@@ -50,6 +59,8 @@ namespace TreeReader
       size_t AddChild(size_t index, size_t newIndex);
       size_t AddSibling(size_t index, size_t newIndex);
    };
+
+   // Convert the text tree to a textual form with indentation.
 
    std::wostream& operator<<(std::wostream& stream, const TextTree& tree);
 }
