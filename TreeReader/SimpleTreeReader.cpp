@@ -1,4 +1,5 @@
 #include "SimpleTreeReader.h"
+#include "BuffersTextHolder.h"
 
 #include <fstream>
 #include <sstream>
@@ -8,80 +9,6 @@ namespace TreeReader
 {
    using namespace std;
    using namespace std::filesystem;
-
-   typedef vector<wchar_t> Buffer;
-   typedef shared_ptr<Buffer> BufferPtr;
-   typedef vector<BufferPtr> Buffers;
-
-   struct SimpleTextHolder : TextHolder
-   {
-      Buffers TextBuffers;
-   };
-
-   struct SimpleTextReader
-   {
-      shared_ptr<SimpleTextHolder> Holder;
-
-      wchar_t* PosInBuffer = nullptr;
-      wchar_t* BufferEnd = nullptr;
-
-      SimpleTextReader() : Holder(make_shared<SimpleTextHolder>()) {}
-
-      pair<wchar_t*, size_t> ReadLine(wistream& stream)
-      {
-         bool skipNewLines = true;
-
-         wchar_t* line = PosInBuffer;
-         while (true)
-         {
-            if (PosInBuffer >= BufferEnd)
-            {
-               const size_t amountReadSoFar = PosInBuffer - line;
-               const size_t bufferSize = max(size_t(64 * 1024), amountReadSoFar * 2);
-
-               Holder->TextBuffers.emplace_back(make_shared<Buffer>());
-               auto buffer = Holder->TextBuffers.back();
-               buffer->resize(bufferSize);
-               if (amountReadSoFar > 0)
-                  memcpy(buffer->data(), line, amountReadSoFar);
-
-               line = buffer->data();
-               BufferEnd = line + buffer->size();
-               PosInBuffer = line + amountReadSoFar;
-
-               stream.read(PosInBuffer, BufferEnd - PosInBuffer);
-               const auto readAmount = stream.gcount();
-               if (readAmount <= 0)
-                  break;
-               BufferEnd = PosInBuffer + readAmount;
-            }
-
-            if (skipNewLines)
-            {
-               if (*PosInBuffer != '\n' && *PosInBuffer != '\r')
-               {
-                  line = PosInBuffer;
-                  skipNewLines = false;
-               }
-            }
-            else
-            {
-               if (*PosInBuffer == '\n' || *PosInBuffer == '\r')
-               {
-                  *PosInBuffer = 0;
-
-                  // TODO skip other newlines.
-                  PosInBuffer++;
-                  break;
-               }
-            }
-
-            ++PosInBuffer;
-         }
-
-         return make_pair(line, PosInBuffer - line);
-      }
-   };
 
    TextTree ReadSimpleTextTree(const path& path, const ReadSimpleTextTreeOptions& options)
    {
@@ -121,10 +48,10 @@ namespace TreeReader
 
    TextTree ReadSimpleTextTree(wistream& stream, const ReadSimpleTextTreeOptions& options)
    {
-      SimpleTextReader reader;
+      BuffersTextHolderReader reader;
 
-      std::vector<size_t> indents;
-      std::vector<wchar_t*> lines;
+      vector<size_t> indents;
+      vector<wchar_t*> lines;
       {
          while (true)
          {

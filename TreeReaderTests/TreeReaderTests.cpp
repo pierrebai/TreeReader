@@ -45,32 +45,6 @@ namespace TreeReaderTests
 			Assert::AreEqual<size_t>(1, tree.CountSiblings(7));
 		}
 
-		TEST_METHOD(PrintBuiltTree)
-		{
-			TextTree tree;
-
-			tree.SourceTextLines = CreateTextLines();
-
-			size_t r0 = tree.AddChild(0, &tree.SourceTextLines->at(0));
-			size_t r0c0 = tree.AddChild(r0, &tree.SourceTextLines->at(1));
-			size_t r0c1 = tree.AddChild(r0, &tree.SourceTextLines->at(2));
-			size_t r0c2 = tree.AddSibling(r0c1, &tree.SourceTextLines->at(3));
-			size_t r0c0c0 = tree.AddChild(r0c0, &tree.SourceTextLines->at(4));
-			size_t r1 = tree.AddSibling(r0, &tree.SourceTextLines->at(5));
-
-			wostringstream sstream;
-			sstream << tree;
-
-			const wchar_t expectedOutput[] =
-				L"abc\n"
-				L"  def\n"
-				L"    mno\n"
-				L"  ghi\n"
-				L"  jkl\n"
-				L"pqr\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
-		}
-
 		TEST_METHOD(PrintSimpleTree)
 		{
 			wostringstream sstream;
@@ -528,18 +502,18 @@ namespace TreeReaderTests
 
    private:
 
-		shared_ptr<TextLines> CreateTextLines()
+		shared_ptr<TextLinesTextHolder> CreateTextLines()
 		{
-			auto textLines = make_shared<TextLines>();
+			auto textLines = make_shared<TextLinesTextHolder>();
 
-			textLines->push_back(L"abc");
-			textLines->push_back(L"def");
-			textLines->push_back(L"ghi");
-			textLines->push_back(L"jkl");
-			textLines->push_back(L"mno");
-			textLines->push_back(L"pqr");
-			textLines->push_back(L"stu");
-			textLines->push_back(L"vwx");
+			textLines->Lines.push_back(L"abc");
+			textLines->Lines.push_back(L"def");
+			textLines->Lines.push_back(L"ghi");
+			textLines->Lines.push_back(L"jkl");
+			textLines->Lines.push_back(L"mno");
+			textLines->Lines.push_back(L"pqr");
+			textLines->Lines.push_back(L"stu");
+			textLines->Lines.push_back(L"vwx");
 
 			return textLines;
 		}
@@ -548,16 +522,17 @@ namespace TreeReaderTests
 		{
 			TextTree textTree;
 
-			textTree.SourceTextLines = CreateTextLines();
+         auto textLines = CreateTextLines();
+         textTree.SourceTextLines = textLines;
 
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(0), size_t(-1),  1 });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(1),  2,  3 });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(2), size_t(-1),  4 });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(3), size_t(-1), size_t(-1) });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(4), size_t(-1),  5 });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(5),  6, size_t(-1) });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(6), size_t(-1),  7 });
-			textTree.Nodes.push_back(TextTree::Node{ &textTree.SourceTextLines->at(7), size_t(-1), size_t(-1) });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(0).c_str(), size_t(-1),  1 });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(1).c_str(),  2,  3 });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(2).c_str(), size_t(-1),  4 });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(3).c_str(), size_t(-1), size_t(-1) });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(4).c_str(), size_t(-1),  5 });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(5).c_str(),  6, size_t(-1) });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(6).c_str(), size_t(-1),  7 });
+			textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(7).c_str(), size_t(-1), size_t(-1) });
 
 			return textTree;
 		}

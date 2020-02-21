@@ -76,7 +76,7 @@ namespace TreeReader
          for (size_t indent = 0; indent < level; ++indent)
             stream << L"  ";
 
-         stream << *node.TextPtr << L"\n";
+         stream << node.TextPtr << L"\n";
 
          return TreeVisitor::Result();
       });
