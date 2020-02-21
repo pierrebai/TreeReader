@@ -10,6 +10,7 @@ namespace TreeReader
    struct ReadSimpleTextTreeOptions
    {
       size_t TabSize = 8;
+      bool SimpleIndent = true;
       std::wregex IndentRegex = std::wregex(L"^[ \t]*");
    };
 

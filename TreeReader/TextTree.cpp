@@ -5,10 +5,10 @@ namespace TreeReader
 {
    using namespace std;
 
-   size_t TextTree::AddChild(size_t index, const Text* TextPtr)
+   size_t TextTree::AddChild(size_t index, const wchar_t* text)
    {
       const size_t newIndex = Nodes.size();
-      Nodes.push_back(Node{ TextPtr });
+      Nodes.push_back(Node{ text });
 
       if (index >= Nodes.size() - 1)
          return newIndex;
@@ -29,10 +29,10 @@ namespace TreeReader
       }
    }
 
-   size_t TextTree::AddSibling(size_t index, const Text* TextPtr)
+   size_t TextTree::AddSibling(size_t index, const wchar_t* text)
    {
       const size_t newIndex = Nodes.size();
-      Nodes.push_back(Node{ TextPtr });
+      Nodes.push_back(Node{ text });
 
       if (index >= Nodes.size() - 1)
          return newIndex;

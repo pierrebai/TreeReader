@@ -7,15 +7,19 @@
 
 namespace TreeReader
 {
+   struct TextHolder
+   {
+      virtual ~TextHolder() = default;
+   };
+
    typedef std::wstring Text;
-   typedef std::vector<Text> TextLines;
 
    struct TextTree
    {
       struct Node
       {
          // Index into the source text lines.
-         const Text* TextPtr = nullptr;
+         const wchar_t* TextPtr = nullptr;
 
          // Index of next node in the same parent.
          size_t NextSiblingIndex = size_t(-1);
@@ -25,14 +29,14 @@ namespace TreeReader
       };
 
       // Source text lines are kept constant so that the text pointers are kept valid.
-      std::shared_ptr<const TextLines> SourceTextLines;
+      std::shared_ptr<TextHolder> SourceTextLines;
 
       // The tree of nodes.
       std::vector<Node> Nodes;
 
       // Adding new nodes. To add the first root, pass any index on an empty tree.
-      size_t AddChild(size_t index, const Text* TextPtr);
-      size_t AddSibling(size_t index, const Text* TextPtr);
+      size_t AddChild(size_t index, const wchar_t* text);
+      size_t AddSibling(size_t index, const wchar_t* text);
 
       // Count the number of siblings, including the node itself.
       // Returns zero if the index is invalid.

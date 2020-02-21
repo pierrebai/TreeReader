@@ -32,12 +32,12 @@ namespace TreeReader
 
    Result ContainsTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
    {
-      return (node.TextPtr->find(Contained) != wstring::npos) ? Keep : Drop;
+      return (wcsstr(node.TextPtr, Contained.c_str()) != nullptr) ? Keep : Drop;
    }
 
    Result RegexTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
    {
-      return regex_search(*node.TextPtr, Regex) ? Keep : Drop;
+      return regex_search(node.TextPtr, Regex) ? Keep : Drop;
    }
 
    Result NotTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
