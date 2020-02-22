@@ -163,6 +163,7 @@
     <ClInclude Include="TreeFilter.h" />
     <ClInclude Include="TreeFilterMaker.h" />
     <ClInclude Include="TreeReader.h" />
+    <ClInclude Include="TreeReaderHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BuffersTextHolder.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="TextTree.cpp" />
     <ClCompile Include="TextTreeVisitor.cpp" />
     <ClCompile Include="TreeFilter.cpp" />
+    <ClCompile Include="TreeReaderHelpers.cpp" />
     <ClCompile Include="TreeFilterMaker.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

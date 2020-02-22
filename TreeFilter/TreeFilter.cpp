@@ -25,43 +25,57 @@ static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
    return {};
 }
 
-int wmain(int argc, wchar_t** argv)
+static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterText, Options& options, ReadSimpleTextTreeOptions& readOptions)
 {
-   Options options;
-   ReadSimpleTextTreeOptions readOptions;
-   wstring file;
-   wstring filterText;
-
-   for (int i = 1; i < argc; ++i)
+   for (size_t i = 0; i < args.size(); ++i)
    {
-      const wstring arg = argv[i];
+      const wstring& arg = args[i];
       if (arg == L"-v1" || arg == L"--v1")
       {
          options.UseV1 = true;
+      }
+      if (arg == L"-v1" || arg == L"--no-v1")
+      {
+         options.UseV1 = false;
       }
       else if (arg == L"-i" || arg == L"--interactive")
       {
          options.IsInteractive = true;
       }
+      else if (arg == L"-i" || arg == L"--no-interactive")
+      {
+         options.IsInteractive = false;
+      }
       else if (arg == L"-d" || arg == L"--debug")
       {
          options.Debug = true;
       }
-      else if (arg == L"--input-filter" && i + 1 < argc)
+      else if (arg == L"--no-debug")
       {
-         i += 1;
+         options.Debug = false;
+      }
+      else if (arg == L"--input-filter" && i + 1 < args.size())
+      {
          readOptions.FilterInput = true;
-         readOptions.InputFilter = argv[i];
+         readOptions.InputFilter = args[++i];
       }
-      else if (arg == L"--input-indent" && i + 1 < argc)
+      else if (arg == L"--input-indent" && i + 1 < args.size())
       {
-         i += 1;
-         readOptions.InputIndent = argv[i];
+         readOptions.InputIndent = args[++i];
       }
-      else if (arg == L"--output-indent" && i + 1 < argc)
+      else if (arg == L"--output-indent" && i + 1 < args.size())
       {
-         i += 1;
-         options.OutputLineIndent = argv[i];
+         options.OutputLineIndent = args[++i];
+      }
+      else if (arg == L"--file" && i + 1 < args.size())
+      {
+         file = args[++i];
+      }
+      else if (arg == L"--filter" && i + 1 < args.size())
+      {
+         if (!filterText.empty())
+            filterText += L' ';
+         filterText += args[++i];
       }
       else if (file.empty())
       {
@@ -74,29 +88,52 @@ int wmain(int argc, wchar_t** argv)
          filterText += arg;
       }
    }
+}
 
-   if (file.empty() || (!options.IsInteractive && filterText.empty()))
-   {
-      wcerr << L"Usage: " << argv[0] << L" [options] <tree-file> <filter-description>" << std::endl;
-      return 1;
-   }
+int wmain(int argc, wchar_t** argv)
+{
+   Options options;
+   ReadSimpleTextTreeOptions readOptions;
 
-   TreeFilterPtr filter;
-   if (!filterText.empty())
-   {
-      filter = CreateFilter(filterText, options);
-      if (!filter)
-      {
-         return 1;
-      }
-   }
-
-   TextTree tree = ReadSimpleTextTree(filesystem::path(file), readOptions);
-
+   TextTree tree;
    TextTree filtered;
+   TreeFilterPtr filter;
+
+   wstring previousFile;
+   wstring previousFilterText;
+
+   vector<wstring> args(argv + min(1, argc), argv + argc);
+
    while (true)
    {
-      if (filter)
+      wstring file = previousFile;
+      wstring filterText;
+      HandleOptions(args, file, filterText, options, readOptions);
+
+      if (!options.IsInteractive)
+      {
+         if (file.empty() || filterText.empty())
+         {
+            wcerr << L"Usage: " << argv[0] << L" [options] <tree-file> <filter-description>" << std::endl;
+            return 1;
+         }
+      }
+
+      const bool fileChanged = (file != previousFile);
+      if (fileChanged)
+      {
+         previousFile = file;
+         tree = ReadSimpleTextTree(filesystem::path(file), readOptions);
+      }
+
+      const bool filterChanged = (filterText != previousFilterText);
+      if (filterChanged)
+      {
+         previousFilterText = filterText;
+         filter = CreateFilter(filterText, options);
+      }
+
+      if (filter && (fileChanged || filterChanged))
       {
          FilterTree(tree, filtered, filter);
          PrintTree(wcout, filtered, options.OutputLineIndent) << endl;
@@ -105,12 +142,11 @@ int wmain(int argc, wchar_t** argv)
       if (!options.IsInteractive)
          break;
 
-      wcout << L"New filter: "; 
+      wcout << L"New arguments: "; 
       wchar_t buffer[256];
       wcin.getline(buffer, sizeof(buffer)/sizeof(buffer[0]));
       if (!wcin)
          break;
-      filterText = buffer;
-      filter = CreateFilter(filterText, options);
+      args = split(buffer);
    }
 }

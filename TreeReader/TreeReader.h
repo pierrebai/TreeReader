@@ -7,3 +7,4 @@
 #include "TreeFilter.h"
 #include "TreeFilterMaker.h"
 #include "SimpleTreeReader.h"
+#include "TreeReaderHelpers.h"
