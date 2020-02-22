@@ -62,5 +62,6 @@ namespace TreeReader
 
    // Convert the text tree to a textual form with indentation.
 
+   std::wostream& PrintTree(std::wostream& stream, const TextTree& tree, const std::wstring& indentation = L"  ");
    std::wostream& operator<<(std::wostream& stream, const TextTree& tree);
 }

@@ -10,6 +10,7 @@ struct Options
    bool UseV1 = false;
    bool IsInteractive = false;
    bool Debug = false;
+   wstring OutputLineIndent = L"  ";
 };
 
 static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
@@ -27,6 +28,7 @@ static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
 int wmain(int argc, wchar_t** argv)
 {
    Options options;
+   ReadSimpleTextTreeOptions readOptions;
    wstring file;
    wstring filterText;
 
@@ -45,6 +47,22 @@ int wmain(int argc, wchar_t** argv)
       {
          options.Debug = true;
       }
+      else if (arg == L"--input-filter" && i + 1 < argc)
+      {
+         i += 1;
+         readOptions.FilterInput = true;
+         readOptions.InputFilter = argv[i];
+      }
+      else if (arg == L"--input-indent" && i + 1 < argc)
+      {
+         i += 1;
+         readOptions.InputIndent = argv[i];
+      }
+      else if (arg == L"--output-indent" && i + 1 < argc)
+      {
+         i += 1;
+         options.OutputLineIndent = argv[i];
+      }
       else if (file.empty())
       {
          file = arg;
@@ -59,7 +77,7 @@ int wmain(int argc, wchar_t** argv)
 
    if (file.empty() || (!options.IsInteractive && filterText.empty()))
    {
-      wcerr << L"Usage: " << argv[0] << L" <tree-file> <filter-description>" << std::endl;
+      wcerr << L"Usage: " << argv[0] << L" [options] <tree-file> <filter-description>" << std::endl;
       return 1;
    }
 
@@ -73,7 +91,7 @@ int wmain(int argc, wchar_t** argv)
       }
    }
 
-   TextTree tree = ReadSimpleTextTree(filesystem::path(file));
+   TextTree tree = ReadSimpleTextTree(filesystem::path(file), readOptions);
 
    TextTree filtered;
    while (true)
@@ -81,7 +99,7 @@ int wmain(int argc, wchar_t** argv)
       if (filter)
       {
          FilterTree(tree, filtered, filter);
-         wcout << filtered << endl;
+         PrintTree(wcout, filtered, options.OutputLineIndent) << endl;
       }
 
       if (!options.IsInteractive)

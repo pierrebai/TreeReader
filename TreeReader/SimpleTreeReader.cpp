@@ -4,11 +4,17 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <list>
 
 namespace TreeReader
 {
    using namespace std;
    using namespace std::filesystem;
+
+   struct BuffersTextHolderWithFilteredLines : BuffersTextHolder
+   {
+      list<wstring> FilteredLines;
+   };
 
    TextTree ReadSimpleTextTree(const path& path, const ReadSimpleTextTreeOptions& options)
    {
@@ -16,48 +22,50 @@ namespace TreeReader
       return ReadSimpleTextTree(file, options);
    }
 
-   static std::pair<size_t, size_t> GetIndent(const wchar_t* buffer, size_t count, const ReadSimpleTextTreeOptions& options)
+   static std::pair<size_t, size_t> GetIndent(const wchar_t* line, size_t count, const ReadSimpleTextTreeOptions& options)
    {
-      if (options.SimpleIndent)
-      {
-         const size_t textIndex = wcsspn(buffer, L" \t");
-         size_t indent = textIndex;
-         for (size_t i = 0; i < textIndex; ++i)
-            if (buffer[i] == L'\t')
-               indent += options.TabSize - 1;
-         return make_pair(indent, textIndex);
-      }
-      else
-      {
-         wcmatch match;
-         if (!regex_search(buffer, buffer + count, match, options.IndentRegex))
-            return make_pair(0, 0);
-
-         // Calculate the indent. One space per character, except tabs which count for TabSize
-         // characters. Since tabs were already counted for 1, we only add one less than TabSize
-         // for each.
-         wstring indentText = match[0].str();
-         size_t indent = indentText.length();
-         for (wchar_t c : indentText)
-            if (c == L'\t')
-               indent += options.TabSize - 1;
-
-         return make_pair(indent, match.length());
-      }
-   }
+      const size_t textIndex = wcsspn(line, options.InputIndent.c_str());
+      size_t indent = textIndex;
+      for (size_t i = 0; i < textIndex; ++i)
+         if (line[i] == L'\t')
+            indent += options.TabSize - 1;
+      return make_pair(indent, textIndex);
+}
 
    TextTree ReadSimpleTextTree(wistream& stream, const ReadSimpleTextTreeOptions& options)
    {
       BuffersTextHolderReader reader;
+
+      // Reset the text holder for this private version that can hold extra filtered lines.
+      shared_ptr<BuffersTextHolderWithFilteredLines> holder;
+      if (options.FilterInput)
+         reader.Holder = holder = make_shared<BuffersTextHolderWithFilteredLines>();
 
       vector<size_t> indents;
       vector<wchar_t*> lines;
       {
          while (true)
          {
-            const auto [line, count] = reader.ReadLine(stream);
+            auto result = reader.ReadLine(stream);
+            wchar_t* line = result.first;
+            const size_t count = result.second;
             if (count <= 0)
                break;
+
+            if (options.FilterInput)
+            {
+               auto pos = wcregex_iterator(line, line + count, options.InputFilter);
+               auto end = wcregex_iterator();
+               if (pos == end)
+                  continue;
+
+               wstring cleanedLine;
+               for (; pos != end; ++pos)
+                  cleanedLine += pos->str();
+               holder->FilteredLines.emplace_back(move(cleanedLine));
+               line = holder->FilteredLines.back().data();
+            }
+
             const auto [indent, textIndex] = GetIndent(line, count, options);
 
             lines.emplace_back(line + textIndex);

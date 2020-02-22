@@ -23,7 +23,7 @@ namespace TreeReader
             // Note: allocate one more character to be able to always put a terminating null.
             buffer->resize(bufferSize + 1);
             if (amountReadSoFar > 0)
-               memcpy(buffer->data(), line, amountReadSoFar);
+               memcpy(buffer->data(), line, amountReadSoFar * sizeof(wchar_t));
 
             line = buffer->data();
             BufferEnd = line + bufferSize;

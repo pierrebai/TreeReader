@@ -164,12 +164,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TreeReaderTests.cpp" />
+    <ClCompile Include="SimplerTreeReaderTests.cpp" />
+    <ClCompile Include="TextTreeTests.cpp" />
+    <ClCompile Include="TreeFilterTests.cpp" />
+    <ClCompile Include="TreeReaderTestHelpers.cpp" />
+    <ClCompile Include="TreeFilterMakerTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TreeReader\TreeReader.vcxproj">
       <Project>{754c9e71-123e-49d4-8086-36185a9eae23}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TreeReaderTestHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -69,18 +69,22 @@ namespace TreeReader
       return CountSiblings(Nodes[index].FirstChildIndex);
    }
 
-   wostream& operator<<(wostream& stream, const TextTree& tree)
+   std::wostream& PrintTree(std::wostream& stream, const TextTree& tree, const std::wstring& indentation)
    {
-      VisitInOrder(tree, 0, [&stream](const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+      VisitInOrder(tree, 0, [&stream, &indentation](const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
       {
          for (size_t indent = 0; indent < level; ++indent)
-            stream << L"  ";
+            stream << indentation;
 
          stream << node.TextPtr << L"\n";
 
          return TreeVisitor::Result();
       });
-
       return stream;
+   }
+
+   wostream& operator<<(wostream& stream, const TextTree& tree)
+   {
+      return PrintTree(stream, tree);
    }
 }
