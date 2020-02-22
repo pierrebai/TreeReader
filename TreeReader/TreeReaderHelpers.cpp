@@ -6,13 +6,14 @@ namespace TreeReader
 {
    using namespace std;
 
-   vector<wstring> split(const wstring& text, wchar_t delimiter)
+   vector<wstring> split(const wstring& text, wchar_t delimiter, SplitOptions options)
    {
       vector<wstring> result;
       wistringstream sstream(text);
       wstring item;
       while (getline(sstream, item, delimiter))
-         result.emplace_back(item);
+         if (!item.empty() || options == SplitOptions::KeepEmpty)
+            result.emplace_back(item);
       return result;
    }
 

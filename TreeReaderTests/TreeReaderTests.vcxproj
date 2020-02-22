@@ -167,6 +167,7 @@
     <ClCompile Include="SimplerTreeReaderTests.cpp" />
     <ClCompile Include="TextTreeTests.cpp" />
     <ClCompile Include="TreeFilterTests.cpp" />
+    <ClCompile Include="TreeReaderHelpersTests.cpp" />
     <ClCompile Include="TreeReaderTestHelpers.cpp" />
     <ClCompile Include="TreeFilterMakerTests.cpp" />
   </ItemGroup>

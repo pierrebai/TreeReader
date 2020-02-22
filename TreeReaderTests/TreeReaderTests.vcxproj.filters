@@ -30,6 +30,9 @@
     <ClCompile Include="TreeFilterMakerTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TreeReaderHelpersTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TreeReaderTestHelpers.h">
