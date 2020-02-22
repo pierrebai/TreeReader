@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <regex>
+#include <compare>
 
 namespace TreeReader
 {
@@ -21,8 +22,9 @@ namespace TreeReader
       // It is applied before indentation calculations.
       // Only captured text will be kept for further processing.
       // This allows cleaning up input lines.
-      bool FilterInput = false;
-      std::wregex InputFilter;
+      std::wstring InputFilter;
+
+      auto operator<=>(const ReadSimpleTextTreeOptions&) const = default;
    };
 
    // Read a simple flat text file, using initial whit-space indentation to determine the tree structure.

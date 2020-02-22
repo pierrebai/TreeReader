@@ -48,7 +48,6 @@ namespace TreeReaderTests
 			sstream.seekg(0);
 
 			ReadSimpleTextTreeOptions options;
-			options.FilterInput = true;
 			options.InputFilter = L"([^bek]*)";
 
 			TextTree tree = ReadSimpleTextTree(sstream, options);

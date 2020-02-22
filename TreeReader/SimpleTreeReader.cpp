@@ -38,8 +38,13 @@ namespace TreeReader
 
       // Reset the text holder for this private version that can hold extra filtered lines.
       shared_ptr<BuffersTextHolderWithFilteredLines> holder;
-      if (options.FilterInput)
+      wregex inputFilter;
+      const bool inputFilterUsed = !options.InputFilter.empty();
+      if (inputFilterUsed)
+      {
+         inputFilter = wregex(options.InputFilter);
          reader.Holder = holder = make_shared<BuffersTextHolderWithFilteredLines>();
+      }
 
       vector<size_t> indents;
       vector<wchar_t*> lines;
@@ -52,9 +57,9 @@ namespace TreeReader
             if (count <= 0)
                break;
 
-            if (options.FilterInput)
+            if (inputFilterUsed)
             {
-               auto pos = wcregex_iterator(line, line + count, options.InputFilter);
+               auto pos = wcregex_iterator(line, line + count, inputFilter);
                auto end = wcregex_iterator();
                if (pos == end)
                   continue;

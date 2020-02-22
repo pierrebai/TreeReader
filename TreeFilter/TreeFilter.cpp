@@ -1,6 +1,7 @@
 #include "TreeReader.h"
 
 #include <iostream>
+#include <compare>
 
 using namespace std;
 using namespace TreeReader;
@@ -11,6 +12,8 @@ struct Options
    bool IsInteractive = false;
    bool Debug = false;
    wstring OutputLineIndent = L"  ";
+
+   auto operator<=>(const Options&) const = default;
 };
 
 static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
@@ -21,11 +24,29 @@ static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)
    if (filter)
       return filter;
 
-   wcerr << L"Invalid filter: " << filterText << std::endl;
+   wcerr << L"Invalid filter: " << filterText << endl;
    return {};
 }
 
-static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterText, Options& options, ReadSimpleTextTreeOptions& readOptions)
+static void PrintHelp(wostream& stream, wstring programName)
+{
+   stream << L"Usage: " << programName << L" [options] <tree-file> <filter-description>" << endl;
+   stream << L"Options:" << endl;
+   stream << L"  -v1 or --v1: use v1 text-to-filter conversion." << endl;
+   stream << L"  --no-v1: use the simple text-to-filter conversion." << endl;
+   stream << L"  -i  or --interactive: use an interactive prompt to enter options, file name or filters." << endl;
+   stream << L"  --no-interactive: turn off the interactive mode." << endl;
+   stream << L"  -h  or --help: print this help." << endl;
+   stream << L"  -d  or --debug: print debug information while processing." << endl;
+   stream << L"  --no-debug: turn off debugging." << endl;
+   stream << L"  --input-filter ''regex'': a regular expression to filter input lines." << endl;
+   stream << L"  --input-indent ''text'': the characters detected as indentation in each line." << endl;
+   stream << L"  --output-indent ''text'': text to indent the printed lines." << endl;
+   stream << L"  --file ''file name'': the name of the file to read and filter." << endl;
+   stream << L"  --filter ''filter'': provide the text to be converted into filters." << endl;
+}
+
+static void HandleOptions(wstring programName, vector<wstring> args, wstring& file, wstring& filterText, Options& options, ReadSimpleTextTreeOptions& readOptions)
 {
    for (size_t i = 0; i < args.size(); ++i)
    {
@@ -34,7 +55,7 @@ static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterTe
       {
          options.UseV1 = true;
       }
-      if (arg == L"-v1" || arg == L"--no-v1")
+      if (arg == L"--no-v1")
       {
          options.UseV1 = false;
       }
@@ -42,9 +63,13 @@ static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterTe
       {
          options.IsInteractive = true;
       }
-      else if (arg == L"-i" || arg == L"--no-interactive")
+      else if (arg == L"--no-interactive")
       {
          options.IsInteractive = false;
+      }
+      else if (arg == L"-h" || arg == L"--help")
+      {
+         PrintHelp(wcout, programName);
       }
       else if (arg == L"-d" || arg == L"--debug")
       {
@@ -56,7 +81,6 @@ static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterTe
       }
       else if (arg == L"--input-filter" && i + 1 < args.size())
       {
-         readOptions.FilterInput = true;
          readOptions.InputFilter = args[++i];
       }
       else if (arg == L"--input-indent" && i + 1 < args.size())
@@ -92,48 +116,59 @@ static void HandleOptions(vector<wstring> args, wstring& file, wstring& filterTe
 
 int wmain(int argc, wchar_t** argv)
 {
-   Options options;
-   ReadSimpleTextTreeOptions readOptions;
-
    TextTree tree;
    TextTree filtered;
    TreeFilterPtr filter;
 
-   wstring previousFile;
-   wstring previousFilterText;
+   Options options;
+   ReadSimpleTextTreeOptions readOptions;
 
+   wstring file;
+   wstring filterText;
+
+   wstring programName = argc > 0 ? argv[0] : L"TreeFilter";
    vector<wstring> args(argv + min(1, argc), argv + argc);
 
    while (true)
    {
-      wstring file = previousFile;
-      wstring filterText;
-      HandleOptions(args, file, filterText, options, readOptions);
+      bool optionsChanged = false;
+      bool readOptionsChanged = false;
+      bool fileChanged = false;
+      bool filterChanged = false;
+      {
+         const Options previousOptions = options;
+         const ReadSimpleTextTreeOptions previousReadOptions = readOptions;
+         const wstring previousFile = file;
+         const wstring previousFilterText = filterText;
+
+         HandleOptions(programName, args, file, filterText, options, readOptions);
+
+         optionsChanged = (previousOptions != options);
+         readOptionsChanged = (previousReadOptions != readOptions);
+         fileChanged = (previousFile != file);
+         filterChanged = (previousFilterText != filterText);
+      }
 
       if (!options.IsInteractive)
       {
          if (file.empty() || filterText.empty())
          {
-            wcerr << L"Usage: " << argv[0] << L" [options] <tree-file> <filter-description>" << std::endl;
+            PrintHelp(wcerr, programName);
             return 1;
          }
       }
 
-      const bool fileChanged = (file != previousFile);
-      if (fileChanged)
+      if (fileChanged || readOptionsChanged)
       {
-         previousFile = file;
          tree = ReadSimpleTextTree(filesystem::path(file), readOptions);
       }
 
-      const bool filterChanged = (filterText != previousFilterText);
-      if (filterChanged)
+      if (filterChanged || optionsChanged)
       {
-         previousFilterText = filterText;
          filter = CreateFilter(filterText, options);
       }
 
-      if (filter && (fileChanged || filterChanged))
+      if (filter && (fileChanged || filterChanged || optionsChanged || readOptionsChanged))
       {
          FilterTree(tree, filtered, filter);
          PrintTree(wcout, filtered, options.OutputLineIndent) << endl;
@@ -145,7 +180,7 @@ int wmain(int argc, wchar_t** argv)
       wcout << L"New arguments: "; 
       wchar_t buffer[256];
       wcin.getline(buffer, sizeof(buffer)/sizeof(buffer[0]));
-      if (!wcin)
+      if (!wcin || !buffer[0])
          break;
       args = split(buffer);
    }
