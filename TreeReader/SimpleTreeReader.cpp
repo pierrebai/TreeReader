@@ -48,7 +48,7 @@ namespace TreeReader
          {
             auto result = reader.ReadLine(stream);
             wchar_t* line = result.first;
-            const size_t count = result.second;
+            size_t count = result.second;
             if (count <= 0)
                break;
 
@@ -62,8 +62,14 @@ namespace TreeReader
                wstring cleanedLine;
                for (; pos != end; ++pos)
                   cleanedLine += pos->str();
-               holder->FilteredLines.emplace_back(move(cleanedLine));
-               line = holder->FilteredLines.back().data();
+
+               const size_t cleanedCount = cleanedLine.size();
+               if (cleanedCount < count)
+               {
+                  holder->FilteredLines.emplace_back(move(cleanedLine));
+                  line = holder->FilteredLines.back().data();
+                  count = cleanedCount;
+               }
             }
 
             const auto [indent, textIndex] = GetIndent(line, count, options);
