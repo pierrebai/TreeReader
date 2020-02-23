@@ -401,7 +401,7 @@ namespace TreeReader
 
    TreeFilterPtr ConvertTextToFilters(const wstring& text)
    {
-      if (text.starts_with(L"V1: "))
+      if (text.find(L"V1: ") == 0)
       {
          wistringstream sstream(text.substr(4));
          return V1::ConvertTextToFilters(sstream);
@@ -514,9 +514,9 @@ namespace TreeReader
                // Assume we were recursed into.
                break;
             }
-            else if (part.starts_with(L"\""))
+            else if (part.front() == L'\"')
             {
-               if (part.ends_with(L"\""))
+               if (part.back() == L'\"')
                {
                   wstring text = part.substr(1, part.size() - 2);
                   auto filter = Contains(text);

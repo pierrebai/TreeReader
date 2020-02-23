@@ -1,7 +1,6 @@
 #include "TreeReader.h"
 
 #include <iostream>
-#include <compare>
 
 using namespace std;
 using namespace TreeReader;
@@ -13,7 +12,13 @@ struct Options
    bool Debug = false;
    wstring OutputLineIndent = L"  ";
 
-   auto operator<=>(const Options&) const = default;
+   bool operator!=(const Options& other) const
+   {
+      return UseV1 != other.UseV1
+          || IsInteractive != other.IsInteractive
+          || Debug != other.Debug
+          || OutputLineIndent != other.OutputLineIndent;
+   }
 };
 
 static TreeFilterPtr CreateFilter(const wstring& filterText, const Options& opt)

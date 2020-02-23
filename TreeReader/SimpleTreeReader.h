@@ -4,7 +4,6 @@
 
 #include <filesystem>
 #include <regex>
-#include <compare>
 
 namespace TreeReader
 {
@@ -24,7 +23,13 @@ namespace TreeReader
       // This allows cleaning up input lines.
       std::wstring InputFilter;
 
-      auto operator<=>(const ReadSimpleTextTreeOptions&) const = default;
+      bool operator!=(const ReadSimpleTextTreeOptions& other) const
+      {
+         return TabSize != other.TabSize
+             || InputIndent != other.InputIndent
+             || InputFilter != other.InputFilter;
+
+      }
    };
 
    // Read a simple flat text file, using initial whit-space indentation to determine the tree structure.
