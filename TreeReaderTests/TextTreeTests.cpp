@@ -38,13 +38,22 @@ namespace TreeReaderTests
 
 			Assert::AreEqual<size_t>(1, tree.CountSiblings(0));
 			Assert::AreEqual<size_t>(2, tree.CountSiblings(1));
-			Assert::AreEqual<size_t>(1, tree.CountSiblings(2));
+			Assert::AreEqual<size_t>(2, tree.CountSiblings(2));
 			Assert::AreEqual<size_t>(1, tree.CountSiblings(3));
 			Assert::AreEqual<size_t>(1, tree.CountSiblings(4));
 			Assert::AreEqual<size_t>(2, tree.CountSiblings(5));
-			Assert::AreEqual<size_t>(1, tree.CountSiblings(6));
+			Assert::AreEqual<size_t>(2, tree.CountSiblings(6));
 			Assert::AreEqual<size_t>(1, tree.CountSiblings(7));
-		}
+
+         Assert::AreEqual<size_t>(0, tree.CountAncestors(0));
+         Assert::AreEqual<size_t>(1, tree.CountAncestors(1));
+         Assert::AreEqual<size_t>(1, tree.CountAncestors(2));
+         Assert::AreEqual<size_t>(2, tree.CountAncestors(3));
+         Assert::AreEqual<size_t>(2, tree.CountAncestors(4));
+         Assert::AreEqual<size_t>(3, tree.CountAncestors(5));
+         Assert::AreEqual<size_t>(3, tree.CountAncestors(6));
+         Assert::AreEqual<size_t>(4, tree.CountAncestors(7));
+      }
 
 		TEST_METHOD(PrintSimpleTree)
 		{
