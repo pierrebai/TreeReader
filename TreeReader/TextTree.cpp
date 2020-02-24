@@ -5,68 +5,95 @@ namespace TreeReader
 {
    using namespace std;
 
-   size_t TextTree::AddChild(size_t index, const wchar_t* text)
+   size_t TextTree::AddChild(size_t underIndex, const wchar_t* text)
    {
       const size_t newIndex = Nodes.size();
-      Nodes.push_back(Node{ text });
+      Nodes.push_back(Node{ text, underIndex });
 
-      if (index >= Nodes.size() - 1)
+      if (underIndex >= Nodes.size() - 1)
+      {
+         RootCount += 1;
          return newIndex;
+      }
 
-      return AddChild(index, newIndex);
+      return AddChild(underIndex, newIndex);
    }
 
-   size_t TextTree::AddChild(size_t index, size_t newIndex)
+   size_t TextTree::AddChild(size_t underIndex, size_t newIndex)
    {
-      if (Nodes[index].FirstChildIndex == -1)
+      Nodes[underIndex].ChildrenCount += 1;
+
+      if (Nodes[underIndex].FirstChildIndex == -1)
       {
-         Nodes[index].FirstChildIndex = newIndex;
+         Nodes[underIndex].FirstChildIndex = newIndex;
          return newIndex;
       }
       else
       {
-         return AddSibling(Nodes[index].FirstChildIndex, newIndex);
+         return AddSibling(Nodes[underIndex].FirstChildIndex, newIndex);
       }
    }
 
-   size_t TextTree::AddSibling(size_t index, const wchar_t* text)
+   size_t TextTree::AddSibling(size_t afterIndex, const wchar_t* text)
    {
       const size_t newIndex = Nodes.size();
       Nodes.push_back(Node{ text });
 
-      if (index >= Nodes.size() - 1)
+      if (afterIndex >= Nodes.size() - 1)
          return newIndex;
 
-      return AddSibling(index, newIndex);
+      const size_t parentIndex = Nodes[afterIndex].ParentIndex;
+      Nodes.back().ParentIndex = parentIndex;
+
+      if (parentIndex < Nodes.size())
+         Nodes[afterIndex].ChildrenCount += 1;
+      else
+         RootCount += 1;
+
+      return AddSibling(afterIndex, newIndex);
    }
 
-   size_t TextTree::AddSibling(size_t index, size_t newIndex)
+   size_t TextTree::AddSibling(size_t afterIndex, size_t newIndex)
    {
-      while (Nodes[index].NextSiblingIndex != -1)
-         index = Nodes[index].NextSiblingIndex;
+      while (Nodes[afterIndex].NextSiblingIndex != -1)
+         afterIndex = Nodes[afterIndex].NextSiblingIndex;
 
-      Nodes[index].NextSiblingIndex = newIndex;
+      Nodes[afterIndex].NextSiblingIndex = newIndex;
 
       return newIndex;
    }
 
-   size_t TextTree::CountSiblings(size_t index) const
+   size_t TextTree::CountSiblings(size_t fromIndex) const
    {
-      size_t count = 0;
-      while (index < Nodes.size())
-      {
-         index = Nodes[index].NextSiblingIndex;
-         count++;
-      }
-      return count;
-   }
-
-   size_t TextTree::CountChildren(size_t index) const
-   {
-      if (index >= Nodes.size())
+      if (fromIndex >= Nodes.size())
          return 0;
 
-      return CountSiblings(Nodes[index].FirstChildIndex);
+      const size_t parentIndex = Nodes[fromIndex].ParentIndex;
+      if (parentIndex >= Nodes.size())
+         return RootCount;
+
+      return Nodes[parentIndex].ChildrenCount;
+   }
+
+   size_t TextTree::CountChildren(size_t parentIndex) const
+   {
+      if (parentIndex >= Nodes.size())
+         return 0;
+
+      return Nodes[parentIndex].ChildrenCount;
+   }
+
+   size_t TextTree::CountAncestors(size_t fromIndex) const
+   {
+      size_t count = 0;
+
+      while (Nodes[fromIndex].ParentIndex < Nodes.size())
+      {
+         count += 1;
+         fromIndex = Nodes[fromIndex].ParentIndex;
+      }
+
+      return count;
    }
 
    std::wostream& PrintTree(std::wostream& stream, const TextTree& tree, const std::wstring& indentation)
