@@ -93,6 +93,9 @@ struct TextTreeModel : QAbstractItemModel
       if (!tree)
          return 0;
 
+      if (!parent.isValid())
+         return int(tree->Roots.size());
+
       const Node* node = static_cast<Node*>(parent.internalPointer());
       if (!node)
          return 0;
