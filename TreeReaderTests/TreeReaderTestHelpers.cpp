@@ -28,15 +28,16 @@ namespace TreeReaderTests
        auto textLines = CreateTextLines();
        textTree.SourceTextLines = textLines;
 
-       //                                                                           parent     sibling       child  count
-		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(0).c_str(), size_t(-1), size_t(-1),          1,     2 });
-		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(1).c_str(),          0,          2,          3,     1 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(2).c_str(),          0, size_t(-1),          4,     1 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(3).c_str(),          1, size_t(-1), size_t(-1),     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(4).c_str(),          2, size_t(-1),          5,     2 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(5).c_str(),          4,          6, size_t(-1),     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(6).c_str(),          4, size_t(-1),          7,     1 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(7).c_str(),          6, size_t(-1), size_t(-1),     0 });
+		 const size_t invalid = TextTree::InvalidIndex;
+       //                                                                        parent  sibling    child  count  index in parent
+		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(0).c_str(), invalid, invalid,       1,     2,     0 });
+		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(1).c_str(),       0,       2,       3,     1,     0 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(2).c_str(),       0, invalid,       4,     1,     1 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(3).c_str(),       1, invalid, invalid,     0,     0 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(4).c_str(),       2, invalid,       5,     2,     0 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(5).c_str(),       4,       6, invalid,     0,     0 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(6).c_str(),       4, invalid,       7,     1,     1 });
+       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(7).c_str(),       6, invalid, invalid,     0,     0 });
 
        textTree.RootCount = 1;
 

@@ -88,11 +88,14 @@ namespace TreeReader
 
       tree.SourceTextLines = reader.Holder;
 
+      if (indents.empty())
+         return tree;
+
       vector<size_t> previousIndents;
       vector<size_t> previousNodeIndexes;
 
-      previousIndents.emplace_back(0);
-      previousNodeIndexes.emplace_back(0);
+      previousIndents.emplace_back(indents[0]);
+      previousNodeIndexes.emplace_back(-1);
 
       for (size_t i = 0; i < indents.size(); ++i)
       {

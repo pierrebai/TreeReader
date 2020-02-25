@@ -25,22 +25,26 @@ namespace TreeReader
    {
       // Each node contains its text and the index of the next sibling and the first child.
 
+      static constexpr size_t InvalidIndex = size_t(-1);
+
       struct Node
       {
          // Index into the source text lines.
          const wchar_t* TextPtr = nullptr;
 
          // Index of parent node.
-         size_t ParentIndex = size_t(-1);
+         size_t ParentIndex = InvalidIndex;
 
          // Index of next node in the same parent.
-         size_t NextSiblingIndex = size_t(-1);
+         size_t NextSiblingIndex = InvalidIndex;
 
          // Index into the node vector.
-         size_t FirstChildIndex = size_t(-1);
+         size_t FirstChildIndex = InvalidIndex;
 
          // Number of direct children.
          size_t ChildrenCount = 0;
+
+         size_t ChildInParent = InvalidIndex;
       };
 
       // Source text lines are kept constant so that the text pointers are kept valid.

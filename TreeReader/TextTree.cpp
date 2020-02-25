@@ -12,6 +12,7 @@ namespace TreeReader
 
       if (underIndex >= Nodes.size() - 1)
       {
+         Nodes[newIndex].ChildInParent = RootCount;
          RootCount += 1;
          return newIndex;
       }
@@ -21,6 +22,7 @@ namespace TreeReader
 
    size_t TextTree::AddChild(size_t underIndex, size_t newIndex)
    {
+      Nodes[newIndex].ChildInParent = Nodes[underIndex].ChildrenCount;
       Nodes[underIndex].ChildrenCount += 1;
 
       if (Nodes[underIndex].FirstChildIndex == -1)
@@ -38,17 +40,28 @@ namespace TreeReader
    {
       const size_t newIndex = Nodes.size();
       Nodes.push_back(Node{ text });
+      Node& newNode = Nodes.back();
 
       if (afterIndex >= Nodes.size() - 1)
+      {
+         newNode.ChildInParent = RootCount;
+         RootCount += 1;
          return newIndex;
+      }
 
       const size_t parentIndex = Nodes[afterIndex].ParentIndex;
-      Nodes.back().ParentIndex = parentIndex;
+      newNode.ParentIndex = parentIndex;
 
       if (parentIndex < Nodes.size())
-         Nodes[afterIndex].ChildrenCount += 1;
+      {
+         newNode.ChildInParent = Nodes[afterIndex].ChildrenCount;
+         Nodes[parentIndex].ChildrenCount += 1;
+      }
       else
+      {
+         newNode.ChildInParent = RootCount;
          RootCount += 1;
+      }
 
       return AddSibling(afterIndex, newIndex);
    }
@@ -78,7 +91,7 @@ namespace TreeReader
    size_t TextTree::CountChildren(size_t parentIndex) const
    {
       if (parentIndex >= Nodes.size())
-         return 0;
+         return RootCount;
 
       return Nodes[parentIndex].ChildrenCount;
    }

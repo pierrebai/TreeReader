@@ -8,13 +8,13 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Gui REQUIRED)
 
-add_executable(TreeFilterApp
+add_executable(TreeFilterApp WIN32
    TreeFilterApp.cpp
    #mainwindow.ui
    #resources.qrc
 )
 
-target_link_libraries(TreeFilterApp PUBLIC TreeReader Qt5::Widgets Qt5:Gui Qt5:Core)
+target_link_libraries(TreeFilterApp PUBLIC TreeReader Qt5::Widgets Qt5::Gui Qt5::Core)
 
 target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 

@@ -5,7 +5,10 @@ add_library(TreeReaderTests SHARED
    TreeFilterMakerTests.cpp
    TreeFilterTests.cpp
    TreeReaderHelpersTests.cpp
-   TreeReaderTestHelpers.cpp)
+   TreeReaderTestHelpers.cpp
+
+   TreeReaderTestHelpers.h
+)
 
 target_link_libraries(TreeReaderTests PUBLIC TreeReader)
 

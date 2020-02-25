@@ -7,5 +7,5 @@ project(TreeReaderProject)
 add_subdirectory(TreeReader)
 add_subdirectory(TreeReaderTests)
 add_subdirectory(TreeFilter)
-#add_subdirectory(TreeFilterApp)
+add_subdirectory(TreeFilterApp)
 
