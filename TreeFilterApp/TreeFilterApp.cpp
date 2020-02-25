@@ -4,6 +4,9 @@
 #include <QtWidgets/qmainwindow.h>
 #include <QtCore/qabstractitemmodel.h>
 #include <QtWidgets/qtreeview.h>
+#include <QtWidgets/qtextedit.h>
+#include <QtWidgets/qdockwidget.h>
+#include <QtWidgets/qlayout.h>
 
 using namespace std;
 using namespace TreeReader;
@@ -117,15 +120,35 @@ int main(int argc, char** argv)
    auto mainWindow = new QMainWindow;
 
    auto treeView = new QTreeView(mainWindow);
-
-   ReadSimpleTextTreeOptions readOptions;
-   auto tree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(L"TagLogger.log"), readOptions));
-   TextTreeModel* model = new TextTreeModel;
-   model->tree = tree;
    treeView->setUniformRowHeights(true);
-   treeView->setModel(model);
 
    mainWindow->setCentralWidget(treeView);
+
+   auto cmd = new QTextEdit(mainWindow);
+
+   auto dock = new QDockWidget(mainWindow);
+   dock->layout()->addWidget(cmd);
+
+   mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
+   
+   CommandsContext ctx;
+   cmd->connect(cmd, &QTextEdit::textChanged, [&]()
+   {
+      QString text = cmd->toPlainText();
+      ParseCommands(text.toStdWString(), ctx);
+      if (ctx.Filtered)
+      {
+         TextTreeModel* model = new TextTreeModel;
+         model->tree = ctx.Filtered;
+         treeView->setModel(model);
+      }
+      else if (ctx.Tree)
+      {
+         TextTreeModel* model = new TextTreeModel;
+         model->tree = ctx.Tree;
+         treeView->setModel(model);
+      }
+   });
 
    mainWindow->resize(1000, 800);
    mainWindow->show();

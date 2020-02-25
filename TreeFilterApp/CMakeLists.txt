@@ -22,3 +22,7 @@ target_include_directories(TreeFilterApp PUBLIC
    "${PROJECT_SOURCE_DIR}/TreeReader"
 )
 
+add_custom_command(TARGET TreeFilterApp POST_BUILD
+   COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:TreeFilterApp>"
+)
+

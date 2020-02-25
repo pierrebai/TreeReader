@@ -6,5 +6,6 @@
 #include "TextLinesTextHolder.h"
 #include "TreeFilter.h"
 #include "TreeFilterMaker.h"
+#include "TreeFilterCommands.h"
 #include "SimpleTreeReader.h"
 #include "TreeReaderHelpers.h"
