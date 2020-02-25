@@ -5,6 +5,7 @@
 #include <QtCore/qabstractitemmodel.h>
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qtextedit.h>
+#include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qlayout.h>
 
@@ -119,23 +120,33 @@ int main(int argc, char** argv)
    QScopedPointer<QApplication> app(new QApplication(argc, argv));
    auto mainWindow = new QMainWindow;
 
+   auto container = new QWidget(mainWindow);
+   auto layout = new QGridLayout(container);
+   layout->setColumnStretch(0, 80);
+   layout->setColumnStretch(1, 20);
+   container->setLayout(layout);
+
+   mainWindow->setCentralWidget(container);
+
    auto treeView = new QTreeView(mainWindow);
    treeView->setUniformRowHeights(true);
+   layout->addWidget(treeView, 0, 0, 1, 1);
 
-   mainWindow->setCentralWidget(treeView);
-
-   auto cmd = new QTextEdit(mainWindow);
-
-   auto dock = new QDockWidget(mainWindow);
-   dock->layout()->addWidget(cmd);
-
-   mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
+   auto cmd = new QLineEdit(mainWindow);
+   layout->addWidget(cmd, 1, 0, 1, 2);
    
+   auto output = new QTextEdit(mainWindow);
+   layout->addWidget(output, 0, 1, 1, 1);
+
    CommandsContext ctx;
-   cmd->connect(cmd, &QTextEdit::textChanged, [&]()
+   cmd->connect(cmd, &QLineEdit::editingFinished, [&]()
    {
-      QString text = cmd->toPlainText();
-      ParseCommands(text.toStdWString(), ctx);
+      QString text = cmd->text();
+      wstring result = ParseCommands(text.toStdWString(), ctx);
+
+      if (result.size())
+        output->setText(QString::fromStdWString(result));
+
       if (ctx.Filtered)
       {
          TextTreeModel* model = new TextTreeModel;

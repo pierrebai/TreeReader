@@ -6,6 +6,7 @@ add_library(TreeReader
    TextTreeVisitor.cpp
    TreeFilter.cpp
    TreeFilterMaker.cpp
+   TreeFilterCommands.cpp
    TreeReaderHelpers.cpp
 
    BuffersTextHolder.h
@@ -15,6 +16,7 @@ add_library(TreeReader
    TextTreeVisitor.h
    TreeFilter.h
    TreeFilterMaker.h
+   TreeFilterCommands.h
    TreeReader.h
    TreeReaderHelpers.h
 )
