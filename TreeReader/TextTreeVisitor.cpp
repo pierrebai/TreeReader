@@ -4,36 +4,60 @@ namespace TreeReader
 {
    using namespace std;
    using Result = TreeVisitor::Result;
+   using Node = TextTree::Node;
+   using Iter = vector<Node *>::const_iterator;
+   using IterPair = pair<Iter, Iter>;
 
-   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, TreeVisitor& visitor)
+   void VisitInOrder(const TextTree& tree, const Node* node, bool siblings, TreeVisitor& visitor)
    {
-      if (index >= tree.Nodes.size())
-         return;
+      IterPair pos;
+      if (node)
+      {
+         if (siblings)
+         {
+            if (node->Parent)
+            {
+               pos = make_pair(node->Parent->Children.begin(), node->Parent->Children.end());
+            }
+            else
+            {
+               pos = make_pair(tree.Roots.begin(), tree.Roots.end());
+            }
+            pos.first += node->IndexInParent;
+         }
+         else
+         {
+            pos = make_pair(node->Children.begin(), node->Children.end());
+         }
+      }
+      else
+      {
+         pos = make_pair(tree.Roots.begin(), tree.Roots.end());
+      }
 
-      vector<size_t> goBack;
+      vector<IterPair> goBack;
 
       size_t level = 0;
       while (true)
       {
-         if (index != -1)
+         if (pos.first != pos.second)
          {
-            const TextTree::Node& node = tree.Nodes[index];
-
-            const Result result = visitor.Visit(tree, node, index, level);
+            const Node& node = **pos.first;
+            const Result result = visitor.Visit(tree, node, level);
             if (result.Stop)
                break;
 
-            if (!result.SkipChildren && node.FirstChildIndex != -1)
+            if (!result.SkipChildren && node.Children.size() > 0)
             {
-               goBack.push_back(node.NextSiblingIndex);
-               index = node.FirstChildIndex;
+               goBack.push_back(pos);
+               pos = make_pair(node.Children.begin(), node.Children.end());
                level++;
                if (visitor.GoDeeper(level).Stop)
                   break;
             }
             else
             {
-               index = siblings ? node.NextSiblingIndex : -1;
+               ++pos.first;
             }
          }
          else if (goBack.empty())
@@ -42,8 +66,9 @@ namespace TreeReader
          }
          else
          {
-            index = goBack.back();
+            pos = goBack.back();
             goBack.pop_back();
+            ++pos.first;
             level--;
             if (visitor.GoHigher(level).Stop)
                break;
@@ -51,9 +76,9 @@ namespace TreeReader
       }
    }
 
-   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, const NodeVisitFunction& func)
+   void VisitInOrder(const TextTree& tree, const Node* node, bool siblings, const NodeVisitFunction& func)
    {
       FunctionTreeVisitor visitor(func);
-      VisitInOrder(tree, index, siblings, visitor);
+      VisitInOrder(tree, node, siblings, visitor);
    }
 }

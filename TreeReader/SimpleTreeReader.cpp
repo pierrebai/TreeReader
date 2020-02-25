@@ -10,6 +10,7 @@ namespace TreeReader
 {
    using namespace std;
    using namespace std::filesystem;
+   using Node = TextTree::Node;
 
    struct BuffersTextHolderWithFilteredLines : BuffersTextHolder
    {
@@ -92,10 +93,10 @@ namespace TreeReader
          return tree;
 
       vector<size_t> previousIndents;
-      vector<size_t> previousNodeIndexes;
+      vector<Node *> previousNodes;
 
       previousIndents.emplace_back(indents[0]);
-      previousNodeIndexes.emplace_back(-1);
+      previousNodes.emplace_back(nullptr);
 
       for (size_t i = 0; i < indents.size(); ++i)
       {
@@ -105,23 +106,16 @@ namespace TreeReader
          while (newIndent < previousIndent)
          {
             previousIndents.pop_back();
-            previousNodeIndexes.pop_back();
+            previousNodes.pop_back();
             previousIndent = previousIndents.back();
          }
 
          const wchar_t* newText = lines[i];
-         if (newIndent > previousIndent)
-         {
-            const size_t newIndex = tree.AddChild(previousNodeIndexes.back(), newText);
-            previousIndents.emplace_back(newIndent);
-            previousNodeIndexes.emplace_back(newIndex);
-         }
-         else if (newIndent == previousIndent)
-         {
-            const size_t newIndex = tree.AddSibling(previousNodeIndexes.back(), newText);
-            previousIndents.back() = newIndent;
-            previousNodeIndexes.back() = newIndex;
-         }
+         Node* addUnder = (newIndent > previousIndent) ? previousNodes.back()
+                        : previousNodes.back() ? previousNodes.back()->Parent : nullptr;
+         Node * newNode = tree.AddChild(addUnder, newText);
+         previousIndents.emplace_back(newIndent);
+         previousNodes.emplace_back(newNode);
       }
 
       return tree;

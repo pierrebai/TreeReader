@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <deque>
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -16,8 +17,8 @@ namespace TreeReader
 
    // The tree of text.
    //
-   // Contains a vector of nodes, forming a tree structure.
-   // Each node contains its text and the index of the next sibling and the first child.
+   // Contains nodes, forming a tree structure.
+   // Each node contains its text, children and index in its parent.
    //
    // Use a TextHolder to make the text used by the tree nodes valid.
 
@@ -25,56 +26,49 @@ namespace TreeReader
    {
       // Each node contains its text and the index of the next sibling and the first child.
 
-      static constexpr size_t InvalidIndex = size_t(-1);
-
       struct Node
       {
-         // Index into the source text lines.
+         // Points into the source text lines.
          const wchar_t* TextPtr = nullptr;
 
-         // Index of parent node.
-         size_t ParentIndex = InvalidIndex;
+         Node* Parent = nullptr;
 
-         // Index of next node in the same parent.
-         size_t NextSiblingIndex = InvalidIndex;
+         size_t IndexInParent = 0;
 
-         // Index into the node vector.
-         size_t FirstChildIndex = InvalidIndex;
+         std::vector<Node *> Children;
 
-         // Number of direct children.
-         size_t ChildrenCount = 0;
-
-         size_t ChildInParent = InvalidIndex;
+         Node() = default;
+         Node(const wchar_t* text, Node* parent) : TextPtr(text), Parent(parent) {}
       };
 
       // Source text lines are kept constant so that the text pointers are kept valid.
       std::shared_ptr<TextHolder> SourceTextLines;
 
-      // The tree of nodes.
-      std::vector<Node> Nodes;
+      // The roots of the tree of nodes.
+      std::vector<Node *> Roots;
 
-      // Number of root nodes.
-      size_t RootCount = 0;
+      // Clear the tree.
+      void Reset();
 
-      // Adding new nodes. To add the first root, pass any index on an empty tree.
-      size_t AddChild(size_t underIndex, const wchar_t* text);
-      size_t AddSibling(size_t afterIndex, const wchar_t* text);
+      // Adding new nodes. To add the a root, pass nullptr.
+      Node* AddChild(Node* underNode, const wchar_t* text);
+
+      // Count the number of chilren of a node.
+      // Pass null to count the number of roots.
+      size_t CountChildren(const Node* node) const;
 
       // Count the number of siblings, including the node itself.
-      // Returns zero if the index is invalid.
-      size_t CountSiblings(size_t fromIndex) const;
-
-      // Count the number of children of the node.
-      // Returns zero if the index is invalid.
-      size_t CountChildren(size_t underIndex) const;
+      // Returns zero if the node is null.
+      size_t CountSiblings(const Node* node) const;
 
       // Count the number of ancestor to reach the root of the tree.
       // That is, root nodes have an ancestor count of zero.
-      size_t CountAncestors(size_t fromIndex) const;
+      size_t CountAncestors(const Node* node) const;
 
    private:
-      size_t AddChild(size_t underIndex, size_t newIndex);
-      size_t AddSibling(size_t afterIndex, size_t newIndex);
+      // The nodes.
+      std::deque<Node> _nodes;
+
    };
 
    // Convert the text tree to a textual form with indentation.

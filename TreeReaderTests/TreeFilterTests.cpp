@@ -48,7 +48,7 @@ namespace TreeReaderTests
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeFilter)
       {
          TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, IfSubTree(Contains(L"f")));
+         FilterTree(CreateSimpleTree(), filtered, IfSubTree(Contains(L"k")));
 
          wostringstream sstream;
          sstream << filtered;

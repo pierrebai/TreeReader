@@ -25,7 +25,7 @@ namespace TreeReader
       virtual Result GoHigher(size_t higherLevel) = 0;
 
       // Called when visiting a node.
-      virtual Result Visit(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) = 0;
+      virtual Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
    };
 
    // Simple visitor that doesn't need to know that it is going deeper or higher.
@@ -38,7 +38,7 @@ namespace TreeReader
 
    // A visitor that delegates to a function when visiting each node.
 
-   typedef std::function<TreeVisitor::Result(const TextTree & tree, const TextTree::Node & node, size_t index, size_t level)> NodeVisitFunction;
+   typedef std::function<TreeVisitor::Result(const TextTree & tree, const TextTree::Node & node, size_t level)> NodeVisitFunction;
 
    struct FunctionTreeVisitor : SimpleTreeVisitor
    {
@@ -46,9 +46,9 @@ namespace TreeReader
 
       FunctionTreeVisitor(NodeVisitFunction f) : Func(f) {}
 
-      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override
+      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override
       {
-         return Func(tree, node, index, level);
+         return Func(tree, node, level);
       }
    };
 
@@ -58,16 +58,26 @@ namespace TreeReader
    //
    // Allows starting from an arbitrary node and not visiting the siblings of that initial node.
 
-   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, TreeVisitor& visitor);
-   void VisitInOrder(const TextTree& tree, size_t index, bool siblings, const NodeVisitFunction& func);
+   void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, TreeVisitor& visitor);
+   void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, const NodeVisitFunction& func);
 
-   inline void VisitInOrder(const TextTree& tree, size_t index, TreeVisitor& visitor)
+   inline void VisitInOrder(const TextTree& tree, const TextTree::Node* node, TreeVisitor& visitor)
    {
-      VisitInOrder(tree, index, true, visitor);
+      VisitInOrder(tree, node, true, visitor);
    }
 
-   inline void VisitInOrder(const TextTree& tree, size_t index, const NodeVisitFunction& func)
+   inline void VisitInOrder(const TextTree& tree, const TextTree::Node* node, const NodeVisitFunction& func)
    {
-      VisitInOrder(tree, index, true, func);
+      VisitInOrder(tree, node, true, func);
+   }
+
+   inline void VisitInOrder(const TextTree& tree, TreeVisitor& visitor)
+   {
+      VisitInOrder(tree, nullptr, true, visitor);
+   }
+
+   inline void VisitInOrder(const TextTree& tree, const NodeVisitFunction& func)
+   {
+      VisitInOrder(tree, nullptr, true, func);
    }
 }

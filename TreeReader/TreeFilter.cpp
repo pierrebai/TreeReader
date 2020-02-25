@@ -5,6 +5,8 @@ namespace TreeReader
 {
    using namespace std;
    using Result = TreeFilter::Result;
+   using Node = TextTree::Node;
+
    constexpr Result Keep{ false, false, true };
    constexpr Result Drop{ false, false, false };
    constexpr Result StopAndKeep{ true, false, true };
@@ -12,65 +14,65 @@ namespace TreeReader
    constexpr Result DropAndSkip{ false, true, false };
    constexpr Result KeepAndSkip{ false, true, true };
 
-   Result AcceptTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result AcceptTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return Keep;
    }
 
-   Result StopTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result StopTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return Keep ? StopAndKeep : StopAndDrop;
    }
 
-   Result UntilTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result UntilTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return StopAndDrop;
 
-      return Filter->IsKept(tree, node, index, level).Keep ? StopAndDrop : Drop;
+      return Filter->IsKept(tree, node, level).Keep ? StopAndDrop : Drop;
    }
 
-   Result ContainsTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result ContainsTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return (wcsstr(node.TextPtr, Contained.c_str()) != nullptr) ? Keep : Drop;
    }
 
-   Result RegexTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result RegexTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
    }
 
-   Result NotTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result NotTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
-      Result result = Filter->IsKept(tree, node, index, level);
+      Result result = Filter->IsKept(tree, node, level);
       result.Keep = !result.Keep;
       return result;
    }
 
-   Result OrTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result OrTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       Result result = Drop;
       for (const auto& filter : Filters)
          if (filter)
-            if (result = result | filter->IsKept(tree, node, index, level); result.Keep)
+            if (result = result | filter->IsKept(tree, node, level); result.Keep)
                break;
       return result;
    }
 
-   Result AndTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result AndTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       Result result = Keep;
       for (const auto& filter : Filters)
          if (filter)
-            if (result = result & filter->IsKept(tree, node, index, level); !result.Keep)
+            if (result = result & filter->IsKept(tree, node, level); !result.Keep)
                break;
       return result;
    }
 
-   Result UnderTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result UnderTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
@@ -88,7 +90,7 @@ namespace TreeReader
 
       // If the node doesn't match the under filter, don't apply the other filter.
       // Just accept the node.
-      Result result = Filter->IsKept(tree, node, index, level);
+      Result result = Filter->IsKept(tree, node, level);
       if (!result.Keep)
          return result;
 
@@ -107,18 +109,18 @@ namespace TreeReader
       return result;
    }
 
-   Result RemoveChildrenTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result RemoveChildrenTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
-      if (!Filter->IsKept(tree, node, index, level).Keep)
+      if (!Filter->IsKept(tree, node, level).Keep)
          return Keep;
 
       return RemoveSelf ? DropAndSkip : KeepAndSkip;
    }
 
-   Result LevelRangeTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result LevelRangeTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (level < MinLevel)
          return Drop;
@@ -129,30 +131,33 @@ namespace TreeReader
       return DropAndSkip;
    }
 
-   Result IfSubTreeTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+   Result IfSubTreeTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
       FilterTreeVisitor visitor(tree, _filtered, Filter);
-      VisitInOrder(tree, index, false, visitor);
-      return (_filtered.Nodes.size() > 0) ? Keep : Drop;
+      VisitInOrder(tree, &node, false, visitor);
+      return (_filtered.Roots.size() > 0) ? Keep : Drop;
    }
 
-   Result IfSiblingTreeFilter::IsKept(const TextTree& tree, const TextTree::Node&, size_t index, size_t level)
+   Result IfSiblingTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
-      while (index < tree.Nodes.size())
+      const auto& children = node.Parent ? node.Parent->Children : tree.Roots;
+      auto pos = children.begin();
+      pos += node.IndexInParent;
+
+      for (; pos != children.end(); ++pos)
       {
-         const TextTree::Node& node = tree.Nodes[index];
-         const auto result = Filter->IsKept(tree, node, index, level);
+         const Node& node = **pos;
+         const auto result = Filter->IsKept(tree, node, level);
          if (result.Keep)
             return Keep;
          if (result.Stop)
             break;
-         index = node.NextSiblingIndex;
       }
 
       return Drop;
@@ -161,60 +166,55 @@ namespace TreeReader
    FilterTreeVisitor::FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
    : FilteredTree(filteredTree), Filter (filter)
    {
-      filteredTree.Nodes.clear();
+      filteredTree.Reset();
       filteredTree.SourceTextLines = sourceTree.SourceTextLines;
-      filteredTree.Nodes.reserve(sourceTree.Nodes.size());
 
       // To make the algorithm work the same way for the first node
       // we pretend that we've seen a preceeding sibling of the level
       // zero and did not keep it.
       //
-      // So the current filtered branch for level zero is zero.
-      _filteredBranchIndexes.push_back(0);
+      // So the current filtered branch for level zero is null.
+      _filteredBranchNodes.push_back(nullptr);
       _fillChildren.push_back(false);
    }
 
-   TreeVisitor::Result FilterTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& sourceNode, const size_t sourceIndex, const size_t sourceLevel)
+   TreeVisitor::Result FilterTreeVisitor::Visit(const TextTree& tree, const Node& sourceNode, const size_t sourceLevel)
    {
-      _filteredBranchIndexes.resize(sourceLevel + 1, -1);
+      _filteredBranchNodes.resize(sourceLevel + 1, nullptr);
       _fillChildren.resize(sourceLevel + 1, false);
 
       // Either the index of the newly created filtered node if kept, or -1 if not kept.
-      size_t filteredIndex = -1;
+      Node* filteredNode = nullptr;
 
-      const TreeFilter::Result result = Filter->IsKept(tree, sourceNode, sourceIndex, sourceLevel);
+      const TreeFilter::Result result = Filter->IsKept(tree, sourceNode, sourceLevel);
       if (result.Keep)
       {
          // Connect to the nearest node in the branch.
-         for (size_t level = sourceLevel; level < _filteredBranchIndexes.size(); --level)
+         Node* addUnder = nullptr;
+         for (size_t level = sourceLevel; level < _filteredBranchNodes.size(); --level)
          {
-            if (_filteredBranchIndexes[level] != -1)
+            if (_filteredBranchNodes[level])
             {
                // If the node is at the same level, do not add as a child.
-               if (level < sourceLevel && _fillChildren[level])
-               {
-                  filteredIndex = FilteredTree.AddChild(_filteredBranchIndexes[level], sourceNode.TextPtr);
-               }
-               else
-               {
-                  filteredIndex = FilteredTree.AddSibling(_filteredBranchIndexes[level], sourceNode.TextPtr);
-               }
+               addUnder = (level < sourceLevel && _fillChildren[level]) ? _filteredBranchNodes[level] : _filteredBranchNodes[level]->Parent;
                break;
             }
          }
+
+         filteredNode = FilteredTree.AddChild(addUnder, sourceNode.TextPtr);
       }
 
       // If kept, this node is the new active node for this level.
       // If not kept, do not over-write a sibling node that may exists at this level.
-      _filteredBranchIndexes.resize(sourceLevel + 1, -1);
-      if (filteredIndex != -1)
-         _filteredBranchIndexes[sourceLevel] = filteredIndex;
+      _filteredBranchNodes.resize(sourceLevel + 1, nullptr);
+      if (filteredNode)
+         _filteredBranchNodes[sourceLevel] = filteredNode;
 
       // If the node is kept, start to add sub-node as children.
       // If not kept, make any existing singling node begin to add node as sibling instead
       // of children.
       _fillChildren.resize(sourceLevel + 1, false);
-      _fillChildren[sourceLevel] = (filteredIndex != -1);
+      _fillChildren[sourceLevel] = (filteredNode != nullptr);
 
       // Note: we really do want to slice the result down to the TreeVisitor::Result type.
       return TreeVisitor::Result(result);

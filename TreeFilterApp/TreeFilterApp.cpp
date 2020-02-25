@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace TreeReader;
+using Node = TextTree::Node;
 
 static HINSTANCE appInstance;
 
@@ -33,11 +34,11 @@ struct TextTreeModel : QAbstractItemModel
       if (!index.isValid())
          return QVariant();
 
-      const size_t nodeIndex = index.internalId();
-      if (nodeIndex >= tree->Nodes.size())
+      const Node * node = static_cast<Node *>(index.internalPointer());
+      if (!node)
          return QVariant();
 
-      return QVariant(QString::fromWCharArray(tree->Nodes[nodeIndex].TextPtr));
+      return QVariant(QString::fromWCharArray(node->TextPtr));
    }
 
    QVariant headerData(int section, Qt::Orientation orientation,
@@ -64,37 +65,27 @@ struct TextTreeModel : QAbstractItemModel
       if (!tree)
          return QModelIndex();
 
-      const size_t parentIndex = parent.isValid() ? size_t(parent.internalId()) : TextTree::InvalidIndex;
-      size_t index = (parentIndex < tree->Nodes.size()) ? tree->Nodes[parentIndex].FirstChildIndex : 0;
-      while (row > 0 && index < tree->Nodes.size())
-      {
-         index = tree->Nodes[index].NextSiblingIndex;
-         --row;
-      }
-
-      if (row > 0)
+      const Node* parentNode = parent.isValid() ? static_cast<Node*>(parent.internalPointer()) : nullptr;
+      const std::vector<Node*>& nodes = parentNode ? parentNode->Children : tree->Roots;
+      if (row < 0 || row >= nodes.size())
          return QModelIndex();
 
-      return createIndex(row, column, index);
+      return createIndex(row, column, static_cast<void *>(nodes[row]));
    }
 
    QModelIndex parent(const QModelIndex& index) const override
    {
-      // TODO
       if (!tree)
          return QModelIndex();
 
       if (!index.isValid())
          return QModelIndex();
 
-      const size_t nodeIndex = index.internalId();
-      if (nodeIndex >= tree->Nodes.size())
+      const Node* node = static_cast<Node*>(index.internalPointer());
+      if (!node)
          return QModelIndex();
 
-      const size_t parentIndex = tree->Nodes[nodeIndex].ParentIndex;
-      const size_t row = tree->Nodes[nodeIndex].ChildInParent;
-
-      return createIndex(int(row), 0, parentIndex);
+      return createIndex(int(node->IndexInParent), 0, static_cast<void *>(node->Parent));
    }
 
    int rowCount(const QModelIndex& parent = QModelIndex()) const override
@@ -102,7 +93,11 @@ struct TextTreeModel : QAbstractItemModel
       if (!tree)
          return 0;
 
-      return int(tree->CountChildren(parent.isValid() ? size_t(parent.internalId()) : TextTree::InvalidIndex));
+      const Node* node = static_cast<Node*>(parent.internalPointer());
+      if (!node)
+         return 0;
+
+      return int(node->Children.size());
    }
    int columnCount(const QModelIndex& parent = QModelIndex()) const override
    {

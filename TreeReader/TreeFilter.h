@@ -36,7 +36,7 @@ namespace TreeReader
       virtual ~TreeFilter() {};
 
       // The filter of a node.
-      virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) = 0;
+      virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
    };
 
    typedef std::shared_ptr<TreeFilter> TreeFilterPtr;
@@ -45,7 +45,7 @@ namespace TreeReader
 
    struct AcceptTreeFilter : TreeFilter
    {
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that stops filtering.
@@ -59,7 +59,7 @@ namespace TreeReader
       StopTreeFilter() = default;
       StopTreeFilter(bool keep) : Keep(keep) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that stops filtering when another sub-filter keeps a node.
@@ -73,7 +73,7 @@ namespace TreeReader
       UntilTreeFilter() = default;
       UntilTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that keeps nodes containing a given text.
@@ -85,7 +85,7 @@ namespace TreeReader
       ContainsTreeFilter() = default;
       ContainsTreeFilter(const std::wstring& text) : Contained(text) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that keeps nodes matching a regular expression.
@@ -98,7 +98,7 @@ namespace TreeReader
       RegexTreeFilter() = default;
       RegexTreeFilter(const std::wstring& reg) : RegexTextForm(reg), Regex(std::wregex(reg)) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that combines the result of other filters.
@@ -122,7 +122,7 @@ namespace TreeReader
       NotTreeFilter() = default;
       NotTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that accepts a node if any of its sub-filters accept the node.
@@ -133,7 +133,7 @@ namespace TreeReader
       OrTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
       OrTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that accepts a node if all of its sub-filters accept the node.
@@ -144,7 +144,7 @@ namespace TreeReader
       AndTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
       AndTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that accepts all children of a node that was accepted by another filter.
@@ -160,7 +160,7 @@ namespace TreeReader
       UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
          : Filter(filter), IncludeSelf(includeSelf) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
       private:
          size_t _keepAllNodesUnderLevel = -1;
@@ -178,7 +178,7 @@ namespace TreeReader
       RemoveChildrenTreeFilter() = default;
       RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf) : Filter(filter), RemoveSelf(removeSelf) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that accepts nodes that are within a range of depth in the tree.
@@ -191,7 +191,7 @@ namespace TreeReader
       LevelRangeTreeFilter() = default;
       LevelRangeTreeFilter(size_t minLevel, size_t maxLevel) : MinLevel(minLevel), MaxLevel(maxLevel) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Filter that accepts a node if at least one child is accepted by another filter.
@@ -203,7 +203,7 @@ namespace TreeReader
       IfSubTreeTreeFilter() = default;
       IfSubTreeTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
    private:
       TextTree _filtered;
@@ -218,7 +218,7 @@ namespace TreeReader
       IfSiblingTreeFilter() = default;
       IfSiblingTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t index, size_t level) override;
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Functions to create filters.
@@ -255,13 +255,13 @@ namespace TreeReader
 
       FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
 
-      Result Visit(const TextTree& tree, const TextTree::Node& sourceNode, const size_t sourceIndex, const size_t sourceLevel) override;
+      Result Visit(const TextTree& tree, const TextTree::Node& sourceNode, const size_t sourceLevel) override;
 
    private:
       // This keeps the current branch of nodes we have created.
       // We will keep one entry per source level, even when some
       // levels were filtered out.
-      std::vector<size_t> _filteredBranchIndexes;
+      std::vector<TextTree::Node *> _filteredBranchNodes;
       std::vector<bool> _fillChildren;
    };
 

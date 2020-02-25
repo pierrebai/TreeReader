@@ -28,18 +28,14 @@ namespace TreeReaderTests
        auto textLines = CreateTextLines();
        textTree.SourceTextLines = textLines;
 
-		 const size_t invalid = TextTree::InvalidIndex;
-       //                                                                        parent  sibling    child  count  index in parent
-		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(0).c_str(), invalid, invalid,       1,     2,     0 });
-		 textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(1).c_str(),       0,       2,       3,     1,     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(2).c_str(),       0, invalid,       4,     1,     1 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(3).c_str(),       1, invalid, invalid,     0,     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(4).c_str(),       2, invalid,       5,     2,     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(5).c_str(),       4,       6, invalid,     0,     0 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(6).c_str(),       4, invalid,       7,     1,     1 });
-       textTree.Nodes.push_back(TextTree::Node{ textLines->Lines.at(7).c_str(),       6, invalid, invalid,     0,     0 });
-
-       textTree.RootCount = 1;
+		 auto r0 = textTree.AddChild(nullptr, textLines->Lines.at(0).c_str());
+		 auto r0c0 = textTree.AddChild(r0, textLines->Lines.at(1).c_str());
+		 auto r0c1 = textTree.AddChild(r0, textLines->Lines.at(2).c_str());
+		 auto r0c0c0 = textTree.AddChild(r0c0, textLines->Lines.at(3).c_str());
+		 auto r0c1c0 = textTree.AddChild(r0c1, textLines->Lines.at(4).c_str());
+		 auto r0c1c0c0 = textTree.AddChild(r0c1c0, textLines->Lines.at(5).c_str());
+		 auto r0c1c0c1 = textTree.AddChild(r0c1c0, textLines->Lines.at(6).c_str());
+		 auto r0c1c0c1c0 = textTree.AddChild(r0c1c0c1, textLines->Lines.at(7).c_str());
 
 		 return textTree;
 	}

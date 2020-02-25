@@ -5,105 +5,56 @@ namespace TreeReader
 {
    using namespace std;
 
-   size_t TextTree::AddChild(size_t underIndex, const wchar_t* text)
+   void TextTree::Reset()
    {
-      const size_t newIndex = Nodes.size();
-      Nodes.push_back(Node{ text, underIndex });
-
-      if (underIndex >= Nodes.size() - 1)
-      {
-         Nodes[newIndex].ChildInParent = RootCount;
-         RootCount += 1;
-         return newIndex;
-      }
-
-      return AddChild(underIndex, newIndex);
+      Roots.clear();
+      _nodes.clear();
    }
 
-   size_t TextTree::AddChild(size_t underIndex, size_t newIndex)
+   TextTree::Node* TextTree::AddChild(Node* underNode, const wchar_t* text)
    {
-      Nodes[newIndex].ChildInParent = Nodes[underIndex].ChildrenCount;
-      Nodes[underIndex].ChildrenCount += 1;
-
-      if (Nodes[underIndex].FirstChildIndex == -1)
+      _nodes.emplace_back(text, underNode);
+      Node* newNode = &_nodes.back();
+      if (!underNode)
       {
-         Nodes[underIndex].FirstChildIndex = newIndex;
-         return newIndex;
+         newNode->IndexInParent = Roots.size();
+         Roots.emplace_back(newNode);
       }
       else
       {
-         return AddSibling(Nodes[underIndex].FirstChildIndex, newIndex);
+         newNode->IndexInParent = underNode->Children.size();
+         underNode->Children.emplace_back(newNode);
       }
+      return newNode;
    }
 
-   size_t TextTree::AddSibling(size_t afterIndex, const wchar_t* text)
+   size_t TextTree::CountSiblings(const Node* node) const
    {
-      const size_t newIndex = Nodes.size();
-      Nodes.push_back(Node{ text });
-      Node& newNode = Nodes.back();
-
-      if (afterIndex >= Nodes.size() - 1)
-      {
-         newNode.ChildInParent = RootCount;
-         RootCount += 1;
-         return newIndex;
-      }
-
-      const size_t parentIndex = Nodes[afterIndex].ParentIndex;
-      newNode.ParentIndex = parentIndex;
-
-      if (parentIndex < Nodes.size())
-      {
-         newNode.ChildInParent = Nodes[afterIndex].ChildrenCount;
-         Nodes[parentIndex].ChildrenCount += 1;
-      }
-      else
-      {
-         newNode.ChildInParent = RootCount;
-         RootCount += 1;
-      }
-
-      return AddSibling(afterIndex, newIndex);
-   }
-
-   size_t TextTree::AddSibling(size_t afterIndex, size_t newIndex)
-   {
-      while (Nodes[afterIndex].NextSiblingIndex != -1)
-         afterIndex = Nodes[afterIndex].NextSiblingIndex;
-
-      Nodes[afterIndex].NextSiblingIndex = newIndex;
-
-      return newIndex;
-   }
-
-   size_t TextTree::CountSiblings(size_t fromIndex) const
-   {
-      if (fromIndex >= Nodes.size())
+      if (!node)
          return 0;
 
-      const size_t parentIndex = Nodes[fromIndex].ParentIndex;
-      if (parentIndex >= Nodes.size())
-         return RootCount;
-
-      return Nodes[parentIndex].ChildrenCount;
+      return CountChildren(node->Parent);
    }
 
-   size_t TextTree::CountChildren(size_t parentIndex) const
+   size_t TextTree::CountChildren(const Node* node) const
    {
-      if (parentIndex >= Nodes.size())
-         return RootCount;
+      if (!node)
+         return Roots.size();
 
-      return Nodes[parentIndex].ChildrenCount;
+      return node->Children.size();
    }
 
-   size_t TextTree::CountAncestors(size_t fromIndex) const
+   size_t TextTree::CountAncestors(const Node* node) const
    {
+      if (!node)
+         return 0;
+
       size_t count = 0;
 
-      while (Nodes[fromIndex].ParentIndex < Nodes.size())
+      while (node->Parent)
       {
          count += 1;
-         fromIndex = Nodes[fromIndex].ParentIndex;
+         node = node->Parent;
       }
 
       return count;
@@ -111,7 +62,7 @@ namespace TreeReader
 
    std::wostream& PrintTree(std::wostream& stream, const TextTree& tree, const std::wstring& indentation)
    {
-      VisitInOrder(tree, 0, [&stream, &indentation](const TextTree& tree, const TextTree::Node& node, size_t index, size_t level)
+      VisitInOrder(tree, [&stream, &indentation](const TextTree& tree, const TextTree::Node& node, size_t level)
       {
          for (size_t indent = 0; indent < level; ++indent)
             stream << indentation;
