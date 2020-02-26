@@ -10,6 +10,10 @@ find_package(Qt5 COMPONENTS Gui REQUIRED)
 
 add_executable(TreeFilterApp WIN32
    TreeFilterApp.cpp
+   TextTreeModel.cpp
+
+   TextTreeModel.h
+
    #mainwindow.ui
    #resources.qrc
 )
