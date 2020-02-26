@@ -37,6 +37,11 @@ namespace TreeReader
       return (wcsstr(node.TextPtr, Contained.c_str()) != nullptr) ? Keep : Drop;
    }
 
+   Result TextAddressTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
+   {
+      return (ExactAddress == node.TextPtr) ? Keep : Drop;
+   }
+
    Result RegexTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
@@ -83,13 +88,13 @@ namespace TreeReader
       if (level > _keepAllNodesUnderLevel)
          return Keep;
 
-      // If we've reach back up to the level where we found the match previously,
+      // If we've reached back up to the level where we found the match previously,
       // then stop keeping nodes. We do this by making the apply under level very large.
       if (level <= _keepAllNodesUnderLevel)
          _keepAllNodesUnderLevel = -1;
 
       // If the node doesn't match the under filter, don't apply the other filter.
-      // Just accept the node.
+      // Just return the result of the other filter.
       Result result = Filter->IsKept(tree, node, level);
       if (!result.Keep)
          return result;
@@ -100,6 +105,94 @@ namespace TreeReader
       // Record the level at which we must come back up to to stop accepting nodes
       // without checking the filter.
       _keepAllNodesUnderLevel = level;
+
+      // If the filter must not keep the matching node, then set Keep to false here.
+      // apply it here.
+      if (!IncludeSelf)
+         result.Keep = false;
+
+      return result;
+   }
+
+   Result CountSiblingsTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      if (!Filter)
+         return Keep;
+
+      // If we've reached back up higher than the level where we found the match previously,
+      // then stop keeping nodes. We do this by making the apply under level very large
+      // and the count to zero.
+      if (level < _keepNodesAtLevel)
+      {
+         _keepNodesAtLevel = -1;
+         _countdown = 0;
+      }
+
+      // If we previously found a match and there are still a number of nodes to be accepted,
+      // reduce that number and keep the node.
+      if (_countdown > 0 && level == _keepNodesAtLevel)
+      {
+         --_countdown;
+         return Keep;
+      }
+
+      // If the node doesn't match the other filter, don't apply the other filter.
+      // Just return the result of the other filter.
+      Result result = Filter->IsKept(tree, node, level);
+      if (!result.Keep)
+         return result;
+
+      // If we reach here, the other filter matched, so we will start accepting
+      // a number of nodes under this one.
+      //
+      // Record the level at which we must come back up to to stop accepting nodes
+      // without checking the filter.
+      _keepNodesAtLevel = level;
+      _countdown = Count;
+
+      // If the filter must not keep the matching node, then set Keep to false here.
+      // apply it here.
+      if (!IncludeSelf)
+         result.Keep = false;
+
+      return result;
+   }
+
+   Result CountChildrenTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      if (!Filter)
+         return Keep;
+
+      // If we've reached back up to the level where we found the match previously,
+      // then stop keeping nodes. We do this by making the apply under level very large
+      // and the count to zero.
+      if (level <= _keepNodesUnderLevel)
+      {
+         _keepNodesUnderLevel = -1;
+         _countdown = 0;
+      }
+
+      // If we previously found a match and there are still a number of nodes to be accepted,
+      // reduce that number and keep the node.
+      if (_countdown > 0 && level > _keepNodesUnderLevel)
+      {
+         --_countdown;
+         return Keep;
+      }
+
+      // If the node doesn't match the other filter, don't apply the other filter.
+      // Just return the result of the other filter.
+      Result result = Filter->IsKept(tree, node, level);
+      if (!result.Keep)
+         return result;
+
+      // If we reach here, the other filter matched, so we will start accepting
+      // a number of nodes under this one.
+      //
+      // Record the level at which we must come back up to to stop accepting nodes
+      // without checking the filter.
+      _keepNodesUnderLevel = level;
+      _countdown = Count;
 
       // If the filter must not keep the matching node, then set Keep to false here.
       // apply it here.

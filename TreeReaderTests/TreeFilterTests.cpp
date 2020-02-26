@@ -26,7 +26,20 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithNotFilter)
+      TEST_METHOD(PrintSimpleTreeWithExactAddressFilter)
+      {
+         TextTree tree = CreateSimpleTree();
+         TextTree filtered;
+         FilterTree(tree, filtered, ExactAddress(tree.Roots[0]->TextPtr));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] = L"abc\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithNotFilter)
 		{
 			TextTree filtered;
 			FilterTree(CreateSimpleTree(), filtered, Not(Contains(L"f")));
@@ -146,7 +159,62 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
+      TEST_METHOD(PrintSimpleTreeWithCountSiblings)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, CountSiblings(Contains(L"d"), 10, false));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"ghi\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithCountSiblingsIncludeSelf)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, CountSiblings(Contains(L"d"), 10, true));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"def\n"
+            L"ghi\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithCountChildren)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, CountChildren(Contains(L"d"), 10, false));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"jkl\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithCountChildrenIncludeSelf)
+      {
+         TextTree filtered;
+         FilterTree(CreateSimpleTree(), filtered, CountChildren(Contains(L"g"), 2, true));
+
+         wostringstream sstream;
+         sstream << filtered;
+
+         const wchar_t expectedOutput[] =
+            L"ghi\n"
+            L"  mno\n"
+            L"    pqr\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+      TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
       {
          TextTree filtered;
          FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g"), true));

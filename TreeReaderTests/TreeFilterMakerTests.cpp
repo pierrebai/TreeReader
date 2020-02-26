@@ -138,6 +138,44 @@ namespace TreeReaderTests
          Assert::AreEqual(L"a", under->Contained.c_str());
       }
 
+      TEST_METHOD(ConvertToTextCountChildrenFilter)
+      {
+         auto accept = CountChildren(Contains(L"a"), 3, true);
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: \ncount-sub [ true, 3, \n contains [ \"a\" ] ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<CountChildrenTreeFilter>(ConvertTextToFilters(text));
+         Assert::IsTrue(rebuilt != nullptr);
+         Assert::AreEqual<size_t>(3, rebuilt->Count);
+
+         Assert::IsTrue(rebuilt->IncludeSelf);
+
+         auto under = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
+         Assert::IsTrue(under != nullptr);
+         Assert::AreEqual(L"a", under->Contained.c_str());
+      }
+
+      TEST_METHOD(ConvertToTextCountSiblingsFilter)
+      {
+         auto accept = CountSiblings(Contains(L"abc"), 44, false);
+
+         const wstring text = ConvertFiltersToText(accept);
+
+         Assert::AreEqual(L"V1: \ncount-sib [ false, 44, \n contains [ \"abc\" ] ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<CountSiblingsTreeFilter>(ConvertTextToFilters(text));
+         Assert::IsTrue(rebuilt != nullptr);
+         Assert::AreEqual<size_t>(44, rebuilt->Count);
+
+         Assert::IsFalse(rebuilt->IncludeSelf);
+
+         auto under = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
+         Assert::IsTrue(under != nullptr);
+         Assert::AreEqual(L"abc", under->Contained.c_str());
+      }
+
       TEST_METHOD(ConvertToTextRemoveChildrenFilter)
       {
          auto accept = NoChild(Contains(L"abc"));
@@ -173,7 +211,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleText)
       {
-         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & # ) ) ");
+         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & . ) ) ");
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -198,5 +236,22 @@ namespace TreeReaderTests
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n if-sub [ \n  contains [ \"b\" ] ] ]", text.c_str());
       }
 
-	};
+      TEST_METHOD(ConvertSimpleTextWithCountChildren)
+      {
+         auto filter = ConvertSimpleTextToFilters(L"a #> 3 b");
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n count-sub [ true, 3, \n  contains [ \"b\" ] ] ]", text.c_str());
+      }
+
+      TEST_METHOD(ConvertSimpleTextWithCountSiblings)
+      {
+         auto filter = ConvertSimpleTextToFilters(L"a #= 22 b");
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n count-sib [ true, 22, \n  contains [ \"b\" ] ] ]", text.c_str());
+      }
+   };
 }
