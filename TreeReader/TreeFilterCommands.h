@@ -32,7 +32,7 @@ namespace TreeReader
       CommandsOptions Options;
 
       std::wstring TreeFileName;
-      std::shared_ptr<TextTree> Tree;
+      std::vector<std::shared_ptr<TextTree>> Trees;
 
       std::wstring FilterText;
       TreeFilterPtr Filter;

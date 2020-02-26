@@ -53,16 +53,19 @@ namespace TreeReaderApp
          if (result.size())
             output->setText(QString::fromStdWString(result));
 
+         shared_ptr<TextTree> newTree;
          if (ctx.Filtered)
          {
-            TextTreeModel* model = new TextTreeModel;
-            model->Tree = ctx.Filtered;
-            treeView->setModel(model);
+            newTree = ctx.Filtered;
          }
-         else if (ctx.Tree)
+         else if (ctx.Trees.size() > 0)
+         {
+            newTree = ctx.Trees.back();
+         }
+         if (!treeView->model() || !dynamic_cast<TextTreeModel*>(treeView->model()) || dynamic_cast<TextTreeModel*>(treeView->model())->Tree != newTree)
          {
             TextTreeModel* model = new TextTreeModel;
-            model->Tree = ctx.Tree;
+            model->Tree = newTree;
             treeView->setModel(model);
          }
       });

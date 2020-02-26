@@ -1,4 +1,3 @@
-Add a filter command to to multiple successive filtering in one line. (Using comma?)
 Add saving a filter under a name for reuse.
 Add referencing a named filter in a filter tree. (Using @, like: @name.)
 Add saving and loading those named filters in a file.
@@ -6,3 +5,4 @@ Add saving and loading those named filters in a file.
 Add UI-based filter decription. Probably a tree of tiles.
 Move command-line and debug output to an optional panel in UI.
 Add toolbar to UI.
+Support up/down key to go back to previous text entered in input-command field.
