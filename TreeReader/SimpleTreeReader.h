@@ -32,7 +32,7 @@ namespace TreeReader
       }
    };
 
-   // Read a simple flat text file, using initial whit-space indentation to determine the tree structure.
+   // Read a simple flat text file, using initial white-space indentation to determine the tree structure.
 
    TextTree ReadSimpleTextTree(const std::filesystem::path& path, const ReadSimpleTextTreeOptions& options = ReadSimpleTextTreeOptions());
    TextTree ReadSimpleTextTree(std::wistream& stream, const ReadSimpleTextTreeOptions& options = ReadSimpleTextTreeOptions());

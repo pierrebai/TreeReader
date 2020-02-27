@@ -1,6 +1,7 @@
 #include "TreeFilterCommands.h"
 #include "TreeFilterMaker.h"
 #include "TreeReaderHelpers.h"
+#include "SimpleTreeWriter.h"
 
 #include <sstream>
 
@@ -23,8 +24,9 @@ namespace TreeReader
       stream << L"  input-filter ''regex'': filter input lines using the given regular expression." << endl;
       stream << L"  input-indent ''text'': detect the indentation of each line using the given characters." << endl;
       stream << L"  output-indent ''text'': indent the printed lines with the given text." << endl;
-      stream << L"  load ''file name'': load the named fileas a text tree." << endl;
+      stream << L"  load ''file name'': load the named file as a text tree." << endl;
       stream << L"       (The tree is pushed on the active tree stack, ready to be filtered.)" << endl;
+      stream << L"  save ''file name'': save the tree into the named file." << endl;
       stream << L"  filter ''filter'': convert the given textual filters description into filters." << endl;
       stream << L"  push-filtered: use the current filtered tree as input to the filters." << endl;
       stream << L"  pop-tree: pop the current tree and use the previous tree as input to the filters." << endl;
@@ -116,6 +118,12 @@ namespace TreeReader
             {
                result += L"Tree file was invalid or empty.\n";
             }
+         }
+         else if (cmd == L"save" && i + 1 < cmds.size())
+         {
+            ctx.TreeFileName = cmds[++i];
+            if (ctx.Trees.size() > 0 && ctx.Trees.back())
+               WriteSimpleTextTree(filesystem::path(ctx.TreeFileName), *ctx.Trees.back(), ctx.Options.OutputLineIndent);
          }
          else if (cmd == L"filter" && i + 1 < cmds.size())
          {

@@ -19,8 +19,8 @@ namespace TreeReader
 
    TextTree ReadSimpleTextTree(const path& path, const ReadSimpleTextTreeOptions& options)
    {
-      wifstream file(path);
-      return ReadSimpleTextTree(file, options);
+      wifstream stream(path);
+      return ReadSimpleTextTree(stream, options);
    }
 
    static std::pair<size_t, size_t> GetIndent(const wchar_t* line, size_t count, const ReadSimpleTextTreeOptions& options)
