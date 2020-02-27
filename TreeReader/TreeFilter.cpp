@@ -300,7 +300,7 @@ namespace TreeReader
       return TreeVisitor::Result(result);
    }
 
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const shared_ptr<TreeFilter>& filter)
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
    {
       if (!filter)
       {
@@ -309,6 +309,24 @@ namespace TreeReader
       }
 
       FilterTreeVisitor visitor(sourceTree, filteredTree, filter);
-      VisitInOrder(sourceTree, 0, visitor);
+      VisitInOrder(sourceTree, visitor);
+   }
+
+   pair<future<TextTree>, shared_ptr<CanAbortTreeVisitor>> FilterTreeAsync(
+      const shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter)
+   {
+      if (!filter)
+         return {};
+
+      auto abort = make_shared<CanAbortTreeVisitor>();
+      auto fut = async(launch::async, [sourceTree, filter, abort]()
+      {
+         TextTree filtered;
+         abort->Visitor = make_shared<FilterTreeVisitor>(*sourceTree, filtered, filter);
+         VisitInOrder(*sourceTree, *abort);
+         return filtered;
+      });
+
+      return make_pair(move(fut), abort);
    }
 }

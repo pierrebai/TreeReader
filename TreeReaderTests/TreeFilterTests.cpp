@@ -311,5 +311,17 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-	};
+      TEST_METHOD(PrintSimpleTreeWithAsyncContainsFilter)
+      {
+         auto tree = make_shared<TextTree>(CreateSimpleTree());
+         auto [fut, abort] = FilterTreeAsync(tree, Contains(L"g"));
+
+         wostringstream sstream;
+         sstream << fut.get();
+
+         const wchar_t expectedOutput[] = L"ghi\n";
+         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+      }
+
+   };
 }

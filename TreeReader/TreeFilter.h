@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <regex>
+#include <future>
 
 namespace TreeReader
 {
@@ -303,10 +304,6 @@ namespace TreeReader
    inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
    inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
 
-   // Filters a source tree into a filtered tree using the given filter.
-
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
-
    // The tree visitor that actually does the filtering.
 
    struct FilterTreeVisitor : SimpleTreeVisitor
@@ -326,5 +323,11 @@ namespace TreeReader
       std::vector<bool> _fillChildren;
    };
 
+   // Filters a source tree into a filtered tree using the given filter.
+
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
+
+   std::pair<std::future<TextTree>, std::shared_ptr<CanAbortTreeVisitor>> FilterTreeAsync(
+      const std::shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter);
 }
 
