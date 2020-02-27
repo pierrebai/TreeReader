@@ -1,6 +1,7 @@
 
 add_library(TreeReaderTests SHARED
    SimplerTreeReaderTests.cpp
+   NamedFiltersTests.cpp
    TextTreeTests.cpp
    TextTreeVisitorTests.cpp
    TreeFilterMakerTests.cpp
