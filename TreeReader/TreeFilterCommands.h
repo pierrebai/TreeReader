@@ -3,6 +3,7 @@
 #include "TextTree.h"
 #include "TreeFilter.h"
 #include "SimpleTreeReader.h"
+#include "NamedFilters.h"
 
 #include <memory>
 
@@ -37,6 +38,8 @@ namespace TreeReader
       std::wstring FilterText;
       TreeFilterPtr Filter;
       std::shared_ptr<TextTree> Filtered;
+
+      NamedFilters NamedFilters;
 
       bool operator!=(const CommandsContext& other) const
       {

@@ -10,6 +10,7 @@ add_library(TreeReader
    SimpleTreeFilterMaker.cpp
    TreeFilterCommands.cpp
    TreeReaderHelpers.cpp
+   NamedFilters.cpp
 
    BuffersTextHolder.h
    SimpleTreeReader.h
@@ -22,6 +23,7 @@ add_library(TreeReader
    TreeFilterCommands.h
    TreeReader.h
    TreeReaderHelpers.h
+   NamedFilters.h
 )
 
 target_compile_features(TreeReader PUBLIC cxx_std_20)

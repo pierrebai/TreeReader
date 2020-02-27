@@ -24,13 +24,17 @@ namespace TreeReader
       stream << L"  input-filter ''regex'': filter input lines using the given regular expression." << endl;
       stream << L"  input-indent ''text'': detect the indentation of each line using the given characters." << endl;
       stream << L"  output-indent ''text'': indent the printed lines with the given text." << endl;
-      stream << L"  load ''file name'': load the named file as a text tree." << endl;
+      stream << L"  load ''file name'': load a text tree from the given file." << endl;
       stream << L"       (The tree is pushed on the active tree stack, ready to be filtered.)" << endl;
       stream << L"  save ''file name'': save the tree into the named file." << endl;
       stream << L"  filter ''filter'': convert the given textual filters description into filters." << endl;
       stream << L"  push-filtered: use the current filtered tree as input to the filters." << endl;
       stream << L"  pop-tree: pop the current tree and use the previous tree as input to the filters." << endl;
       stream << L"  then: apply the filters immediately, push the result as being the current tree and starts new filters." << endl;
+      stream << L"  name ''name'': give a name to the current filter." << endl;
+      stream << L"  @ ''name'': use the named filter as the current filter." << endl;
+      stream << L"  save-filters ''file name'': save all named filters to the given file." << endl;
+      stream << L"  load-filters ''file name'': load named filters from the given file." << endl;
 
       return stream.str();
    }
@@ -144,7 +148,8 @@ namespace TreeReader
          }
          else if (cmd == L"then")
          {
-            result += CreateFilter(ctx.FilterText, ctx);
+            if (!ctx.FilterText.empty())
+               result += CreateFilter(ctx.FilterText, ctx);
             if (ctx.Filter && ctx.Trees.size() > 0)
             {
                ctx.Filtered = make_shared<TextTree>();
@@ -154,6 +159,43 @@ namespace TreeReader
             }
             ctx.FilterText = L"";
             previousCtx.FilterText = L"";
+         }
+         else if (cmd == L"name" && i + 1 < cmds.size())
+         {
+            if (!ctx.FilterText.empty())
+               result += CreateFilter(ctx.FilterText, ctx);
+            const wstring name = cmds[++i];
+            if (ctx.Filter)
+               ctx.NamedFilters.Filters[name] = ctx.Filter;
+         }
+         else if (cmd == L"@" && i + 1 < cmds.size())
+         {
+            const wstring name = cmds[++i];
+            auto filter = ctx.NamedFilters.Get(name);
+            if (filter)
+            {
+               ctx.Filter = filter;
+            }
+            else
+            {
+               wostringstream stream;
+               stream << "Named filters " << quoted(name) << " was not found in the known named filters." << endl;
+               result += stream.str();
+            }
+         }
+         else if (cmd == L"save-filters" && i + 1 < cmds.size())
+         {
+            if (ctx.NamedFilters.Filters.size() > 0)
+            {
+               const wstring filename = cmds[++i];
+               WriteNamedFilters(filename, ctx.NamedFilters);
+            }
+         }
+         else if (cmd == L"load-filters" && i + 1 < cmds.size())
+         {
+            const wstring filename = cmds[++i];
+            auto filters = ReadNamedFilters(filename);
+            ctx.NamedFilters.Filters.insert(filters.Filters.begin(), filters.Filters.end());
          }
          else
          {
@@ -169,10 +211,11 @@ namespace TreeReader
       const bool optionsChanged = (previousCtx.Options != ctx.Options);
       const bool readOptionsChanged = (previousCtx.Options.ReadOptions != ctx.Options.ReadOptions);
       const bool fileChanged = (previousCtx.TreeFileName != ctx.TreeFileName);
-      const bool filterChanged = (previousCtx.FilterText != ctx.FilterText);
+      const bool filterTextChanged = (previousCtx.FilterText != ctx.FilterText || previousCtx.Options.UseV1 != ctx.Options.UseV1);
+      const bool filterChanged = (filterTextChanged || previousCtx.Filter != ctx.Filter);
       const bool treeChanged = (previousCtx.Trees.size() != ctx.Trees.size() || (previousCtx.Trees.size() > 0 && previousCtx.Trees.back() != ctx.Trees.back()));
 
-      if (filterChanged || optionsChanged)
+      if (filterTextChanged)
          result += CreateFilter(ctx.FilterText, ctx);
 
       if (ctx.Filter && ctx.Trees.size() > 0 && (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged))

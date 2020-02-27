@@ -1,6 +1,5 @@
-Add saving a filter under a name for reuse.
-Add referencing a named filter in a filter tree. (Using @, like: @name.)
-Add saving and loading those named filters in a file.
+Add referencing a named filter in a filter tree. (Using @, like: @ name.)
+Add threaded visitor/filtering.
 
 Add UI-based filter decription. Probably a tree of tiles.
 Move command-line and debug output to an optional panel in UI.

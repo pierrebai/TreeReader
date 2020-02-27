@@ -7,6 +7,39 @@ namespace TreeReader
    using Node = TextTree::Node;
    using Iter = vector<Node *>::const_iterator;
    using IterPair = pair<Iter, Iter>;
+   constexpr Result ContinueVisit{ false, false };
+   constexpr Result StopVisit{ true, false };
+
+   Result SimpleTreeVisitor::GoDeeper(size_t deeperLevel)
+   {
+      return ContinueVisit;
+   }
+
+   Result SimpleTreeVisitor::GoHigher(size_t higherLevel)
+   {
+      return ContinueVisit;
+   }
+
+   Result DelegateTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      if (!Visitor)
+         return StopVisit;
+
+      return Visitor->Visit(tree, node, level);
+   }
+
+   Result FunctionTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      return Func(tree, node, level);
+   }
+
+   Result CanAbortTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      if (Abort)
+         return StopVisit;
+
+      return DelegateTreeVisitor::Visit(tree, node, level);
+   }
 
    void VisitInOrder(const TextTree& tree, const Node* node, bool siblings, TreeVisitor& visitor)
    {

@@ -3,6 +3,8 @@
 #include "TextTree.h"
 
 #include <functional>
+#include <memory>
+#include <atomic>
 
 namespace TreeReader
 {
@@ -32,8 +34,22 @@ namespace TreeReader
 
    struct SimpleTreeVisitor : TreeVisitor
    {
-      Result GoDeeper(size_t deeperLevel) override { return Result(); }
-      Result GoHigher(size_t higherLevel) override { return Result(); }
+      Result GoDeeper(size_t deeperLevel) override;
+      Result GoHigher(size_t higherLevel) override;
+   };
+
+   // A visitor that calls another visitor.
+   //
+   // Allows adding behavior to another existing visitor.
+
+   struct DelegateTreeVisitor : SimpleTreeVisitor
+   {
+      std::shared_ptr<TreeVisitor> Visitor;
+
+      DelegateTreeVisitor() = default;
+      DelegateTreeVisitor(const std::shared_ptr<TreeVisitor>& visitor) : Visitor(visitor) {}
+
+      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // A visitor that delegates to a function when visiting each node.
@@ -44,12 +60,22 @@ namespace TreeReader
    {
       NodeVisitFunction Func;
 
+      FunctionTreeVisitor() = default;
       FunctionTreeVisitor(NodeVisitFunction f) : Func(f) {}
 
-      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override
-      {
-         return Func(tree, node, level);
-      }
+      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+   };
+
+   // A delegate visitor that can be aborted from another thread.
+
+   struct CanAbortTreeVisitor : DelegateTreeVisitor
+   {
+      std::atomic<bool> Abort = false;
+
+      CanAbortTreeVisitor() = default;
+      CanAbortTreeVisitor(const std::shared_ptr<TreeVisitor> & visitor) : DelegateTreeVisitor(visitor) {}
+
+      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
    // Visits each node of a tree in order.

@@ -41,6 +41,20 @@ namespace TreeReader
 
    typedef std::shared_ptr<TreeFilter> TreeFilterPtr;
 
+   // Filter that delegates to another filter.
+   //
+   // Allows adding behavior to another existing filter.
+
+   struct DelegateTreeFilter : TreeFilter
+   {
+      TreeFilterPtr Filter;
+
+      DelegateTreeFilter() = default;
+      DelegateTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+   };
+
    // Filter that accepts all nodes.
 
    struct AcceptTreeFilter : TreeFilter
@@ -66,12 +80,10 @@ namespace TreeReader
    //
    // Never keeps the node. Used to stop doing sb-tree filtering. (See IfSubTree and IfSibling.)
 
-   struct UntilTreeFilter : TreeFilter
+   struct UntilTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
-
       UntilTreeFilter() = default;
-      UntilTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+      UntilTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
@@ -128,12 +140,10 @@ namespace TreeReader
 
    // Filter that inverts the keep decision of another filter.
 
-   struct NotTreeFilter : TreeFilter
+   struct NotTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
-
       NotTreeFilter() = default;
-      NotTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+      NotTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
@@ -164,14 +174,13 @@ namespace TreeReader
    //
    // Can accept or not that parent initial node.
 
-   struct UnderTreeFilter : TreeFilter
+   struct UnderTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
       bool IncludeSelf = true;
 
       UnderTreeFilter() = default;
       UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
-         : Filter(filter), IncludeSelf(includeSelf) {}
+         : DelegateTreeFilter(filter), IncludeSelf(includeSelf) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
@@ -183,15 +192,14 @@ namespace TreeReader
    //
    // Can accept or not that initial node. That node is not included in the count in all cases.
 
-   struct CountSiblingsTreeFilter : TreeFilter
+   struct CountSiblingsTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
       size_t Count = 0;
       bool IncludeSelf = true;
 
       CountSiblingsTreeFilter() = default;
       CountSiblingsTreeFilter(const TreeFilterPtr& filter, size_t count, bool includeSelf = true)
-         : Filter(filter), Count(count), IncludeSelf(includeSelf) {}
+         : DelegateTreeFilter(filter), Count(count), IncludeSelf(includeSelf) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
@@ -204,15 +212,14 @@ namespace TreeReader
    //
    // Can accept or not that initial node. That node is not included in the count in all cases.
 
-   struct CountChildrenTreeFilter : TreeFilter
+   struct CountChildrenTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
       size_t Count = 0;
       bool IncludeSelf = true;
 
       CountChildrenTreeFilter() = default;
       CountChildrenTreeFilter(const TreeFilterPtr& filter, size_t count, bool includeSelf = true)
-         : Filter(filter), Count(count), IncludeSelf(includeSelf) {}
+         : DelegateTreeFilter(filter), Count(count), IncludeSelf(includeSelf) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
@@ -225,13 +232,13 @@ namespace TreeReader
    //
    // Can remove or not that parent initial node.
 
-   struct RemoveChildrenTreeFilter : TreeFilter
+   struct RemoveChildrenTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
       bool RemoveSelf = false;
 
       RemoveChildrenTreeFilter() = default;
-      RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf) : Filter(filter), RemoveSelf(removeSelf) { }
+      RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf)
+         : DelegateTreeFilter(filter), RemoveSelf(removeSelf) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
@@ -251,12 +258,10 @@ namespace TreeReader
 
    // Filter that accepts a node if at least one child is accepted by another filter.
 
-   struct IfSubTreeTreeFilter : TreeFilter
+   struct IfSubTreeTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
-
       IfSubTreeTreeFilter() = default;
-      IfSubTreeTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+      IfSubTreeTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
 
@@ -266,12 +271,10 @@ namespace TreeReader
 
    // Filter that accepts a node if at least one sibling is accepted by another filter.
 
-   struct IfSiblingTreeFilter : TreeFilter
+   struct IfSiblingTreeFilter : DelegateTreeFilter
    {
-      TreeFilterPtr Filter;
-
       IfSiblingTreeFilter() = default;
-      IfSiblingTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+      IfSiblingTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
