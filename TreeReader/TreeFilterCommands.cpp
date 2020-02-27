@@ -35,6 +35,7 @@ namespace TreeReader
       stream << L"  @ ''name'': use the named filter as the current filter." << endl;
       stream << L"  save-filters ''file name'': save all named filters to the given file." << endl;
       stream << L"  load-filters ''file name'': load named filters from the given file." << endl;
+      stream << L"  list-filters: list all the named filters." << endl;
 
       return stream.str();
    }
@@ -43,7 +44,7 @@ namespace TreeReader
    {
       wostringstream stream;
 
-      ctx.Filter = ctx.Options.UseV1 ? ConvertTextToFilters(filterText) : ConvertSimpleTextToFilters(filterText);
+      ctx.Filter = ctx.Options.UseV1 ? ConvertTextToFilters(filterText,ctx.NamedFilters) : ConvertSimpleTextToFilters(filterText, ctx.NamedFilters);
 
       if (ctx.Options.Debug)
       {
@@ -196,6 +197,15 @@ namespace TreeReader
             const wstring filename = cmds[++i];
             auto filters = ReadNamedFilters(filename);
             ctx.NamedFilters.Filters.insert(filters.Filters.begin(), filters.Filters.end());
+         }
+         else if (cmd == L"list-filters")
+         {
+            wostringstream sstream;
+            for (const auto& [name, filter] : ctx.NamedFilters.Filters)
+            {
+               sstream << name << endl;
+            }
+            result += sstream.str();
          }
          else
          {

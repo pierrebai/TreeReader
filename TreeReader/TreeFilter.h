@@ -280,6 +280,17 @@ namespace TreeReader
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
+   // Filter that reference a named filter.
+
+   struct NamedTreeFilter : DelegateTreeFilter
+   {
+      std::wstring Name;
+
+      NamedTreeFilter() = default;
+      NamedTreeFilter(const std::wstring& name) : Name(name) { }
+      NamedTreeFilter(const TreeFilterPtr& filter, const std::wstring& name) : DelegateTreeFilter(filter), Name(name) { }
+   };
+
    // Functions to create filters.
 
    inline std::shared_ptr<AcceptTreeFilter> Accept() { return std::make_shared<AcceptTreeFilter>(); }
@@ -303,6 +314,7 @@ namespace TreeReader
    inline std::shared_ptr<LevelRangeTreeFilter> MaxLevel(size_t level) { return LevelRange(0, level); }
    inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
    inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
+   inline std::shared_ptr<NamedTreeFilter> Named(const TreeFilterPtr& filter, const std::wstring& name) { return std::make_shared<NamedTreeFilter>(filter, name); }
 
    // The tree visitor that actually does the filtering.
 

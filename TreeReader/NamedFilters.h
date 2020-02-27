@@ -24,5 +24,7 @@ namespace TreeReader
 
    NamedFilters ReadNamedFilters(const std::filesystem::path& path);
    NamedFilters ReadNamedFilters(std::wistream& stream);
+
+   void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named);
 }
 

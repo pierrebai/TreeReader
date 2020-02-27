@@ -49,14 +49,36 @@ namespace TreeReader
          if (name.empty())
             continue;
 
-         TreeFilterPtr filter = ConvertTextToFilters(filterText);
+         TreeFilterPtr filter = ConvertTextToFilters(filterText, filters);
          if (!filter)
             continue;
 
          filters.Filters[name] = filter;
       }
 
+      for (auto& [name, filter] : filters.Filters)
+         UpdateNamedFilters(filter, filters);
+
       return filters;
+   }
+
+   void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named)
+   {
+      if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
+      {
+         namedFilter->Filter = named.Get(namedFilter->Name);
+      }
+      else if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+      {
+         UpdateNamedFilters(delegate->Filter, named);
+      }
+      else if (auto combined = dynamic_pointer_cast<CombineTreeFilter>(filter))
+      {
+         for (auto& child : combined->Filters)
+         {
+            UpdateNamedFilters(child, named);
+         }
+      }
    }
 }
 

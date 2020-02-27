@@ -139,6 +139,13 @@ namespace TreeReader
          return sstream.str();
       }
 
+      wstring ConvertFilterToText(const NamedTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"named [ " << quoted(filter.Name) << L" ]";
+         return sstream.str();
+      }
+
       wstring ConvertFilterToText(const TreeFilter& filter, size_t indent)
       {
          wstring indentText = wstring(L"\n") + wstring(indent, L' ');
@@ -383,6 +390,17 @@ namespace TreeReader
          return LevelRange(minLevel, maxLevel);
       }
 
+      template<>
+      TreeFilterPtr ConvertTextToFilter<NamedTreeFilter>(wistringstream& sstream)
+      {
+         wstring name;
+         sstream >> skipws >> name;
+
+         EatClosingBrace(sstream);
+
+         return make_shared<NamedTreeFilter>(name);
+      }
+
       TreeFilterPtr ConvertTextToFilters(wistringstream& sstream)
       {
          #define CALL_CONVERTER(a,b) if (name == a) { return ConvertTextToFilter<b>(sstream); } else
@@ -406,10 +424,18 @@ namespace TreeReader
          CALL_CONVERTER(L"range", LevelRangeTreeFilter)
          CALL_CONVERTER(L"stop", StopTreeFilter)
          CALL_CONVERTER(L"until", UntilTreeFilter)
+         CALL_CONVERTER(L"named", NamedTreeFilter)
 
          #undef CALL_CONVERTER
 
          return {};
+      }
+
+      TreeFilterPtr ConvertTextToFilters(wistringstream& sstream, const NamedFilters& named)
+      {
+         TreeFilterPtr filter = ConvertTextToFilters(sstream);
+         UpdateNamedFilters(filter, named);
+         return filter;
       }
    }
 
@@ -418,12 +444,12 @@ namespace TreeReader
       return V1::ConvertFiltersToText(filter);
    }
 
-   TreeFilterPtr ConvertTextToFilters(const wstring& text)
+   TreeFilterPtr ConvertTextToFilters(const wstring& text, const NamedFilters& named)
    {
       if (text.find(L"V1: ") == 0)
       {
          wistringstream sstream(text.substr(4));
-         return V1::ConvertTextToFilters(sstream);
+         return V1::ConvertTextToFilters(sstream, named);
       }
 
       return {};

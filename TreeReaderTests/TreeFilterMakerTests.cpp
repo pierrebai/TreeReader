@@ -22,7 +22,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \naccept [ ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<AcceptTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<AcceptTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
       }
 
@@ -34,7 +34,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nstop [ ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<StopTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<StopTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
       }
 
@@ -46,7 +46,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \ncontains [ \"\\\"abc\\\"\" ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<ContainsTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<ContainsTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::AreEqual(L"\"abc\"", rebuilt->Contained.c_str());
       }
@@ -59,7 +59,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nregex [ \"[abc]*\" ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<RegexTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<RegexTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::AreEqual(L"[abc]*", rebuilt->RegexTextForm.c_str());
       }
@@ -72,7 +72,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nnot [ \n accept [ ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<NotTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<NotTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::IsTrue(dynamic_pointer_cast<AcceptTreeFilter>(rebuilt->Filter) != nullptr);
       }
@@ -85,7 +85,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nor [ \n contains [ \"a\" ], \n contains [ \"b\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<OrTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<OrTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::AreEqual<size_t>(2, rebuilt->Filters.size());
@@ -107,7 +107,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n accept [ ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<AndTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<AndTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::AreEqual<size_t>(2, rebuilt->Filters.size());
@@ -128,7 +128,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nunder [ true, \n contains [ \"a\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<UnderTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<UnderTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::IsTrue(rebuilt->IncludeSelf);
@@ -146,7 +146,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \ncount-sub [ true, 3, \n contains [ \"a\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<CountChildrenTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<CountChildrenTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::AreEqual<size_t>(3, rebuilt->Count);
 
@@ -165,7 +165,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \ncount-sib [ false, 44, \n contains [ \"abc\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<CountSiblingsTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<CountSiblingsTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::AreEqual<size_t>(44, rebuilt->Count);
 
@@ -184,7 +184,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nno-child [ false, \n contains [ \"abc\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<RemoveChildrenTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<RemoveChildrenTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::IsFalse(rebuilt->RemoveSelf);
@@ -202,7 +202,7 @@ namespace TreeReaderTests
 
          Assert::AreEqual(L"V1: \nrange [ 7, 9 ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<LevelRangeTreeFilter>(ConvertTextToFilters(text));
+         auto rebuilt = dynamic_pointer_cast<LevelRangeTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::AreEqual<size_t>(7, rebuilt->MinLevel);
@@ -211,7 +211,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleText)
       {
-         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & . ) ) ");
+         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & . ) ) ", NamedFilters());
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -220,7 +220,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleTextWithIfSibling)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a ?= b");
+         auto filter = ConvertSimpleTextToFilters(L"a ?= b", NamedFilters());
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -229,7 +229,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleTextWithIfSubTree)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a ?> b");
+         auto filter = ConvertSimpleTextToFilters(L"a ?> b", NamedFilters());
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -238,7 +238,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleTextWithCountChildren)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a #> 3 b");
+         auto filter = ConvertSimpleTextToFilters(L"a #> 3 b", NamedFilters());
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -247,7 +247,7 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertSimpleTextWithCountSiblings)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a #= 22 b");
+         auto filter = ConvertSimpleTextToFilters(L"a #= 22 b", NamedFilters());
 
          const wstring text = ConvertFiltersToText(filter);
 

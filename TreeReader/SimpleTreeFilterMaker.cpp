@@ -200,16 +200,18 @@ namespace TreeReader
          return result ? result : previous;
       }
 
-      TreeFilterPtr ConvertTextToFilters(const wstring& text)
+      TreeFilterPtr ConvertTextToFilters(const wstring& text, const NamedFilters& named)
       {
          vector<wstring> parts = split(text);
          reverse(parts.begin(), parts.end());
-         return ConvertTextToFilters(parts);
+         TreeFilterPtr filter = ConvertTextToFilters(parts);
+         UpdateNamedFilters(filter, named);
+         return filter;
       }
    }
 
-   TreeFilterPtr ConvertSimpleTextToFilters(const wstring& text)
+   TreeFilterPtr ConvertSimpleTextToFilters(const wstring& text, const NamedFilters& named)
    {
-      return S1::ConvertTextToFilters(text);
+      return S1::ConvertTextToFilters(text, named);
    }
 }
