@@ -16,7 +16,7 @@ add_executable(TreeFilterApp WIN32
 
    ToDo.txt
 
-   #mainwindow.ui
+   mainwindow.ui
    #resources.qrc
 )
 
