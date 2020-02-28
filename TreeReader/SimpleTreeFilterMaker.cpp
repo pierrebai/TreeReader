@@ -74,6 +74,16 @@ namespace TreeReader
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
+            else if (part == L"@")
+            {
+               if (parts.size() > 0)
+               {
+                  const wstring name = move(parts.back());
+                  parts.pop_back();
+                  auto filter = Named(name);
+                  AddFilter(filter);
+               }
+            }
             else if (part == L"?=" || part == L"sibling")
             {
                auto filter = make_shared<IfSiblingTreeFilter>();

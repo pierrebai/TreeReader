@@ -45,6 +45,15 @@ namespace TreeReaderApp
       layout->addWidget(output, 0, 1, 1, 1);
 
       CommandsContext ctx;
+      try
+      {
+         ctx.NamedFilters = ReadNamedFilters(L"filters.txt");
+      }
+      catch (const exception &)
+      {
+         // Ignore.
+      }
+
       cmd->connect(cmd, &QLineEdit::editingFinished, [&]()
       {
          QString text = cmd->text();
@@ -72,7 +81,18 @@ namespace TreeReaderApp
 
       mainWindow->resize(1000, 800);
       mainWindow->show();
-      return app->exec();
+      const int result = app->exec();
+
+      try
+      {
+         WriteNamedFilters(L"filters.txt", ctx.NamedFilters);
+      }
+      catch (const exception &)
+      {
+         // Ignore.
+      }
+
+      return result;
    }
 }
 

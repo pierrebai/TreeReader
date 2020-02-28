@@ -32,7 +32,6 @@ namespace TreeReader
       stream << L"  pop-tree: pop the current tree and use the previous tree as input to the filters." << endl;
       stream << L"  then: apply the filters immediately, push the result as being the current tree and starts new filters." << endl;
       stream << L"  name ''name'': give a name to the current filter." << endl;
-      stream << L"  @ ''name'': use the named filter as the current filter." << endl;
       stream << L"  save-filters ''file name'': save all named filters to the given file." << endl;
       stream << L"  load-filters ''file name'': load named filters from the given file." << endl;
       stream << L"  list-filters: list all the named filters." << endl;
@@ -168,21 +167,6 @@ namespace TreeReader
             const wstring name = cmds[++i];
             if (ctx.Filter)
                ctx.NamedFilters.Filters[name] = ctx.Filter;
-         }
-         else if (cmd == L"@" && i + 1 < cmds.size())
-         {
-            const wstring name = cmds[++i];
-            auto filter = ctx.NamedFilters.Get(name);
-            if (filter)
-            {
-               ctx.Filter = filter;
-            }
-            else
-            {
-               wostringstream stream;
-               stream << "Named filters " << quoted(name) << " was not found in the known named filters." << endl;
-               result += stream.str();
-            }
          }
          else if (cmd == L"save-filters" && i + 1 < cmds.size())
          {

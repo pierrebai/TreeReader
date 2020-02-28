@@ -315,6 +315,7 @@ namespace TreeReader
    inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
    inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
    inline std::shared_ptr<NamedTreeFilter> Named(const TreeFilterPtr& filter, const std::wstring& name) { return std::make_shared<NamedTreeFilter>(filter, name); }
+   inline std::shared_ptr<NamedTreeFilter> Named(const std::wstring& name) { return std::make_shared<NamedTreeFilter>(name); }
 
    // The tree visitor that actually does the filtering.
 
