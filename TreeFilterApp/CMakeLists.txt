@@ -7,20 +7,31 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Gui REQUIRED)
+find_package(Qt5 COMPONENTS WinExtras REQUIRED)
 
 add_executable(TreeFilterApp WIN32
-   TreeFilterApp.cpp
+   FiltersEditor.cpp
+   MainWindow.cpp
+   QtUtilities.cpp
    TextTreeModel.cpp
+   TreeFilterApp.cpp
+   UndoStack.cpp
 
+   FiltersEditor.h
+   MainWindow.h
+   QtUtilities.h
    TextTreeModel.h
+   UndoStack.h
+   resource.h
+
+   Resource.rc
 
    ToDo.txt
 
-   mainwindow.ui
    #resources.qrc
 )
 
-target_link_libraries(TreeFilterApp PUBLIC TreeReader Qt5::Widgets Qt5::Gui Qt5::Core)
+target_link_libraries(TreeFilterApp PUBLIC TreeReader Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras)
 
 target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 
