@@ -1,5 +1,6 @@
 #include "NamedFilters.h"
 #include "TreeFilterMaker.h"
+#include "TreeFilterHelpers.h"
 
 #include <fstream>
 #include <iomanip>
@@ -64,21 +65,14 @@ namespace TreeReader
 
    void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named)
    {
-      if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
+      VisitFilters(filter.get(), [&named](TreeFilter* filter)
       {
-         namedFilter->Filter = named.Get(namedFilter->Name);
-      }
-      else if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
-      {
-         UpdateNamedFilters(delegate->Filter, named);
-      }
-      else if (auto combined = dynamic_pointer_cast<CombineTreeFilter>(filter))
-      {
-         for (auto& child : combined->Filters)
+         if (auto namedFilter = dynamic_cast<NamedTreeFilter *>(filter))
          {
-            UpdateNamedFilters(child, named);
+            namedFilter->Filter = named.Get(namedFilter->Name);
          }
-      }
+         return true;
+      });
    }
 }
 

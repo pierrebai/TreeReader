@@ -124,9 +124,9 @@ namespace TreeReaderApp
             return;
 
          self->UpdateTree();
+         self->FillFiltersEditor();
 
          self->ClearUndoStack();
-         self->UpdateFilters(path.filename());
       });
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
@@ -140,7 +140,6 @@ namespace TreeReaderApp
 
       _filtersList->FiltersChanged = [self=this](const FiltersEditor::Filters& filters)
       {
-         self->UpdateFiltersEditor();
          self->CommitToUndo();
          self->_data.Filter = self->_filtersList->GetEdited();
       };
@@ -165,6 +164,7 @@ namespace TreeReaderApp
          wstring result = ParseCommands(text.toStdWString(), self->_data);
 
          self->UpdateTree();
+         self->FillFiltersEditor();
       });
    }
 
@@ -235,11 +235,6 @@ namespace TreeReaderApp
    vector<TreeFilterPtr> MainWindow::GetSelectedFilters()
    {
       return _filtersList->GetSelectedFilters();
-   }
-
-   void MainWindow::UpdateFiltersEditor()
-   {
-      _filtersList->UpdateListContent();
    }
 
    void MainWindow::FillFiltersEditor()
@@ -345,13 +340,9 @@ namespace TreeReaderApp
          model->Tree = newTree;
          _treeView->setModel(model);
       }
-   }
 
-   void MainWindow::UpdateFilters(const wstring& name)
-   {
-      _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(name.c_str()));
+      _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(_data.TreeFileName.c_str()));
 
-      FillFiltersEditor();
       CommitToUndo();
    }
 

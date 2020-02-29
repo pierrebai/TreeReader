@@ -1,4 +1,5 @@
 #include "FiltersEditor.h"
+#include "TreeFilterModel.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -8,6 +9,7 @@
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qtablewidget.h>
+#include <QtWidgets/qtreeview.h>
 
 #include <algorithm>
 #include <typeindex>
@@ -25,25 +27,6 @@ namespace TreeReaderApp
          {
             return text;
          }
-      }
-
-      struct
-      {
-         std::type_index type;
-         const wchar_t* name;
-      }
-      FilterNames[] =
-      {
-         { typeid(NotTreeFilter),     L"Not" },
-         // TODO: add other filters.
-      };
-
-      const wchar_t* GetFilterName(const TreeFilterPtr& filter)
-      {
-         for (const auto& item : FilterNames)
-            if (std::type_index(typeid(*filter)) == item.type)
-               return L::t(item.name);
-         return L::t(L"Unknown");
       }
    }
 
@@ -70,7 +53,8 @@ namespace TreeReaderApp
          if (_edited.size() > 0 && ed == _edited[0])
             return;
 
-         //_edited = ed; TODO convert filter into a vector of filters
+         _edited.clear();
+         _edited.push_back(ed);
 
          std::vector<int> selected = GetSelectedIndexes();
          if (selected.size() == 0 && _edited.size() == 1)
@@ -94,28 +78,32 @@ namespace TreeReaderApp
          disable_feedback++;
          _filtersList->blockSignals(disable_feedback > 0);
 
-         int row = 0;
-         for (auto& filter : _edited)
-         {
-            //const auto state = filter->Active ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
-            const auto state = Qt::CheckState::Checked;
-            auto filterActiveItem = _filtersList->item(row, FilterActiveColumn);
-            filterActiveItem->setCheckState(state);
+         TreeFilterModel* model = new TreeFilterModel;
+         model->Filter = _edited.size() ? _edited.front() : nullptr;
+         _filtersList->setModel(model);
 
-            // Note: make icon larger than what was set in the table view
-            //       so that it gets scaled down with some smoothing.
-            //const QIcon qicon = ui_qt::get_icon(mo_filter, 128, 64); TODO ICON
-            const QString filterName = QString::fromWCharArray(GetFilterName(filter));
-            auto filterNameItem = _filtersList->item(row, FilterNameColumn);
-            //filterNameItem->setIcon(qicon); TODO ICON
-            filterNameItem->setText(filterName);
+         //int row = 0;
+         //for (auto& filter : _edited)
+         //{
+         //   //const auto state = filter->Active ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
+         //   const auto state = Qt::CheckState::Checked;
+         //   auto filterActiveItem = _filtersList->item(row, FilterActiveColumn);
+         //   filterActiveItem->setCheckState(state);
 
-            const QString filterDesc = QString::fromWCharArray(GetFilterName(filter)); // TODO
-            auto descItem = _filtersList->item(row, FilterDescColumn);
-            descItem->setText(filterDesc);
+         //   // Note: make icon larger than what was set in the table view
+         //   //       so that it gets scaled down with some smoothing.
+         //   //const QIcon qicon = ui_qt::get_icon(mo_filter, 128, 64); TODO ICON
+         //   const QString filterName = QString::fromWCharArray(GetFilterName(filter));
+         //   auto filterNameItem = _filtersList->item(row, FilterNameColumn);
+         //   //filterNameItem->setIcon(qicon); TODO ICON
+         //   filterNameItem->setText(filterName);
 
-            row++;
-         }
+         //   const QString filterDesc = QString::fromWCharArray(GetFilterName(filter)); // TODO
+         //   auto descItem = _filtersList->item(row, FilterDescColumn);
+         //   descItem->setText(filterDesc);
+
+         //   row++;
+         //}
 
          disable_feedback--;
          _filtersList->blockSignals(disable_feedback > 0);
@@ -151,17 +139,18 @@ namespace TreeReaderApp
             button_layout->addWidget(MoveFiltersDown_button.get(), 0, 4);
          layout->addWidget(button_panel);
 
-         _filtersList = std::make_unique<QTableWidget>();
+         _filtersList = std::make_unique<QTreeView>();
          _filtersList->setIconSize(QSize(64, 32));
-         _filtersList->setColumnCount(3);
-         _filtersList->setHorizontalHeaderLabels(QStringList(
-         {
-            QString::fromWCharArray(L::t(L"Active")),
-            QString::fromWCharArray(L::t(L"Filter")),
-            QString::fromWCharArray(L::t(L"Description"))
-         }));
-         _filtersList->setShowGrid(false);
-         _filtersList->horizontalHeader()->setSectionResizeMode(FilterNameColumn, QHeaderView::ResizeMode::Stretch);
+         // TODO
+         //_filtersList->setColumnCount(3);
+         //_filtersList->setHorizontalHeaderLabels(QStringList(
+         //{
+         //   QString::fromWCharArray(L::t(L"Active")),
+         //   QString::fromWCharArray(L::t(L"Filter")),
+         //   QString::fromWCharArray(L::t(L"Description"))
+         //}));
+         //_filtersList->setShowGrid(false);
+         //_filtersList->horizontalHeader()->setSectionResizeMode(FilterNameColumn, QHeaderView::ResizeMode::Stretch);
          layout->addWidget(_filtersList.get());
 
          _filtersList->setEnabled(false);
@@ -171,8 +160,9 @@ namespace TreeReaderApp
          MoveFiltersUp_button->setEnabled(false);
          MoveFiltersDown_button->setEnabled(false);
 
-         _filtersList->connect(_filtersList.get(), &QTableWidget::itemSelectionChanged, [&]() { UpdateSelection(); });
-         _filtersList->connect(_filtersList.get(), &QTableWidget::itemChanged, [&](QTableWidgetItem * item) { UpdateFilter(item); });
+         // TODO
+         //_filtersList->connect(_filtersList.get(), &QTreeView::itemSelectionChanged, [&]() { UpdateSelection(); });
+         //_filtersList->connect(_filtersList.get(), &QTreeView::itemChanged, [&](QTableWidgetItem * item) { UpdateFilter(item); });
 
          CloneLayer_button->connect(CloneLayer_button.get(), &QPushButton::clicked, [&]() { CloneFilter(); });
          AddFilter_button->connect(AddFilter_button.get(), &QPushButton::clicked, [&]() { AddFilter(); });
@@ -187,8 +177,9 @@ namespace TreeReaderApp
 
          UpdateListContent();
 
-         _filtersList->resizeColumnsToContents();
-         _filtersList->horizontalHeader()->setSectionResizeMode(FilterNameColumn, QHeaderView::ResizeMode::Stretch);
+         // TODO
+         //_filtersList->resizeColumnsToContents();
+         //_filtersList->horizontalHeader()->setSectionResizeMode(FilterNameColumn, QHeaderView::ResizeMode::Stretch);
 
          SetSelectedIndexes(selected);
 
@@ -263,29 +254,31 @@ namespace TreeReaderApp
          _filtersList->clearSelection();
          for (const int row : indexes)
          {
-            for (int col = 0; col < _filtersList->columnCount(); ++col)
-            {
-               const auto item = _filtersList->item(row, col);
-               item->setSelected(true);
-            }
+            // TODO
+            //for (int col = 0; col < _filtersList->columnCount(); ++col)
+            //{
+            //   const auto item = _filtersList->item(row, col);
+            //   item->setSelected(true);
+            //}
          }
       }
 
       std::vector<int> GetSelectedIndexes() const
       {
          std::vector<int> selected;
-         for (int row = 0; row < _filtersList->rowCount() && row < _edited.size(); ++row)
-         {
-            for (int col = 0; col < _filtersList->columnCount(); ++col)
-            {
-               const auto item = _filtersList->item(row, col);
-               if (item->isSelected())
-               {
-                  selected.emplace_back(row);
-                  break;
-               }
-            }
-         }
+         // TODO
+         //for (int row = 0; row < _filtersList->rowCount() && row < _edited.size(); ++row)
+         //{
+         //   for (int col = 0; col < _filtersList->columnCount(); ++col)
+         //   {
+         //      const auto item = _filtersList->item(row, col);
+         //      if (item->isSelected())
+         //      {
+         //         selected.emplace_back(row);
+         //         break;
+         //      }
+         //   }
+         //}
          return selected;
       };
 
@@ -369,7 +362,7 @@ namespace TreeReaderApp
       FiltersEditor& editor;
       Filters _edited;
 
-      std::unique_ptr<QTableWidget> _filtersList;
+      std::unique_ptr<QTreeView> _filtersList;
       std::unique_ptr<QPushButton> CloneLayer_button;
       std::unique_ptr<QPushButton> AddFilter_button;
       std::unique_ptr<QPushButton> RemoveFilters_button;

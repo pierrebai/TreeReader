@@ -1,29 +1,19 @@
 
 add_library(TreeReader
-   BuffersTextHolder.cpp
-   SimpleTreeReader.cpp
-   SimpleTreeWriter.cpp
-   TextTree.cpp
-   TextTreeVisitor.cpp
-   TreeFilter.cpp
-   TreeFilterMaker.cpp
-   SimpleTreeFilterMaker.cpp
-   TreeFilterCommands.cpp
-   TreeReaderHelpers.cpp
-   NamedFilters.cpp
-
-   BuffersTextHolder.h
-   SimpleTreeReader.h
-   SimpleTreeWriter.h
-   TextLinesTextHolder.h
-   TextTree.h
-   TextTreeVisitor.h
-   TreeFilter.h
-   TreeFilterMaker.h
-   TreeFilterCommands.h
    TreeReader.h
-   TreeReaderHelpers.h
-   NamedFilters.h
+
+   BuffersTextHolder.cpp      BuffersTextHolder.h TextLinesTextHolder.h
+   SimpleTreeReader.cpp       SimpleTreeReader.h
+   SimpleTreeWriter.cpp       SimpleTreeWriter.h
+   TextTree.cpp               TextTree.h
+   TextTreeVisitor.cpp        TextTreeVisitor.h
+   TreeFilter.cpp             TreeFilter.h
+   TreeFilterHelpers.cpp      TreeFilterHelpers.h
+   TreeFilterMaker.cpp        TreeFilterMaker.h
+   SimpleTreeFilterMaker.cpp
+   TreeFilterCommands.cpp     TreeFilterCommands.h
+   TreeReaderHelpers.cpp      TreeReaderHelpers.h
+   NamedFilters.cpp           NamedFilters.h
 )
 
 target_compile_features(TreeReader PUBLIC cxx_std_20)

@@ -1,7 +1,5 @@
-Add referencing a named filter in a filter tree. (Using @, like: @ name.)
-Add threaded visitor/filtering.
-
-Add UI-based filter decription. Probably a tree of tiles.
+Add UI-based filter description. Probably a tree of tiles.
+Create anotehr custom tree model, for the filters.
 Move command-line and debug output to an optional panel in UI.
-Add toolbar to UI.
 Support up/down key to go back to previous text entered in input-command field.
+Add more buttons to the toolbar.

@@ -64,7 +64,6 @@ namespace TreeReaderApp
 
       // The layers UI call-backs.
       std::vector<TreeFilterPtr> GetSelectedFilters();
-      void UpdateFiltersEditor();
       void FillFiltersEditor();
 
       // Undo / redo tool-bar buttons.
@@ -78,9 +77,6 @@ namespace TreeReaderApp
       // Layer manipulations.
       TreeFilterPtr CloneFilters(const TreeFilterPtr& filters);
       void AddFilter(const TreeFilterPtr& newFilter);
-
-      // The tool-bar buttons.
-      void UpdateFilters(const std::wstring& name);
 
       void UpdateTree();
 

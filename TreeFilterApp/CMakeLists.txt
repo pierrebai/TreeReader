@@ -10,21 +10,15 @@ find_package(Qt5 COMPONENTS Gui REQUIRED)
 find_package(Qt5 COMPONENTS WinExtras REQUIRED)
 
 add_executable(TreeFilterApp WIN32
-   FiltersEditor.cpp
-   MainWindow.cpp
-   QtUtilities.cpp
-   TextTreeModel.cpp
    TreeFilterApp.cpp
-   UndoStack.cpp
+   FiltersEditor.cpp       FiltersEditor.h
+   MainWindow.cpp          MainWindow.h
+   QtUtilities.cpp         QtUtilities.h
+   TextTreeModel.cpp       TextTreeModel.h
+   TreeFilterModel.cpp     TreeFilterModel.h
+   UndoStack.cpp           UndoStack.h
 
-   FiltersEditor.h
-   MainWindow.h
-   QtUtilities.h
-   TextTreeModel.h
-   UndoStack.h
-   resource.h
-
-   Resource.rc
+   Resource.rc             resource.h
 
    ToDo.txt
 
