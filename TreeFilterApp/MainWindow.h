@@ -75,7 +75,7 @@ namespace TreeReaderApp
 
       // Layer manipulations.
       TreeFilterPtr CloneFilters(const TreeFilterPtr& filters);
-      void AddFilter(const TreeFilterPtr& newFilter);
+      void RequestNewFilter();
 
       void UpdateTree();
 

@@ -151,7 +151,7 @@ namespace TreeReaderApp
 
       _filtersList->NewFilterRequested = [self=this]()
       {
-         self->AddFilter(TreeReader::Contains(L"TODO"));
+         self->RequestNewFilter();
       };
 
       /////////////////////////////////////////////////////////////////////////
@@ -292,15 +292,15 @@ namespace TreeReaderApp
 
    TreeFilterPtr MainWindow::CloneFilters(const TreeFilterPtr& filter)
    {
-      // TODO CLONE FILTER
+      // TODO clone filters for the undo stack.
       return filter;
    }
 
-   void MainWindow::AddFilter(const TreeFilterPtr& newFilter)
+   void MainWindow::RequestNewFilter()
    {
       const bool was_empty = (_data.Filter == nullptr);
       // TODO insert a new filter in filter tree...
-      _data.Filter = newFilter;
+      //_data.Filter = newFilter;
       _data.ApplyFilterToTree();
       FillFiltersEditor();
       UpdateTree();

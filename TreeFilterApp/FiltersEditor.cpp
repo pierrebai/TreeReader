@@ -119,7 +119,6 @@ namespace TreeReaderApp
             UpdateSelection(selected, deselected);
          });
 
-         CloneLayer_button->connect(CloneLayer_button.get(), &QPushButton::clicked, [&]() { CloneFilter(); });
          AddFilter_button->connect(AddFilter_button.get(), &QPushButton::clicked, [&]() { AddFilter(); });
          RemoveFilters_button->connect(RemoveFilters_button.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
          MoveFiltersUp_button->connect(MoveFiltersUp_button.get(), &QPushButton::clicked, [&]() { MoveFiltersUp(); });
@@ -192,20 +191,6 @@ namespace TreeReaderApp
 
          return selModel->selection();
       };
-
-      void CloneFilter()
-      {
-         // Note: clone in reverse index order to avoid changing indexes before processing them.
-         auto selected = GetSelection();
-         // TODO: filters editor clone
-         //std::reverse(selected.begin(), selected.end());
-         //for (int index : selected)
-         //{
-         //   _edited.emplace(_edited.begin() + index, _edited[index]->clone()); TODO CLONE FILTER
-         //}
-         FillUI({});
-         UpdateFilters();
-      }
 
       void AddFilter()
       {
