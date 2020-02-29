@@ -172,14 +172,34 @@ namespace TreeReaderApp
    void MainWindow::FillUI()
    {
       // TODO: fill tree view
+      try
+      {
+         _data.KnownFilters = ReadNamedFilters(L"filters.txt");
+      }
+      catch (const exception &)
+      {
+         // Ignore.
+      }
    }
 
    void MainWindow::closeEvent(QCloseEvent* ev)
    {
       if (SaveIfRequired(L::t(L"close the window"), L::t(L"closing the window")))
+      {
          QWidget::closeEvent(ev);
+         try
+         {
+            WriteNamedFilters(L"filters.txt", _data.KnownFilters);
+         }
+         catch (const exception&)
+         {
+            // Ignore.
+         }
+      }
       else
+      {
          ev->ignore();
+      }
    }
 
    bool MainWindow::SaveIfRequired(const wstring& action, const wstring& actioning)
@@ -187,7 +207,7 @@ namespace TreeReaderApp
       if (_undoStack.HasUndo())
       {
          YesNoCancel answer = AskYesNoCancel(
-            L::t(L"Unsaved Mosaic Warning"),
+            L::t(L"Unsaved Text Tree Warning"),
             wstring(L::t(L"The current tree has not been saved.\nDo you want to save it before ")) + actioning + L::t(L"?"),
             this);
          if (answer == YesNoCancel::Cancel)

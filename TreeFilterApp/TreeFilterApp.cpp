@@ -17,8 +17,6 @@ static HINSTANCE appInstance;
 namespace TreeReaderApp
 {
    using namespace std;
-   using namespace TreeReader;
-   using Node = TextTree::Node;
 
    int App(int argc, char** argv)
    {
@@ -42,36 +40,10 @@ namespace TreeReaderApp
 
       auto mainWindow = new MainWindow(icons);
 
-      //auto output = new QTextEdit(mainWindow);
-      //output->setSizeAdjustPolicy(QTextEdit::SizeAdjustPolicy::AdjustToContents);
-      //output->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
-      //layout->addWidget(output, 0, 1, 1, 1);
-
-      //CommandsContext ctx;
-      //try
-      //{
-      //   ctx.NamedFilters = ReadNamedFilters(L"filters.txt");
-      //}
-      //catch (const exception &)
-      //{
-      //   // Ignore.
-      //}
-
       mainWindow->resize(1000, 800);
       mainWindow->show();
 
-      const int result = app->exec();
-
-      //try
-      //{
-      //   WriteNamedFilters(L"filters.txt", ctx.NamedFilters);
-      //}
-      //catch (const exception &)
-      //{
-      //   // Ignore.
-      //}
-
-      return result;
+      return app->exec();
    }
 }
 
