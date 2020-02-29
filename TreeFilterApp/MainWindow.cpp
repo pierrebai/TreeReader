@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "TextTreeModel.h"
 #include "QtUtilities.h"
 
 #include <QtGui/qpainter.h>
@@ -6,7 +7,6 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qtoolbar.h>
-#include <QtWidgets/qtreeview.h>
 #include <QtWinExtras/qwinfunctions.h>
 
 namespace TreeReaderApp
@@ -58,23 +58,34 @@ namespace TreeReaderApp
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
 
-         _layersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Layers")));
+      _layersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Layers")));
          _layersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          QWidget* filters_container = new QWidget();
          QVBoxLayout* filters_layout = new QVBoxLayout(filters_container);
 
-         _filtersList = new FiltersEditor(filters_container, icons.LayerCopy, icons.LayerAdd, icons.LayerDelete, icons.LayerMoveUp, icons.LayerMoveDown);
+         _filtersList = new FiltersEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
          filters_layout->addWidget(_filtersList);
 
          _layersDock->setWidget(filters_container);
 
-      auto treeView = new QTreeView;
-      treeView->setUniformRowHeights(true);
-      treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+      _treeView = new QTreeView;
+      _treeView->setUniformRowHeights(true);
+      _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-      setCentralWidget(treeView);
+      _cmdDock = new QDockWidget(QString::fromWCharArray(L::t(L"Commands")));
+         _cmdDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+         QWidget* cmd_container = new QWidget();
+         QVBoxLayout* cmd_layout = new QVBoxLayout(cmd_container);
+
+         _cmdLine = new QLineEdit(cmd_container);
+         cmd_layout->addWidget(_cmdLine);
+
+         _cmdDock->setWidget(cmd_container);
+
+      setCentralWidget(_treeView);
       addToolBar(toolbar);
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, _layersDock);
+      addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, _cmdDock);
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(icons.AppIcon), IMAGE_ICON, 256, 256, 0))));
    }
 
@@ -103,16 +114,19 @@ namespace TreeReaderApp
 
       _loadTreeAction->connect(_loadTreeAction, &QAction::triggered, [self=this]()
       {
-         if (!self->SaveIfRequired(L::t(L"load a mosaic"), L::t(L"loading a mosaic")))
+         if (!self->SaveIfRequired(L::t(L"load a text tree"), L::t(L"loading a text tree")))
             return;
 
-         filesystem::path path;
-         // TODO LOAD TREE
-         //auto filters = ask_open_filtered_mosaic(self->known_tilings, path, self);
-         //if (filters.size() == 0)
-         //   return;
-         //self->ClearUndoStack();
-         //self->update_mosaic_map(filters, path.filename());
+         filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(L"txt"), self);
+         self->_data.LoadTree(path);
+
+         if (self->_data.Trees.size() == 0)
+            return;
+
+         self->UpdateTree();
+
+         self->ClearUndoStack();
+         self->UpdateFilters(path.filename());
       });
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
@@ -128,7 +142,7 @@ namespace TreeReaderApp
       {
          self->UpdateFiltersEditor();
          self->CommitToUndo();
-         self->ctx.Filter = filters.empty() ? TreeFilterPtr() : filters.front();
+         self->_data.Filter = self->_filtersList->GetEdited();
       };
 
       _filtersList->SelectionChanged = [self=this](const FiltersEditor::Filters& filters)
@@ -140,6 +154,18 @@ namespace TreeReaderApp
       {
          self->AddFilter(TreeReader::Contains(L"TODO"));
       };
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Command line-edit.
+
+      _cmdLine->connect(_cmdLine, &QLineEdit::editingFinished, [self=this]()
+      {
+         QString text = self->_cmdLine->text();
+         wstring result = ParseCommands(text.toStdWString(), self->_data);
+
+         self->UpdateTree();
+      });
    }
 
    // Fill the UI with the intial data.
@@ -198,10 +224,7 @@ namespace TreeReaderApp
 
    void MainWindow::FillFiltersEditor()
    {
-      vector<TreeFilterPtr> filters;
-      if (ctx.Filter)
-         filters.push_back(ctx.Filter);
-      _filtersList->SetEdited(filters);
+      _filtersList->SetEdited(_data.Filter);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -221,16 +244,16 @@ namespace TreeReaderApp
 
    void MainWindow::AwakenFilters(const any& data)
    {
-      vector<TreeFilterPtr> filters = CloneFilters(any_cast<const vector<TreeFilterPtr>&>(data));
+      TreeFilterPtr filter = CloneFilters(any_cast<const TreeFilterPtr&>(data));
 
-      filtered = filters;
+      _data.Filter = filter;
 
       FillFiltersEditor();
    }
 
    void MainWindow::AwakenToEmptyFilters()
    {
-      filtered.clear();
+      _data.Filter = nullptr;
 
       FillFiltersEditor();
    }
@@ -242,10 +265,9 @@ namespace TreeReaderApp
 
    void MainWindow::CommitToUndo()
    {
-      const vector<TreeFilterPtr>& filters = filtered;
       _undoStack.Commit(
       {
-         CloneFilters(filters),
+         CloneFilters(_data.Filter),
          [self=this](any& data) { self->DeadedFilters(data); },
          [self=this](const any& data) { self->AwakenFilters(data); }
       });
@@ -256,21 +278,20 @@ namespace TreeReaderApp
    //
    // Layer manipulations.
 
-   vector<TreeFilterPtr> MainWindow::CloneFilters(const vector<TreeFilterPtr>& filters)
+   TreeFilterPtr MainWindow::CloneFilters(const TreeFilterPtr& filter)
    {
-      vector<TreeFilterPtr> cloned_filters;
       // TODO CLONE FILTER
-      //for (const auto& filter : filters)
-      //   cloned_filters.emplace_back(filter->clone());
-      return cloned_filters;
+      return filter;
    }
 
    void MainWindow::AddFilter(const TreeFilterPtr& newFilter)
    {
-      auto& filters = filtered;
-      const bool was_empty = (filters.size() <= 0);
-      filters.emplace_back(newFilter);
+      const bool was_empty = (_data.Filter == nullptr);
+      // TODO insert in filter tree... _data.Filter = newFilter;
+      _data.Filter = newFilter;
+      _data.ApplyFilterToTree();
       FillFiltersEditor();
+      UpdateTree();
 
       if (was_empty)
       {
@@ -284,13 +305,31 @@ namespace TreeReaderApp
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // The mosaic tool-bar buttons.
+   // The tool-bar buttons.
 
-   void MainWindow::UpdateFilters(const vector<TreeFilterPtr>& filters, const wstring& name)
+   void MainWindow::UpdateTree()
+   {
+      shared_ptr<TextTree> newTree;
+      if (_data.Filtered)
+      {
+         newTree = _data.Filtered;
+      }
+      else if (_data.Trees.size() > 0)
+      {
+         newTree = _data.Trees.back();
+      }
+
+      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
+      {
+         TextTreeModel* model = new TextTreeModel;
+         model->Tree = newTree;
+         _treeView->setModel(model);
+      }
+   }
+
+   void MainWindow::UpdateFilters(const wstring& name)
    {
       _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(name.c_str()));
-
-      filtered = filters;
 
       FillFiltersEditor();
       CommitToUndo();

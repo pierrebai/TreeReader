@@ -9,7 +9,7 @@ namespace TreeReader
 {
    using namespace std;
 
-   static wstring GetHelp()
+   wstring CommandsContext::GetHelp() const
    {
       wostringstream stream;
 
@@ -39,20 +39,130 @@ namespace TreeReader
       return stream.str();
    }
 
-   static wstring CreateFilter(const wstring& filterText, CommandsContext& ctx)
+   void CommandsContext::SetInputFilter(const std::wstring& filterRegex)
+   {
+      Options.ReadOptions.InputFilter = filterRegex;
+   }
+
+   void CommandsContext::SetInputIndent(const std::wstring& indentText)
+   {
+      Options.ReadOptions.InputIndent = indentText;
+   }
+
+   void CommandsContext::SetOutputIndent(const std::wstring& indentText)
+   {
+      Options.OutputLineIndent = indentText;
+   }
+
+   wstring CommandsContext::LoadTree(const filesystem::path& filename)
+   {
+      TreeFileName = filename;
+      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(TreeFileName), Options.ReadOptions));
+      if (newTree && newTree->Roots.size() > 0)
+      {
+         Trees.emplace_back(move(newTree));
+         return {};
+      }
+      else
+      {
+         return L"Tree file was invalid or empty.\n";
+      }
+   }
+
+   void CommandsContext::SaveTree(const filesystem::path& filename)
+   {
+      TreeFileName = filename;
+      if (Trees.size() > 0 && Trees.back())
+         WriteSimpleTextTree(filesystem::path(TreeFileName), *Trees.back(), Options.OutputLineIndent);
+   }
+
+   void CommandsContext::AppendFilterText(const std::wstring& text)
+   {
+      if (!FilterText.empty())
+         FilterText += L' ';
+      FilterText += text;
+   }
+
+   void CommandsContext::ClearFilterText()
+   {
+      FilterText = L"";
+   }
+
+   wstring CommandsContext::CreateFilter()
+   {
+      return CreateFilter(FilterText);
+   }
+
+   wstring CommandsContext::CreateFilter(const wstring& filterText)
    {
       wostringstream stream;
 
-      ctx.Filter = ctx.Options.UseV1 ? ConvertTextToFilters(filterText,ctx.NamedFilters) : ConvertSimpleTextToFilters(filterText, ctx.NamedFilters);
+      Filter = Options.UseV1 ? ConvertTextToFilters(filterText, KnownFilters) : ConvertSimpleTextToFilters(filterText, KnownFilters);
 
-      if (ctx.Options.Debug)
+      if (Options.Debug)
       {
-         if (ctx.Filter)
-            stream << L"Filters: " << ConvertFiltersToText(ctx.Filter) << endl;
+         if (Filter)
+            stream << L"Filters: " << ConvertFiltersToText(Filter) << endl;
          else
             stream << L"Invalid filter: " << filterText << endl;
       }
       return stream.str();
+   }
+
+   void CommandsContext::NameFilter(const std::wstring& filterName)
+   {
+      NameFilter(filterName, Filter);
+   }
+
+   void CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
+   {
+      if (filter)
+         KnownFilters.Filters[filterName] = filter;
+   }
+
+   wstring CommandsContext::ListNamedFilters()
+   {
+      wostringstream sstream;
+      for (const auto& [name, filter] : KnownFilters.Filters)
+         sstream << name << endl;
+      return sstream.str();
+   }
+
+   void CommandsContext::SaveNamedFilters(const std::filesystem::path& filename)
+   {
+      if (KnownFilters.Filters.size() > 0)
+         WriteNamedFilters(filename, KnownFilters);
+   }
+
+   void CommandsContext::LoadNamedFilters(const std::filesystem::path& filename)
+   {
+      auto filters = ReadNamedFilters(filename);
+      KnownFilters.Filters.insert(filters.Filters.begin(), filters.Filters.end());
+   }
+
+   void CommandsContext::ApplyFilterToTree()
+   {
+      if (Filter && Trees.size() > 0)
+      {
+         Filtered = make_shared<TextTree>();
+         FilterTree(*Trees.back(), *Filtered, Filter);
+      }
+   }
+
+   void CommandsContext::PushFilteredAsTree()
+   {
+      if (Filtered)
+      {
+         Trees.emplace_back(move(Filtered));
+         Filtered = nullptr;
+      }
+   }
+   
+   void CommandsContext::PopTree()
+   {
+      if (Trees.size() > 0)
+         Trees.pop_back();
+      Filtered = nullptr;
    }
 
    wstring ParseCommands(const wstring& cmdText, CommandsContext& ctx)
@@ -88,7 +198,7 @@ namespace TreeReader
          }
          else if (cmd == L"help")
          {
-            result += GetHelp();
+            result += ctx.GetHelp();
          }
          else if (cmd == L"-d" || cmd == L"debug")
          {
@@ -100,102 +210,64 @@ namespace TreeReader
          }
          else if (cmd == L"input-filter" && i + 1 < cmds.size())
          {
-            ctx.Options.ReadOptions.InputFilter = cmds[++i];
+            ctx.SetInputFilter(cmds[++i]);
          }
          else if (cmd == L"input-indent" && i + 1 < cmds.size())
          {
-            ctx.Options.ReadOptions.InputIndent = cmds[++i];
+            ctx.SetInputIndent(cmds[++i]);
          }
          else if (cmd == L"output-indent" && i + 1 < cmds.size())
          {
-            ctx.Options.OutputLineIndent = cmds[++i];
+            ctx.SetOutputIndent(cmds[++i]);
          }
          else if (cmd == L"load" && i + 1 < cmds.size())
          {
-            ctx.TreeFileName = cmds[++i];
-            auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(ctx.TreeFileName), ctx.Options.ReadOptions));
-            if (newTree && newTree->Roots.size() > 0)
-            {
-               ctx.Trees.emplace_back(move(newTree));
-            }
-            else
-            {
-               result += L"Tree file was invalid or empty.\n";
-            }
+            result += ctx.LoadTree(cmds[++i]);
          }
          else if (cmd == L"save" && i + 1 < cmds.size())
          {
-            ctx.TreeFileName = cmds[++i];
-            if (ctx.Trees.size() > 0 && ctx.Trees.back())
-               WriteSimpleTextTree(filesystem::path(ctx.TreeFileName), *ctx.Trees.back(), ctx.Options.OutputLineIndent);
+            ctx.SaveTree(cmds[++i]);
          }
          else if (cmd == L"filter" && i + 1 < cmds.size())
          {
-            if (!ctx.FilterText.empty())
-               ctx.FilterText += L' ';
-            ctx.FilterText += cmds[++i];
+            ctx.AppendFilterText(cmds[++i]);
          }
-         else if (cmd == L"push-filtered" && ctx.Filtered)
+         else if (cmd == L"push-filtered")
          {
-            ctx.Trees.emplace_back(move(ctx.Filtered));
-            ctx.Filtered = nullptr;
+            ctx.PushFilteredAsTree();
          }
          else if (cmd == L"pop-tree")
          {
-            if (ctx.Trees.size() > 0)
-               ctx.Trees.pop_back();
-            ctx.Filtered = nullptr;
+            ctx.PopTree();
          }
          else if (cmd == L"then")
          {
-            if (!ctx.FilterText.empty())
-               result += CreateFilter(ctx.FilterText, ctx);
-            if (ctx.Filter && ctx.Trees.size() > 0)
-            {
-               ctx.Filtered = make_shared<TextTree>();
-               FilterTree(*ctx.Trees.back(), *ctx.Filtered, ctx.Filter);
-               ctx.Trees.emplace_back(move(ctx.Filtered));
-               ctx.Filtered = nullptr;
-            }
-            ctx.FilterText = L"";
+            result += ctx.CreateFilter();
+            ctx.ApplyFilterToTree();
+            ctx.PushFilteredAsTree();
+            ctx.ClearFilterText();
             previousCtx.FilterText = L"";
          }
          else if (cmd == L"name" && i + 1 < cmds.size())
          {
-            if (!ctx.FilterText.empty())
-               result += CreateFilter(ctx.FilterText, ctx);
-            const wstring name = cmds[++i];
-            if (ctx.Filter)
-               ctx.NamedFilters.Filters[name] = ctx.Filter;
+            result += ctx.CreateFilter();
+            ctx.NameFilter(cmds[++i]);
          }
          else if (cmd == L"save-filters" && i + 1 < cmds.size())
          {
-            if (ctx.NamedFilters.Filters.size() > 0)
-            {
-               const wstring filename = cmds[++i];
-               WriteNamedFilters(filename, ctx.NamedFilters);
-            }
+            ctx.SaveNamedFilters(cmds[++i]);
          }
          else if (cmd == L"load-filters" && i + 1 < cmds.size())
          {
-            const wstring filename = cmds[++i];
-            auto filters = ReadNamedFilters(filename);
-            ctx.NamedFilters.Filters.insert(filters.Filters.begin(), filters.Filters.end());
+            ctx.LoadNamedFilters(cmds[++i]);
          }
          else if (cmd == L"list-filters")
          {
-            wostringstream sstream;
-            for (const auto& [name, filter] : ctx.NamedFilters.Filters)
-            {
-               sstream << name << endl;
-            }
-            result += sstream.str();
+            result += ctx.ListNamedFilters();
          }
          else
          {
-            if (!ctx.FilterText.empty())
-               ctx.FilterText += L' ';
-            ctx.FilterText += cmd;
+            ctx.AppendFilterText(cmd);
          }
       }
 
@@ -210,12 +282,11 @@ namespace TreeReader
       const bool treeChanged = (previousCtx.Trees.size() != ctx.Trees.size() || (previousCtx.Trees.size() > 0 && previousCtx.Trees.back() != ctx.Trees.back()));
 
       if (filterTextChanged)
-         result += CreateFilter(ctx.FilterText, ctx);
+         result += ctx.CreateFilter();
 
-      if (ctx.Filter && ctx.Trees.size() > 0 && (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged))
+      if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
       {
-         ctx.Filtered = make_shared<TextTree>();
-         FilterTree(*ctx.Trees.back(), *ctx.Filtered, ctx.Filter);
+         ctx.ApplyFilterToTree();
       }
 
       return result;

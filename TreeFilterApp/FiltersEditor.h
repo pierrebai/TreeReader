@@ -39,8 +39,8 @@ namespace TreeReaderApp
       FiltersEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon);
 
       // Set the Filters being edited.
-      void SetEdited(const Filters& edited);
-      const Filters& GetEdited() const;
+      void SetEdited(const TreeFilterPtr& edited);
+      TreeFilterPtr GetEdited() const;
 
       // Update the list UI to represent changes made to filters.
       void UpdateListContent();

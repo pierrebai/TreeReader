@@ -9,6 +9,8 @@
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qtoolbutton.h>
+#include <QtWidgets/qtreeview.h>
+#include <QtWidgets/qlineedit.h>
 
 #include <vector>
 #include <map>
@@ -17,6 +19,7 @@ namespace TreeReaderApp
 {
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
+   using CommandsContext = TreeReader::CommandsContext;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -32,11 +35,11 @@ namespace TreeReaderApp
       int TextTreeOpen = 0;
       int TextTreeSave = 0;
 
-      int LayerCopy = 0;
-      int LayerAdd = 0;
-      int LayerDelete = 0;
-      int LayerMoveUp = 0;
-      int LayerMoveDown = 0;
+      int FilterCopy = 0;
+      int FilterAdd = 0;
+      int FilterDelete = 0;
+      int FilterMoveUp = 0;
+      int FilterMoveDown = 0;
    };
 
    ////////////////////////////////////////////////////////////////////////////
@@ -73,11 +76,13 @@ namespace TreeReaderApp
       void CommitToUndo();
 
       // Layer manipulations.
-      std::vector<TreeFilterPtr> CloneFilters(const std::vector<TreeFilterPtr>& filters);
+      TreeFilterPtr CloneFilters(const TreeFilterPtr& filters);
       void AddFilter(const TreeFilterPtr& newFilter);
 
-      // The mosaic tool-bar buttons.
-      void UpdateFilters(const std::vector<TreeFilterPtr>& layers, const std::wstring& name);
+      // The tool-bar buttons.
+      void UpdateFilters(const std::wstring& name);
+
+      void UpdateTree();
 
       // Closing and saving.
       void closeEvent(QCloseEvent* ev);
@@ -85,11 +90,8 @@ namespace TreeReaderApp
       bool SaveFilteredTree();
 
       // Data.
-      std::vector<std::wstring> errors;
+      CommandsContext _data;
       UndoStack _undoStack;
-
-      TreeReader::CommandsContext ctx;
-      std::vector<TreeFilterPtr> filtered;
 
       // UI elements.
       QAction* _undoAction = nullptr;
@@ -104,7 +106,10 @@ namespace TreeReaderApp
       QAction* _saveTreeAction = nullptr;
       QToolButton* _saveTreeButton = nullptr;
 
+      QTreeView* _treeView = nullptr;
       QDockWidget* _layersDock = nullptr;
+      QDockWidget* _cmdDock = nullptr;
+      QLineEdit* _cmdLine = nullptr;
       FiltersEditor* _filtersList = nullptr;
    };
 }

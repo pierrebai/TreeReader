@@ -26,19 +26,7 @@ namespace TreeReaderApp
 
    QVariant TextTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
    {
-      if (!Tree)
-         return QVariant();
-
-      if (role != Qt::DisplayRole)
-         return QVariant();
-
-      if (orientation != Qt::Horizontal)
-         return QVariant();
-
-      if (section != 0)
-         return QVariant();
-
-      return QVariant(QString::fromWCharArray(L"Text"));
+      return QVariant();
    }
 
    QModelIndex TextTreeModel::index(int row, int column, const QModelIndex& parent) const

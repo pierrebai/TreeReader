@@ -1,6 +1,9 @@
 #include "TextTreeModel.h"
 #include "TreeFilterCommands.h"
 
+#include "MainWindow.h"
+#include "resource.h"
+
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qtreeview.h>
@@ -20,77 +23,53 @@ namespace TreeReaderApp
    int App(int argc, char** argv)
    {
       QScopedPointer<QApplication> app(new QApplication(argc, argv));
-      auto mainWindow = new QMainWindow;
 
-      auto container = new QWidget(mainWindow);
-      auto layout = new QGridLayout(container);
-      layout->setColumnStretch(0, 80);
-      layout->setColumnStretch(1, 20);
-      container->setLayout(layout);
+      MainWindowIcons icons;
 
-      mainWindow->setCentralWidget(container);
+      icons.AppIcon = IDI_APP_ICON;
 
-      auto treeView = new QTreeView(mainWindow);
-      treeView->setUniformRowHeights(true);
-      treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-      layout->addWidget(treeView, 0, 0, 1, 1);
+      icons.TextTreeOpen = IDB_TREE_OPEN;
+      icons.TextTreeSave = IDB_TREE_SAVE;
 
-      auto cmd = new QLineEdit(mainWindow);
-      cmd->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
-      layout->addWidget(cmd, 1, 0, 1, 2);
+      icons.Undo = IDB_UNDO;
+      icons.Redo = IDB_REDO;
 
-      auto output = new QTextEdit(mainWindow);
-      output->setSizeAdjustPolicy(QTextEdit::SizeAdjustPolicy::AdjustToContents);
-      output->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
-      layout->addWidget(output, 0, 1, 1, 1);
+      icons.FilterAdd = IDB_FILTER_ADD;
+      icons.FilterCopy = IDB_FILTER_COPY;
+      icons.FilterDelete = IDB_FILTER_DELETE;
+      icons.FilterMoveDown = IDB_FILTER_MOVE_DOWN;
+      icons.FilterMoveUp = IDB_FILTER_MOVE_UP;
 
-      CommandsContext ctx;
-      try
-      {
-         ctx.NamedFilters = ReadNamedFilters(L"filters.txt");
-      }
-      catch (const exception &)
-      {
-         // Ignore.
-      }
+      auto mainWindow = new MainWindow(icons);
 
-      cmd->connect(cmd, &QLineEdit::editingFinished, [&]()
-      {
-         QString text = cmd->text();
-         wstring result = ParseCommands(text.toStdWString(), ctx);
+      //auto output = new QTextEdit(mainWindow);
+      //output->setSizeAdjustPolicy(QTextEdit::SizeAdjustPolicy::AdjustToContents);
+      //output->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+      //layout->addWidget(output, 0, 1, 1, 1);
 
-         if (result.size())
-            output->setText(QString::fromStdWString(result));
-
-         shared_ptr<TextTree> newTree;
-         if (ctx.Filtered)
-         {
-            newTree = ctx.Filtered;
-         }
-         else if (ctx.Trees.size() > 0)
-         {
-            newTree = ctx.Trees.back();
-         }
-         if (!treeView->model() || !dynamic_cast<TextTreeModel*>(treeView->model()) || dynamic_cast<TextTreeModel*>(treeView->model())->Tree != newTree)
-         {
-            TextTreeModel* model = new TextTreeModel;
-            model->Tree = newTree;
-            treeView->setModel(model);
-         }
-      });
+      //CommandsContext ctx;
+      //try
+      //{
+      //   ctx.NamedFilters = ReadNamedFilters(L"filters.txt");
+      //}
+      //catch (const exception &)
+      //{
+      //   // Ignore.
+      //}
 
       mainWindow->resize(1000, 800);
       mainWindow->show();
+
       const int result = app->exec();
 
-      try
-      {
-         WriteNamedFilters(L"filters.txt", ctx.NamedFilters);
-      }
-      catch (const exception &)
-      {
-         // Ignore.
-      }
+      //try
+      //{
+      //   WriteNamedFilters(L"filters.txt", ctx.NamedFilters);
+      //}
+      //catch (const exception &)
+      //{
+      //   // Ignore.
+      //}
 
       return result;
    }

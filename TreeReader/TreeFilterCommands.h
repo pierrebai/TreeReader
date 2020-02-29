@@ -6,6 +6,8 @@
 #include "NamedFilters.h"
 
 #include <memory>
+#include <string>
+#include <filesystem>
 
 namespace TreeReader
 {
@@ -39,7 +41,7 @@ namespace TreeReader
       TreeFilterPtr Filter;
       std::shared_ptr<TextTree> Filtered;
 
-      NamedFilters NamedFilters;
+      NamedFilters KnownFilters;
 
       bool operator!=(const CommandsContext& other) const
       {
@@ -47,6 +49,34 @@ namespace TreeReader
              || TreeFileName != other.TreeFileName
              || FilterText != other.FilterText;
       }
+
+      std::wstring GetHelp() const;
+
+      void SetInputFilter(const std::wstring& filterRegex);
+      void SetInputIndent(const std::wstring& indentText);
+      void SetOutputIndent(const std::wstring& indentText);
+
+      std::wstring LoadTree(const std::filesystem::path& filename);
+      void CommandsContext::SaveTree(const std::filesystem::path& filename);
+
+      void AppendFilterText(const std::wstring& text);
+      void ClearFilterText();
+
+      std::wstring CreateFilter();
+      std::wstring CreateFilter(const std::wstring& filterText);
+
+      void NameFilter(const std::wstring& filterName);
+      void NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
+
+      std::wstring ListNamedFilters();
+
+      void SaveNamedFilters(const std::filesystem::path& filename);
+      void LoadNamedFilters(const std::filesystem::path& filename);
+
+      void ApplyFilterToTree();
+
+      void PushFilteredAsTree();
+      void PopTree();
    };
 
    std::wstring ParseCommands(const std::wstring& cmdText, CommandsContext& ctx);
