@@ -78,21 +78,16 @@ namespace TreeReaderApp
 
    QVariant TreeFilterModel::data(const QModelIndex& index, int role) const
    {
-      if (role != Qt::DisplayRole)
-         return QVariant();
-
-      if (!index.isValid())
-         return QVariant();
-
-      const TreeFilter* filter = static_cast<TreeFilter*>(index.internalPointer());
+      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
       if (!filter)
-         return QModelIndex();
+         return QVariant();
 
       wstring text;
-      switch (index.column())
+      switch (role)
       {
-         case 1: text = GetFilterName(*filter); break;
-         case 2: text = GetFilterDescription(*filter); break;
+         case Qt::DisplayRole: text = filter->GetName(); break;
+         case Qt::ToolTipRole: text = filter->GetDescription(); break;
+         default: return QVariant();
       }
       return QVariant(QString::fromStdWString(text));
    }
@@ -104,14 +99,8 @@ namespace TreeReaderApp
 
    QModelIndex TreeFilterModel::index(int row, int column, const QModelIndex& parent) const
    {
-      if (!Filter)
-         return QModelIndex();
-
-      TreeFilter* filter = static_cast<TreeFilter*>(parent.internalPointer());
-      if (!filter)
-         return QModelIndex();
-
-      TreeFilter* child = GetChildFilter(filter, row);
+      TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
+      TreeFilter* child = parentFilter ? GetChildFilter(parentFilter, row) : Filter.get();
       if (!child)
          return QModelIndex();
 
@@ -120,13 +109,7 @@ namespace TreeReaderApp
 
    QModelIndex TreeFilterModel::parent(const QModelIndex& index) const
    {
-      if (!Filter)
-         return QModelIndex();
-
-      if (!index.isValid())
-         return QModelIndex();
-
-      TreeFilter* filter = static_cast<TreeFilter*>(index.internalPointer());
+      TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
       if (!filter)
          return QModelIndex();
 
@@ -139,22 +122,14 @@ namespace TreeReaderApp
 
    int TreeFilterModel::rowCount(const QModelIndex& parent) const
    {
-      if (!Filter)
-         return 0;
-
-      if (!parent.isValid())
+      TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
+      if (!parentFilter)
          return Filter ? 1 : 0;
 
-      const TreeFilter* filter = static_cast<const TreeFilter*>(parent.internalPointer());
-      if (!filter)
-         return 0;
-
-      return GetChildrenCount(filter);
+      return GetChildrenCount(parentFilter);
    }
    int TreeFilterModel::columnCount(const QModelIndex& parent) const
    {
-      if (!Filter)
-         return 0;
-      return 3;
+      return Filter ? 1 : 0;
    }
 }

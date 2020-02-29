@@ -63,7 +63,6 @@ namespace TreeReaderApp
       void FillUI();
 
       // The layers UI call-backs.
-      std::vector<TreeFilterPtr> GetSelectedFilters();
       void FillFiltersEditor();
 
       // Undo / redo tool-bar buttons.

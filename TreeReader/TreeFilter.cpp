@@ -1,6 +1,8 @@
 #include "TreeFilter.h"
 #include "TextTreeVisitor.h"
 
+#include <sstream>
+
 namespace TreeReader
 {
    using namespace std;
@@ -13,6 +15,14 @@ namespace TreeReader
    constexpr Result StopAndDrop{ true, false, false };
    constexpr Result DropAndSkip{ false, true, false };
    constexpr Result KeepAndSkip{ false, true, true };
+
+   namespace L
+   {
+      inline const wchar_t* t(const wchar_t* text)
+      {
+         return text;
+      }
+   }
 
    Result DelegateTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
    {
@@ -329,4 +339,50 @@ namespace TreeReader
 
       return make_pair(move(fut), abort);
    }
+
+   #define IMPLEMENT_SIMPLE_NAME(cl, name, desc)      \
+      wstring cl::GetName() const                     \
+      {                                               \
+         return name;                                 \
+      }                                               \
+                                                      \
+      wstring cl::GetDescription() const              \
+      {                                               \
+         return desc;                                 \
+      }
+
+   #define IMPLEMENT_STREAM_NAME(cl, name, desc)      \
+      wstring cl::GetName() const                     \
+      {                                               \
+         wostringstream sstream;                      \
+         sstream << name;                             \
+         return sstream.str();                        \
+      }                                               \
+                                                      \
+      wstring cl::GetDescription() const              \
+      {                                               \
+         return desc;                                 \
+      }
+
+
+   IMPLEMENT_SIMPLE_NAME(AcceptTreeFilter,         L"Do nothing",                      L"Keeps all nodes")
+   IMPLEMENT_SIMPLE_NAME(StopTreeFilter,           L"Stop",                            L"Stops filtering")
+   IMPLEMENT_SIMPLE_NAME(UntilTreeFilter,          L"Until",                           L"Stops filtering when the sub-filter accepts a node")
+   IMPLEMENT_STREAM_NAME(ContainsTreeFilter,       L"Match " << Contained,             L"Keeps the node if it matches the given text")
+   IMPLEMENT_STREAM_NAME(TextAddressTreeFilter,    L"Exact node " << ExactAddress,     L"Keeps one exact, previously selected node")
+   IMPLEMENT_STREAM_NAME(RegexTreeFilter,          L"Match regex " << RegexTextForm,   L"Keeps the node if it matches the given regular expression")
+   IMPLEMENT_SIMPLE_NAME(NotTreeFilter,            L"Not",                             L"Inverses the result of the sub-filter")
+   IMPLEMENT_SIMPLE_NAME(OrTreeFilter,             L"Any of",                          L"Keeps the node if any of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(AndTreeFilter,            L"All of",                          L"Keeps the node if all of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(UnderTreeFilter,          L"Keep nodes under if",             L"Keeps all nodes under")
+   IMPLEMENT_STREAM_NAME(CountSiblingsTreeFilter,  L"Limit siblings to " << Count,     L"Keeps a maximum number of sibling nodes")
+   IMPLEMENT_STREAM_NAME(CountChildrenTreeFilter,  L"Limit children to " << Count,     L"Keeps a maximum number of children nodes")
+   IMPLEMENT_SIMPLE_NAME(RemoveChildrenTreeFilter, L"Remove all children",             L"Removes all children nodes")
+   IMPLEMENT_STREAM_NAME(LevelRangeTreeFilter,     L"Keep levels " << MinLevel << L"-" << MaxLevel, L"Keeps nodes that are within a range of tree depths")
+   IMPLEMENT_SIMPLE_NAME(IfSubTreeTreeFilter,      L"If a child",                      L"Keeps the node if one if its child is accepted by the sub-filter")
+   IMPLEMENT_SIMPLE_NAME(IfSiblingTreeFilter,      L"If a sibling",                    L"Keeps the node if one if its sibling is accepted by the sub-filter")
+   IMPLEMENT_STREAM_NAME(NamedTreeFilter,          Name,                               L"Defers the decision to keep the node to the named filter")
+
+   #undef IMPLEMENT_SIMPLE_NAME
+   #undef IMPLEMENT_STREAM_NAME
 }

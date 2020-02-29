@@ -171,7 +171,6 @@ namespace TreeReaderApp
    // Fill the UI with the intial data.
    void MainWindow::FillUI()
    {
-      // TODO: fill tree view
       try
       {
          _data.KnownFilters = ReadNamedFilters(L"filters.txt");
@@ -222,20 +221,18 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveFilteredTree()
    {
-      filesystem::path path;
-      // TODO SAVE TREE
-      //return ask_save_filtered_mosaic(get_avail_filters(), path, this);
-      return false;
+      if (_data.Trees.size() == 0)
+         return true;
+
+      filesystem::path path = AskSave(L::t(L"Save Text Tree"), L::t(L"txt"), this);
+      _data.SaveTree(path);
+
+      return true;
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // The filters UI call-backs.
-
-   vector<TreeFilterPtr> MainWindow::GetSelectedFilters()
-   {
-      return _filtersList->GetSelectedFilters();
-   }
 
    void MainWindow::FillFiltersEditor()
    {
@@ -302,7 +299,7 @@ namespace TreeReaderApp
    void MainWindow::AddFilter(const TreeFilterPtr& newFilter)
    {
       const bool was_empty = (_data.Filter == nullptr);
-      // TODO insert in filter tree... _data.Filter = newFilter;
+      // TODO insert a new filter in filter tree...
       _data.Filter = newFilter;
       _data.ApplyFilterToTree();
       FillFiltersEditor();

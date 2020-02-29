@@ -45,9 +45,6 @@ namespace TreeReaderApp
       // Update the list UI to represent changes made to filters.
       void UpdateListContent();
 
-      // Retrieve the selected Filters.
-      Filters GetSelectedFilters() const;
-
    protected:
       std::unique_ptr<FiltersEditorUI> _ui;
    };
