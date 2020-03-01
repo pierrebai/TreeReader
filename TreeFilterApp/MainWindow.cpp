@@ -70,6 +70,7 @@ namespace TreeReaderApp
 
       _treeView = new QTreeView;
       _treeView->setUniformRowHeights(true);
+      _treeView->setHeaderHidden(true);
       _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
       _cmdDock = new QDockWidget(QString::fromWCharArray(L::t(L"Commands")));

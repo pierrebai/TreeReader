@@ -68,6 +68,7 @@ namespace TreeReaderApp
          TreeFilterModel* model = new TreeFilterModel;
          model->Filter = _edited.size() ? _edited.front() : nullptr;
          _filtersTree->setModel(model);
+         _filtersTree->expandAll();
 
          disable_feedback--;
          _filtersTree->blockSignals(disable_feedback > 0);
@@ -91,8 +92,6 @@ namespace TreeReaderApp
          QWidget* button_panel = new QWidget(&parent);
             QGridLayout* button_layout = new QGridLayout(button_panel);
             button_layout->setContentsMargins(0, 0, 0, 0);
-            CloneLayer_button = MakeButton(copy_icon, L::t(L"Copy"));
-            button_layout->addWidget(CloneLayer_button.get(), 0, 0);
             AddFilter_button = MakeButton(add_icon, L::t(L"Add"));
             button_layout->addWidget(AddFilter_button.get(), 0, 1);
             RemoveFilters_button = MakeButton(remove_icon, L::t(L"Remove"));
@@ -104,11 +103,16 @@ namespace TreeReaderApp
          layout->addWidget(button_panel);
 
          _filtersTree = std::make_unique<QTreeView>();
+         _filtersTree->setUniformRowHeights(true);
          _filtersTree->setIconSize(QSize(64, 32));
+         _filtersTree->setHeaderHidden(true);
+         _filtersTree->setAcceptDrops(true);
+         _filtersTree->setDragEnabled(true);
+         _filtersTree->setDragDropMode(QTreeView::DragDrop);
+         _filtersTree->setDropIndicatorShown(true);
          layout->addWidget(_filtersTree.get());
 
          _filtersTree->setEnabled(false);
-         CloneLayer_button->setEnabled(false);
          AddFilter_button->setEnabled(true);
          RemoveFilters_button->setEnabled(false);
          MoveFiltersUp_button->setEnabled(false);
@@ -144,7 +148,6 @@ namespace TreeReaderApp
          auto selected = GetSelection();
 
          _filtersTree->setEnabled(_edited.size() > 0);
-         CloneLayer_button->setEnabled(selected.size() > 0);
          AddFilter_button->setEnabled(true);
          RemoveFilters_button->setEnabled(selected.size() > 0);
          MoveFiltersUp_button->setEnabled(_edited.size() > 1 && selected.size() > 0);
@@ -259,7 +262,6 @@ namespace TreeReaderApp
       Filters _edited;
 
       std::unique_ptr<QTreeView> _filtersTree;
-      std::unique_ptr<QPushButton> CloneLayer_button;
       std::unique_ptr<QPushButton> AddFilter_button;
       std::unique_ptr<QPushButton> RemoveFilters_button;
       std::unique_ptr<QPushButton> MoveFiltersUp_button;
