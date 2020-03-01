@@ -1,4 +1,5 @@
 #include "TreeFilter.h"
+#include "TreeFilterHelpers.h"
 #include "TextTreeVisitor.h"
 
 #include <sstream>
@@ -24,12 +25,64 @@ namespace TreeReader
       }
    }
 
+   namespace
+   {
+      // Do not allow making a loop: do not allow adding as a child a node that is
+      // an ancestor of the parent.
+      bool IsParentInChild(const TreeFilter* parent, const TreeFilterPtr& newChild)
+      {
+         bool isChild = false;
+         VisitFilters(newChild.get(), true, [parent, &isChild](TreeFilter* filter)
+         {
+            if (parent == filter)
+            {
+               isChild = true;
+               return false;
+            }
+
+            return true;
+         });
+
+         return isChild;
+      }
+   }
+
+   bool TreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   {
+      return false;
+   }
+
+   void TreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   {
+   }
+
    Result DelegateTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
       return Filter->IsKept(tree, node, level);
+   }
+
+   bool DelegateTreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   {
+      if (!child)
+         return true;
+
+      if (!Filter)
+         return true;
+
+      return !IsParentInChild(this, child) && child->CanAccept(Filter);
+   }
+
+   void DelegateTreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   {
+      if (!child)
+         return;
+
+      const TreeFilterPtr oldChild = Filter;
+      Filter = child;
+      child->AddSubFilter(oldChild, size_t(-1));
    }
 
    Result AcceptTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
@@ -60,6 +113,20 @@ namespace TreeReader
    Result RegexTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
+   }
+
+   bool CombineTreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   {
+      return !IsParentInChild(this, child);
+   }
+
+   void CombineTreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   {
+      if (!child)
+         return;
+
+      auto pos = (index < Filters.size()) ? (Filters.begin() + index) : Filters.end();
+      Filters.insert(pos, child);
    }
 
    Result NotTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)

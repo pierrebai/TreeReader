@@ -39,6 +39,12 @@ namespace TreeReader
       // Filter a node to decide to keep drop the node.
       virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
 
+      // Verify if a sub-filter could be added. By default nothing can be accepted.
+      virtual bool CanAccept(const std::shared_ptr<TreeFilter>& child) const;
+
+      // Add a sub-filter at the given index.
+      virtual void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index);
+
       // Gets the name of the node.
       virtual std::wstring GetName() const = 0;
 
@@ -60,6 +66,9 @@ namespace TreeReader
       DelegateTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+
+      bool CanAccept(const std::shared_ptr<TreeFilter>& child) const override;
+      void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index) override;
    };
 
    // Filter that accepts all nodes.
@@ -155,6 +164,9 @@ namespace TreeReader
 
       CombineTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { Filters.push_back(lhs); Filters.push_back(rhs); }
       CombineTreeFilter(const std::vector<TreeFilterPtr>& filters) : Filters(filters) {}
+
+      bool CanAccept(const std::shared_ptr<TreeFilter>& child) const override;
+      void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index) override;
    };
 
    // Filter that inverts the keep decision of another filter.

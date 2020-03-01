@@ -83,6 +83,7 @@ namespace TreeReader
    // That is, visit each node before its children and visits its children before its siblings.
    //
    // Allows starting from an arbitrary node and not visiting the siblings of that initial node.
+   // (Not visiting siblings also skip the initial node too.)
 
    void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, TreeVisitor& visitor);
    void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, const NodeVisitFunction& func);

@@ -112,62 +112,6 @@ namespace TreeReaderApp
          }
          return filter;
       }
-
-      bool CanAcceptChildFilter(TreeFilter* parent)
-      {
-         if (auto delegate = dynamic_cast<const DelegateTreeFilter*>(parent))
-         {
-            // TODO: we need to check if dropped filter could accept existing filter? Of we simply lose the filter?
-            return true;
-         }
-         else if (auto combine = dynamic_cast<const CombineTreeFilter*>(parent))
-         {
-            return true;
-         }
-
-         return false;
-      }
-
-      TreeFilterPtr InsertUnderFilter(TreeFilterPtr root, TreeFilter* parent, TreeFilterPtr filter)
-      {
-         // TODO: make sure we don't insert a filter under itself.
-         if (!parent)
-         {
-            if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
-            {
-               delegate->Filter = root;
-               return delegate;
-            }
-            else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
-            {
-               if (root)
-                  combine->Filters.push_back(root);
-               return combine;
-            }
-            else if (root)
-            {
-               root = make_shared<AndTreeFilter>(vector<TreeFilterPtr>{ root });
-               parent = root.get();
-            }
-            else
-            {
-               root = filter;
-               return root;
-            }
-         }
-
-         if (auto delegate = dynamic_cast<DelegateTreeFilter*>(parent))
-         {
-            // TODO: we need to check if dropped filter could accept existing filter? Of we simply lose the filter?
-            delegate->Filter = filter;
-         }
-         else if (auto combine = dynamic_cast<CombineTreeFilter*>(parent))
-         {
-            combine->Filters.push_back(filter);
-         }
-
-         return root;
-      }
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -271,19 +215,23 @@ namespace TreeReaderApp
 
    bool TreeFilterModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
    {
-      if (!dynamic_cast<const TreeFilterMimeData*>(data))
+      const TreeFilterMimeData* filterData = dynamic_cast<const TreeFilterMimeData*>(data);
+      if (!filterData)
          return false;
 
       if (column > 0)
          return false;
 
-      // TODO: use row to validate the drop
-
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
-      if (!parentFilter)
-         return true;
 
-      return CanAcceptChildFilter(parentFilter);
+      bool canAccept = true;
+      for (TreeFilterPtr filter : filterData->Filters)
+         if (parentFilter)
+            canAccept &= parentFilter->CanAccept(filter);
+         else if (filter)
+            canAccept &= filter->CanAccept(Filter);
+
+      return canAccept;
    }
 
    bool TreeFilterModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
@@ -300,7 +248,17 @@ namespace TreeReaderApp
 
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
       for (TreeFilterPtr filter : filterData->Filters)
-         Filter = InsertUnderFilter(Filter, parentFilter, filter);
+      {
+         if (parentFilter)
+         {
+            parentFilter->AddSubFilter(filter, row);
+         }
+         else if (filter)
+         {
+            filter->AddSubFilter(Filter, row);
+            Filter = filter;
+         }
+      }
 
       layoutChanged();
 

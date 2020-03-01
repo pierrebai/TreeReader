@@ -4,9 +4,12 @@ namespace TreeReader
 {
    using namespace std;
 
-   bool VisitFilters(TreeFilter* filter, FilterVisitFunction func)
+   bool VisitFilters(TreeFilter* filter, bool includeSelf, FilterVisitFunction func)
    {
-      if (!func(filter))
+      if (!filter)
+         return true;
+
+      if (includeSelf && !func(filter))
          return false;
 
       if (auto delegate = dynamic_cast<DelegateTreeFilter *>(filter))
