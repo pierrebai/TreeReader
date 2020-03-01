@@ -24,16 +24,17 @@ namespace TreeReaderApp
 
    TreeFilterPtr KnownFiltersModel::GetFilterAt(int row) const
    {
-      if (row >= 0 && row < BaseFilters.size())
-         return BaseFilters[row];
-
-      row -= int(BaseFilters.size());
-      if (row >= 0 && size_t(row) < KnownFilters->Filters.size())
+      if (row >= 0 && size_t(row) < KnownFilters->All().size())
       {
-         auto pos = KnownFilters->Filters.begin();
+         auto pos = KnownFilters->All().begin();
          std::advance(pos, row);
          return pos->second;
       }
+
+      row -= int(KnownFilters->All().size());
+
+      if (row >= 0 && row < BaseFilters.size())
+         return BaseFilters[row];
 
       return {};
    }
@@ -69,7 +70,7 @@ namespace TreeReaderApp
       if (parent.isValid())
          return 0;
 
-      return int(BaseFilters.size() + KnownFilters->Filters.size());
+      return int(KnownFilters->All().size() + BaseFilters.size());
    }
 
    /////////////////////////////////////////////////////////////////////////

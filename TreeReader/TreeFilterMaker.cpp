@@ -314,7 +314,7 @@ namespace TreeReader
       {
          vector<TreeFilterPtr> filters;
 
-         while (true)
+         while (sstream)
          {
             wchar_t comma;
             sstream >> skipws >> comma;

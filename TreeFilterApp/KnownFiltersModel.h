@@ -11,8 +11,8 @@ namespace TreeReaderApp
 
    struct KnownFiltersModel : QAbstractListModel
    {
-      std::vector<TreeFilterPtr> BaseFilters;
       std::shared_ptr<NamedFilters> KnownFilters = std::make_shared<NamedFilters>();
+      std::vector<TreeFilterPtr> BaseFilters;
 
       // Basic model support.
 

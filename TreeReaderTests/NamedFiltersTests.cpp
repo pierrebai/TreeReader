@@ -18,29 +18,28 @@ namespace TreeReaderTests
          shared_ptr<TreeFilter> filter = Contains(L"abc");
 
          NamedFilters filters;
-         filters.Filters[L"def"] = filter;
+         filters.Add(L"def", filter);
 
-         Assert::AreEqual<size_t>(1, filters.Filters.size());
-         Assert::IsTrue(filter == filters.Get(L"def"));
+         Assert::AreEqual<size_t>(1, filters.All().size());
+         Assert::IsNotNull(filters.Get(L"def").get());
+         Assert::IsTrue(filter == filters.Get(L"def")->Filter);
       }
 
       TEST_METHOD(SaveAndLoadNamedFilter)
       {
-         shared_ptr<TreeFilter> filter = Contains(L"abc");
-
          NamedFilters filters;
-         filters.Filters[L"def"] = filter;
+         filters.Add(L"def", Contains(L"abc"));
 
          wstringstream sstream;
          WriteNamedFilters(sstream, filters);
 
          NamedFilters newFilters = ReadNamedFilters(sstream);
 
-         Assert::AreEqual<size_t>(1, newFilters.Filters.size());
+         Assert::AreEqual<size_t>(1, newFilters.All().size());
          Assert::IsTrue(newFilters.Get(L"def") != nullptr);
-
-         Assert::IsTrue(dynamic_pointer_cast<ContainsTreeFilter>(newFilters.Get(L"def")).get());
-         Assert::AreEqual(wstring(L"abc"), dynamic_pointer_cast<ContainsTreeFilter>(newFilters.Get(L"def"))->Contained);
+         Assert::IsTrue(newFilters.Get(L"def")->Filter != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<ContainsTreeFilter>(newFilters.Get(L"def")->Filter).get());
+         Assert::AreEqual(wstring(L"abc"), dynamic_pointer_cast<ContainsTreeFilter>(newFilters.Get(L"def")->Filter)->Contained);
       }
    };
 }

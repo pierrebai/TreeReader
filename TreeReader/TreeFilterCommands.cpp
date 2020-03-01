@@ -118,28 +118,27 @@ namespace TreeReader
 
    void CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
    {
-      if (filter)
-         KnownFilters->Filters[filterName] = filter;
+      KnownFilters->Add(filterName, filter);
    }
 
    wstring CommandsContext::ListNamedFilters()
    {
       wostringstream sstream;
-      for (const auto& [name, filter] : KnownFilters->Filters)
+      for (const auto& [name, filter] : KnownFilters->All())
          sstream << name << endl;
       return sstream.str();
    }
 
    void CommandsContext::SaveNamedFilters(const std::filesystem::path& filename)
    {
-      if (KnownFilters->Filters.size() > 0)
+      if (KnownFilters->All().size() > 0)
          WriteNamedFilters(filename, *KnownFilters);
    }
 
    void CommandsContext::LoadNamedFilters(const std::filesystem::path& filename)
    {
       auto filters = ReadNamedFilters(filename);
-      KnownFilters->Filters.insert(filters.Filters.begin(), filters.Filters.end());
+      KnownFilters->Merge(filters);
    }
 
    void CommandsContext::ApplyFilterToTree()

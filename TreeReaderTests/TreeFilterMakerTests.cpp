@@ -212,9 +212,9 @@ namespace TreeReaderTests
       TEST_METHOD(ConvertToTextNamedFilter)
       {
          NamedFilters known;
-         known.Filters[L"abc"] = Contains(L"abc");
+         known.Add(L"abc", Contains(L"abc"));
 
-         auto filter = Named(L"abc", known.Filters[L"abc"]);
+         auto filter = known.Get(L"abc");
 
          const wstring text = ConvertFiltersToText(filter);
 
@@ -224,7 +224,7 @@ namespace TreeReaderTests
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::AreEqual(wstring(L"abc"), rebuilt->Name);
-         Assert::IsTrue(known.Filters[L"abc"] == rebuilt->Filter);
+         Assert::IsTrue(known.Get(L"abc")->Filter == rebuilt->Filter);
       }
 
       TEST_METHOD(ConvertSimpleText)

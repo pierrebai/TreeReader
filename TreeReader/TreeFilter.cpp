@@ -250,6 +250,14 @@ namespace TreeReader
       return Drop;
    }
 
+   Result NamedTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      if (!Filter)
+         return Keep;
+
+      return Filter->IsKept(tree, node, level);
+   }
+
    FilterTreeVisitor::FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
    : FilteredTree(filteredTree), Filter(filter)
    {
@@ -381,7 +389,7 @@ namespace TreeReader
    IMPLEMENT_STREAM_NAME(LevelRangeTreeFilter,     L"Keep levels " << MinLevel << L"-" << MaxLevel, L"Keeps nodes that are within a range of tree depths")
    IMPLEMENT_SIMPLE_NAME(IfSubTreeTreeFilter,      L"If a child",                      L"Keeps the node if one if its child is accepted by the sub-filter")
    IMPLEMENT_SIMPLE_NAME(IfSiblingTreeFilter,      L"If a sibling",                    L"Keeps the node if one if its sibling is accepted by the sub-filter")
-   IMPLEMENT_STREAM_NAME(NamedTreeFilter,          Name,                               L"Defers the decision to keep the node to the named filter")
+   IMPLEMENT_STREAM_NAME(NamedTreeFilter,          Name,                               L"Delegates the decision to keep the node to the named filter")
 
    #undef IMPLEMENT_SIMPLE_NAME
    #undef IMPLEMENT_STREAM_NAME

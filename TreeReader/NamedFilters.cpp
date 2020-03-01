@@ -9,10 +9,21 @@ namespace TreeReader
 {
    using namespace std;
 
-   TreeFilterPtr NamedFilters::Get(const wstring& name) const
+   void NamedFilters::Add(const std::wstring& name, const TreeFilterPtr& filter)
    {
-      const auto pos = Filters.find(name);
-      if (pos == Filters.end())
+      if (filter && !name.empty())
+         _filters[name] = Named(name, filter);
+   }
+
+   void NamedFilters::Merge(const NamedFilters& other)
+   {
+      _filters.insert(other.All().begin(), other.All().end());
+   }
+
+   NamedFilterPtr NamedFilters::Get(const wstring& name) const
+   {
+      const auto pos = _filters.find(name);
+      if (pos == _filters.end())
          return {};
 
       return pos->second;
@@ -26,9 +37,9 @@ namespace TreeReader
 
    void WriteNamedFilters(wostream& stream, const NamedFilters& filters)
    {
-      for (const auto& [name, filter] : filters.Filters)
+      for (const auto& [name, filter] : filters.All())
          if (filter)
-            stream << quoted(name) << L" : " << quoted(ConvertFiltersToText(filter)) << endl;
+            stream << quoted(name) << L" : " << quoted(ConvertFiltersToText(filter->Filter)) << endl;
    }
 
    NamedFilters ReadNamedFilters(const filesystem::path& path)
@@ -47,17 +58,13 @@ namespace TreeReader
          wstring filterText;
          wchar_t column;
          stream >> skipws >> quoted(name) >> skipws >> column >> skipws >> quoted(filterText);
-         if (name.empty())
-            continue;
 
          TreeFilterPtr filter = ConvertTextToFilters(filterText, filters);
-         if (!filter)
-            continue;
 
-         filters.Filters[name] = filter;
+         filters.Add(name, filter);
       }
 
-      for (auto& [name, filter] : filters.Filters)
+      for (auto& [name, filter] : filters.All())
          UpdateNamedFilters(filter, filters);
 
       return filters;
@@ -69,7 +76,7 @@ namespace TreeReader
       {
          if (auto namedFilter = dynamic_cast<NamedTreeFilter *>(filter))
          {
-            namedFilter->Filter = named.Get(namedFilter->Name);
+            namedFilter->Filter = named.Get(namedFilter->Name)->Filter;
          }
          return true;
       });
