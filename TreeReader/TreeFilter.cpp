@@ -69,10 +69,13 @@ namespace TreeReader
       if (!child)
          return true;
 
+      if (IsParentInChild(this, child))
+         return false;
+
       if (!Filter)
          return true;
 
-      return !IsParentInChild(this, child) && child->CanAccept(Filter);
+      return child->CanAccept(Filter);
    }
 
    void DelegateTreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
