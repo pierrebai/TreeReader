@@ -1,4 +1,4 @@
-#include "FiltersEditor.h"
+#include "FilterEditor.h"
 #include "TreeFilterModel.h"
 #include "QtUtilities.h"
 
@@ -37,7 +37,7 @@ namespace TreeReaderApp
    class FiltersEditorUI
    {
    public:
-      FiltersEditorUI(FiltersEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
+      FiltersEditorUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
       : editor(parent)
       {
          BuildUI(parent, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon);
@@ -84,7 +84,7 @@ namespace TreeReaderApp
          return std::move(button);
       }
 
-      void BuildUI(FiltersEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
+      void BuildUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
       {
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
@@ -259,7 +259,7 @@ namespace TreeReaderApp
          UpdateFilters();
       }
 
-      FiltersEditor& editor;
+      FilterEditor& editor;
       Filters _edited;
 
       std::unique_ptr<QTreeView> _filtersTree;
@@ -275,12 +275,12 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   FiltersEditor::FiltersEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
+   FilterEditor::FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
    : QWidget(parent), _ui(std::make_unique<FiltersEditorUI>(*this, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon))
    {
    }
 
-   void FiltersEditor::SetEdited(const TreeFilterPtr& edited)
+   void FilterEditor::SetEdited(const TreeFilterPtr& edited)
    {
       if (!_ui)
          return;
@@ -288,7 +288,7 @@ namespace TreeReaderApp
       _ui->SetEdited(edited);
    }
 
-   TreeFilterPtr FiltersEditor::GetEdited() const
+   TreeFilterPtr FilterEditor::GetEdited() const
    {
       if (!_ui)
          return {};
@@ -296,7 +296,7 @@ namespace TreeReaderApp
       return _ui->GetEdited();
    }
 
-   void FiltersEditor::UpdateListContent()
+   void FilterEditor::UpdateListContent()
    {
       if (!_ui)
          return;

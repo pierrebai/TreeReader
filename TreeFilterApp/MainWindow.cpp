@@ -67,35 +67,35 @@ namespace TreeReaderApp
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
 
-      _layersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Layers")));
-         _layersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+      auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
+         filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          QWidget* filters_container = new QWidget();
          QVBoxLayout* filters_layout = new QVBoxLayout(filters_container);
 
-         _filtersList = new FiltersEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
-         filters_layout->addWidget(_filtersList);
+         _filterEditor = new FilterEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
+         filters_layout->addWidget(_filterEditor);
 
-         _layersDock->setWidget(filters_container);
+         filtersDock->setWidget(filters_container);
 
       _treeView = new QTreeView;
       _treeView->setUniformRowHeights(true);
       _treeView->setHeaderHidden(true);
       _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-      _cmdDock = new QDockWidget(QString::fromWCharArray(L::t(L"Commands")));
-         _cmdDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+      auto cmdDock = new QDockWidget(QString::fromWCharArray(L::t(L"Commands")));
+         cmdDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          QWidget* cmd_container = new QWidget();
          QVBoxLayout* cmd_layout = new QVBoxLayout(cmd_container);
 
          _cmdLine = new QLineEdit(cmd_container);
          cmd_layout->addWidget(_cmdLine);
 
-         _cmdDock->setWidget(cmd_container);
+         cmdDock->setWidget(cmd_container);
 
       setCentralWidget(_treeView);
       addToolBar(toolbar);
-      addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, _layersDock);
-      addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, _cmdDock);
+      addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
+      addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, cmdDock);
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(icons.AppIcon), IMAGE_ICON, 256, 256, 0))));
    }
 
@@ -149,18 +149,18 @@ namespace TreeReaderApp
       //
       // The filter list UI call-backs.
 
-      _filtersList->FiltersChanged = [self=this](const FiltersEditor::Filters& filters)
+      _filterEditor->FiltersChanged = [self=this](const FilterEditor::Filters& filters)
       {
          self->CommitToUndo();
-         self->_data.Filter = self->_filtersList->GetEdited();
+         self->_data.Filter = self->_filterEditor->GetEdited();
       };
 
-      _filtersList->SelectionChanged = [self=this](const FiltersEditor::Filters& filters)
+      _filterEditor->SelectionChanged = [self=this](const FilterEditor::Filters& filters)
       {
          // Nothing...
       };
 
-      _filtersList->NewFilterRequested = [self=this]()
+      _filterEditor->NewFilterRequested = [self=this]()
       {
          self->RequestNewFilter();
       };
@@ -215,14 +215,12 @@ namespace TreeReaderApp
          _treeView->setModel(model);
       }
 
-      _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(_data.TreeFileName.c_str()));
-
       CommitToUndo();
    }
 
    void MainWindow::FillFiltersUI()
    {
-      _filtersList->SetEdited(_data.Filter);
+      _filterEditor->SetEdited(_data.Filter);
    }
 
    /////////////////////////////////////////////////////////////////////////

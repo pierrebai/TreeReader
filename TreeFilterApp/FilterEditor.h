@@ -17,7 +17,7 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order Filters.
 
-   class FiltersEditor : public QWidget
+   class FilterEditor : public QWidget
    {
    public:
       // What is being edited.
@@ -36,7 +36,7 @@ namespace TreeReaderApp
       NewFilterRequestedCallback NewFilterRequested;
 
       // Create a filter editor with the given parent widget.
-      FiltersEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon);
+      FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon);
 
       // Set the Filters being edited.
       void SetEdited(const TreeFilterPtr& edited);

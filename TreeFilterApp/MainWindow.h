@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FiltersEditor.h"
+#include "FilterEditor.h"
 #include "UndoStack.h"
 
 #include "TreeFilterCommands.h"
@@ -85,7 +85,7 @@ namespace TreeReaderApp
       CommandsContext _data;
       UndoStack _undoStack;
 
-      // UI elements.
+      // Toolbar buttons.
       QAction* _undoAction = nullptr;
       QToolButton* _undoButton = nullptr;
 
@@ -98,11 +98,10 @@ namespace TreeReaderApp
       QAction* _saveTreeAction = nullptr;
       QToolButton* _saveTreeButton = nullptr;
 
+      // UI elements.
       QTreeView* _treeView = nullptr;
-      QDockWidget* _layersDock = nullptr;
-      QDockWidget* _cmdDock = nullptr;
       QLineEdit* _cmdLine = nullptr;
-      FiltersEditor* _filtersList = nullptr;
+      FilterEditor* _filterEditor = nullptr;
    };
 }
 

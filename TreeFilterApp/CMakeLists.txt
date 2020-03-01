@@ -11,7 +11,7 @@ find_package(Qt5 COMPONENTS WinExtras REQUIRED)
 
 add_executable(TreeFilterApp WIN32
    TreeFilterApp.cpp
-   FiltersEditor.cpp       FiltersEditor.h
+   FilterEditor.cpp        FilterEditor.h
    MainWindow.cpp          MainWindow.h
    QtUtilities.cpp         QtUtilities.h
    TextTreeModel.cpp       TextTreeModel.h
