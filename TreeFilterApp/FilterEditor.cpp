@@ -41,6 +41,7 @@ namespace TreeReaderApp
       : _editor(parent)
       {
          BuildUI(parent, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon);
+         ConnectUI();
       }
 
       TreeFilterPtr GetEdited() const
@@ -104,14 +105,23 @@ namespace TreeReaderApp
          _filtersTree->setDragEnabled(true);
          _filtersTree->setDragDropMode(QTreeView::DragDrop);
          _filtersTree->setDropIndicatorShown(true);
+         _filtersTree->setModel(new TreeFilterModel());
          layout->addWidget(_filtersTree.get());
 
-         _filtersTree->setEnabled(false);
+         _filtersTree->setEnabled(true);
          _removeFiltersButton->setEnabled(false);
+      }
 
+      void ConnectUI()
+      {
          _filtersTree->connect(_filtersTree->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
          {
             UpdateSelection(selected, deselected);
+         });
+
+         _filtersTree->connect(_filtersTree->model(), &QAbstractItemModel::layoutChanged, [&](const QList<QPersistentModelIndex>& parents, QAbstractItemModel::LayoutChangeHint hint)
+         {
+            _filtersTree->expandAll();
          });
 
          _removeFiltersButton->connect(_removeFiltersButton.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
@@ -136,7 +146,6 @@ namespace TreeReaderApp
       {
          auto selected = GetSelection();
 
-         _filtersTree->setEnabled(_edited.size() > 0);
          _removeFiltersButton->setEnabled(selected.size() > 0);
       }
 

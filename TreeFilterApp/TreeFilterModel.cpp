@@ -144,10 +144,15 @@ namespace TreeReaderApp
                   combine->Filters.push_back(root);
                return combine;
             }
-            else
+            else if (root)
             {
                root = make_shared<AndTreeFilter>(vector<TreeFilterPtr>{ root });
                parent = root.get();
+            }
+            else
+            {
+               root = filter;
+               return root;
             }
          }
 
@@ -233,10 +238,6 @@ namespace TreeReaderApp
 
    Qt::ItemFlags TreeFilterModel::flags(const QModelIndex& index) const
    {
-      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
-      if (!filter)
-         return Qt::ItemFlag::NoItemFlags;
-
       return Qt::ItemFlag::ItemIsDragEnabled
            | Qt::ItemFlag::ItemIsDropEnabled
            | Qt::ItemFlag::ItemIsEnabled
