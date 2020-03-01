@@ -16,7 +16,6 @@ add_executable(TreeFilterApp WIN32
    QtUtilities.cpp         QtUtilities.h
    TextTreeModel.cpp       TextTreeModel.h
    TreeFilterModel.cpp     TreeFilterModel.h
-   UndoStack.cpp           UndoStack.h
 
    Resource.rc             resource.h
 

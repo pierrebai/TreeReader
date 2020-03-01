@@ -1,6 +1,6 @@
 #include "UndoStack.h"
 
-namespace TreeReaderApp
+namespace TreeReader
 {
    // Create an empty undo stack.
    UndoStack::UndoStack()

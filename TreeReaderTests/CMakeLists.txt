@@ -8,6 +8,7 @@ add_library(TreeReaderTests SHARED
    TreeFilterTests.cpp
    TreeReaderHelpersTests.cpp
    TreeReaderTestHelpers.cpp
+   UndoStackTests.cpp
 
    TreeReaderTestHelpers.h
 )

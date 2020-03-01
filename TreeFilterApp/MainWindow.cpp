@@ -1,6 +1,8 @@
 #include "MainWindow.h"
+#include "MainWindow.h"
 #include "TextTreeModel.h"
 #include "QtUtilities.h"
+#include "TreeFilterMaker.h"
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -25,6 +27,10 @@ namespace TreeReaderApp
       }
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Create the main window.
+
    MainWindow::MainWindow(const MainWindowIcons& icons)
    {
       BuildUI(icons);
@@ -32,7 +38,10 @@ namespace TreeReaderApp
       ConnectUI(icons);
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Create the UI elements.
+
    void MainWindow::BuildUI(const MainWindowIcons& icons)
    {
       QToolBar* toolbar = new QToolBar();
@@ -90,7 +99,10 @@ namespace TreeReaderApp
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(icons.AppIcon), IMAGE_ICON, 256, 256, 0))));
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Connect the signals of the UI elements.
+
    void MainWindow::ConnectUI(const MainWindowIcons& icons)
    {
       /////////////////////////////////////////////////////////////////////////
@@ -120,14 +132,12 @@ namespace TreeReaderApp
 
          filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(L"txt"), self);
          self->_data.LoadTree(path);
+         self->_data.ApplyFilterToTree();
 
          if (self->_data.Trees.size() == 0)
             return;
 
-         self->UpdateTree();
-         self->FillFiltersEditor();
-
-         self->ClearUndoStack();
+         self->FillTextTreeUI();
       });
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
@@ -164,23 +174,60 @@ namespace TreeReaderApp
          QString text = self->_cmdLine->text();
          wstring result = ParseCommands(text.toStdWString(), self->_data);
 
-         self->UpdateTree();
-         self->FillFiltersEditor();
+         self->FillTextTreeUI();
+         self->FillFiltersUI();
       });
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Fill the UI with the intial data.
+
    void MainWindow::FillUI()
    {
       try
       {
          _data.KnownFilters = ReadNamedFilters(L"filters.txt");
+         ClearUndoStack();
       }
       catch (const exception &)
       {
          // Ignore.
       }
    }
+
+   void MainWindow::FillTextTreeUI()
+   {
+      shared_ptr<TextTree> newTree;
+      if (_data.Filtered)
+      {
+         newTree = _data.Filtered;
+      }
+      else if (_data.Trees.size() > 0)
+      {
+         newTree = _data.Trees.back();
+      }
+
+      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
+      {
+         TextTreeModel* model = new TextTreeModel;
+         model->Tree = newTree;
+         _treeView->setModel(model);
+      }
+
+      _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(_data.TreeFileName.c_str()));
+
+      CommitToUndo();
+   }
+
+   void MainWindow::FillFiltersUI()
+   {
+      _filtersList->SetEdited(_data.Filter);
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Closing and saving.
 
    void MainWindow::closeEvent(QCloseEvent* ev)
    {
@@ -204,7 +251,7 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const wstring& action, const wstring& actioning)
    {
-      if (_undoStack.HasUndo())
+      if (_undoStack.HasUndo() && _data.Trees.size() > 0 && _data.Filter)
       {
          YesNoCancel answer = AskYesNoCancel(
             L::t(L"Unsaved Text Tree Warning"),
@@ -231,14 +278,6 @@ namespace TreeReaderApp
       return true;
    }
 
-   /////////////////////////////////////////////////////////////////////////
-   //
-   // The filters UI call-backs.
-
-   void MainWindow::FillFiltersEditor()
-   {
-      _filtersList->SetEdited(_data.Filter);
-   }
 
    /////////////////////////////////////////////////////////////////////////
    //
@@ -246,7 +285,39 @@ namespace TreeReaderApp
 
    void MainWindow::DeadedFilters(any& data)
    {
-      // Nothing...
+      data = ConvertFiltersToText(_data.Filter);
+   }
+
+   void MainWindow::AwakenFilters(const any& data)
+   {
+      _data.Filter = ConvertTextToFilters(any_cast<wstring>(data), _data.KnownFilters);;
+
+      FillFiltersUI();
+   }
+
+   void MainWindow::AwakenToEmptyFilters()
+   {
+      _data.Filter = nullptr;
+
+      FillFiltersUI();
+   }
+
+   void MainWindow::ClearUndoStack()
+   {
+      _undoStack.Clear();
+      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
+      _undoStack.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
+   }
+
+   void MainWindow::CommitToUndo()
+   {
+      _undoStack.Commit(
+      {
+         ConvertFiltersToText(_data.Filter),
+         [self=this](any& data) { self->DeadedFilters(data); },
+         [self=this](const any& data) { self->AwakenFilters(data); }
+      });
+      UpdateUndoRedoActions();
    }
 
    void MainWindow::UpdateUndoRedoActions()
@@ -255,92 +326,17 @@ namespace TreeReaderApp
       _redoAction->setEnabled(_undoStack.HasRedo());
    }
 
-   void MainWindow::AwakenFilters(const any& data)
-   {
-      TreeFilterPtr filter = CloneFilters(any_cast<const TreeFilterPtr&>(data));
-
-      _data.Filter = filter;
-
-      FillFiltersEditor();
-   }
-
-   void MainWindow::AwakenToEmptyFilters()
-   {
-      _data.Filter = nullptr;
-
-      FillFiltersEditor();
-   }
-
-   void MainWindow::ClearUndoStack()
-   {
-      _undoStack.Clear();
-   }
-
-   void MainWindow::CommitToUndo()
-   {
-      _undoStack.Commit(
-      {
-         CloneFilters(_data.Filter),
-         [self=this](any& data) { self->DeadedFilters(data); },
-         [self=this](const any& data) { self->AwakenFilters(data); }
-      });
-      UpdateUndoRedoActions();
-   }
-
    /////////////////////////////////////////////////////////////////////////
    //
    // Layer manipulations.
 
-   TreeFilterPtr MainWindow::CloneFilters(const TreeFilterPtr& filter)
-   {
-      // TODO clone filters for the undo stack.
-      return filter;
-   }
-
    void MainWindow::RequestNewFilter()
    {
-      const bool was_empty = (_data.Filter == nullptr);
       // TODO insert a new filter in filter tree...
       //_data.Filter = newFilter;
       _data.ApplyFilterToTree();
-      FillFiltersEditor();
-      UpdateTree();
-
-      if (was_empty)
-      {
-         ClearUndoStack();
-         // Note: when adding filters, allow undoing back to an empty filter list.
-         _undoStack.Commit({ 0, nullptr, [self=this](const any&) { self->AwakenToEmptyFilters(); } });
-      }
-
-      CommitToUndo();
-   }
-
-   /////////////////////////////////////////////////////////////////////////
-   //
-   // The tool-bar buttons.
-
-   void MainWindow::UpdateTree()
-   {
-      shared_ptr<TextTree> newTree;
-      if (_data.Filtered)
-      {
-         newTree = _data.Filtered;
-      }
-      else if (_data.Trees.size() > 0)
-      {
-         newTree = _data.Trees.back();
-      }
-
-      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
-      {
-         TextTreeModel* model = new TextTreeModel;
-         model->Tree = newTree;
-         _treeView->setModel(model);
-      }
-
-      _layersDock->setWindowTitle(QString::fromWCharArray(L::t(L"Filters: ")) + QString::fromWCharArray(_data.TreeFileName.c_str()));
-
+      FillFiltersUI();
+      FillTextTreeUI();
       CommitToUndo();
    }
 

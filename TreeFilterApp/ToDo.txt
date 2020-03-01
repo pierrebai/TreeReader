@@ -6,4 +6,4 @@ Implement undo stack.
 Implement drag-and-drop. Remove the move up/down buttons.
 Implement adding a new filter.
 Implement deleting a filter.
-
+Custom item renderer.

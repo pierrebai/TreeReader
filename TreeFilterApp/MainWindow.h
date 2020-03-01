@@ -20,6 +20,7 @@ namespace TreeReaderApp
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using CommandsContext = TreeReader::CommandsContext;
+   using UndoStack = TreeReader::UndoStack;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -61,9 +62,8 @@ namespace TreeReaderApp
 
       // Fill the UI with the intial data.
       void FillUI();
-
-      // The layers UI call-backs.
-      void FillFiltersEditor();
+      void FillTextTreeUI();
+      void FillFiltersUI();
 
       // Undo / redo tool-bar buttons.
       void DeadedFilters(std::any& data);
@@ -74,10 +74,7 @@ namespace TreeReaderApp
       void CommitToUndo();
 
       // Layer manipulations.
-      TreeFilterPtr CloneFilters(const TreeFilterPtr& filters);
       void RequestNewFilter();
-
-      void UpdateTree();
 
       // Closing and saving.
       void closeEvent(QCloseEvent* ev);

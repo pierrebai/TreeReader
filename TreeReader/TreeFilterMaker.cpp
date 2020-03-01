@@ -166,6 +166,7 @@ namespace TreeReader
          CALL_CONVERTER(UnderTreeFilter)
          CALL_CONVERTER(RemoveChildrenTreeFilter)
          CALL_CONVERTER(LevelRangeTreeFilter)
+         CALL_CONVERTER(NamedTreeFilter)
 
          #undef CALL_CONVERTER
 
@@ -394,7 +395,7 @@ namespace TreeReader
       TreeFilterPtr ConvertTextToFilter<NamedTreeFilter>(wistringstream& sstream)
       {
          wstring name;
-         sstream >> skipws >> name;
+         sstream >> skipws >> quoted(name);
 
          EatClosingBrace(sstream);
 

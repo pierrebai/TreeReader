@@ -355,8 +355,7 @@ namespace TreeReader
    inline std::shared_ptr<LevelRangeTreeFilter> MaxLevel(size_t level) { return LevelRange(0, level); }
    inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
    inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
-   inline std::shared_ptr<NamedTreeFilter> Named(const TreeFilterPtr& filter, const std::wstring& name) { return std::make_shared<NamedTreeFilter>(filter, name); }
-   inline std::shared_ptr<NamedTreeFilter> Named(const std::wstring& name) { return std::make_shared<NamedTreeFilter>(name); }
+   inline std::shared_ptr<NamedTreeFilter> Named(const std::wstring& name, const TreeFilterPtr& filter = {}) { return std::make_shared<NamedTreeFilter>(filter, name); }
 
    // The tree visitor that actually does the filtering.
 

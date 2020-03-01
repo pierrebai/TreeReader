@@ -14,6 +14,8 @@ add_library(TreeReader
    TreeFilterCommands.cpp     TreeFilterCommands.h
    TreeReaderHelpers.cpp      TreeReaderHelpers.h
    NamedFilters.cpp           NamedFilters.h
+   UndoStack.cpp              UndoStack.h
 )
 
 target_compile_features(TreeReader PUBLIC cxx_std_20)
+

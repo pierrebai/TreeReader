@@ -132,6 +132,7 @@ namespace TreeReaderApp
       void FillUI(const QItemSelection& selected)
       {
          disable_feedback++;
+         _filtersTree->blockSignals(disable_feedback > 0);
 
          UpdateListContent();
 

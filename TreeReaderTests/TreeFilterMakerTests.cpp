@@ -16,9 +16,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextAcceptFilter)
       {
-         auto accept = Accept();
+         auto filter = Accept();
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \naccept [ ]", text.c_str());
 
@@ -28,9 +28,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextStopFilter)
       {
-         auto accept = Stop();
+         auto filter = Stop();
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nstop [ ]", text.c_str());
 
@@ -40,9 +40,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextContainsFilter)
       {
-         auto accept = Contains(L"\"abc\"");
+         auto filter = Contains(L"\"abc\"");
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \ncontains [ \"\\\"abc\\\"\" ]", text.c_str());
 
@@ -53,9 +53,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextRegexFilter)
       {
-         auto accept = Regex(L"[abc]*");
+         auto filter = Regex(L"[abc]*");
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nregex [ \"[abc]*\" ]", text.c_str());
 
@@ -66,9 +66,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextNotAcceptFilter)
       {
-         auto accept = Not(Accept());
+         auto filter = Not(Accept());
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nnot [ \n accept [ ] ]", text.c_str());
 
@@ -79,9 +79,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextOrFilter)
       {
-         auto accept = Or(Contains(L"a"), Contains(L"b"));
+         auto filter = Or(Contains(L"a"), Contains(L"b"));
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nor [ \n contains [ \"a\" ], \n contains [ \"b\" ] ]", text.c_str());
 
@@ -101,9 +101,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextAndFilter)
       {
-         auto accept = And(Contains(L"a"), Accept());
+         auto filter = And(Contains(L"a"), Accept());
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n accept [ ] ]", text.c_str());
 
@@ -122,9 +122,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextUnderFilter)
       {
-         auto accept = Under(Contains(L"a"), true);
+         auto filter = Under(Contains(L"a"), true);
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nunder [ true, \n contains [ \"a\" ] ]", text.c_str());
 
@@ -140,9 +140,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextCountChildrenFilter)
       {
-         auto accept = CountChildren(Contains(L"a"), 3, true);
+         auto filter = CountChildren(Contains(L"a"), 3, true);
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \ncount-sub [ true, 3, \n contains [ \"a\" ] ]", text.c_str());
 
@@ -159,9 +159,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextCountSiblingsFilter)
       {
-         auto accept = CountSiblings(Contains(L"abc"), 44, false);
+         auto filter = CountSiblings(Contains(L"abc"), 44, false);
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \ncount-sib [ false, 44, \n contains [ \"abc\" ] ]", text.c_str());
 
@@ -178,9 +178,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextRemoveChildrenFilter)
       {
-         auto accept = NoChild(Contains(L"abc"));
+         auto filter = NoChild(Contains(L"abc"));
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nno-child [ false, \n contains [ \"abc\" ] ]", text.c_str());
 
@@ -196,9 +196,9 @@ namespace TreeReaderTests
 
       TEST_METHOD(ConvertToTextRangeFilter)
       {
-         auto accept = LevelRange(7, 9);
+         auto filter = LevelRange(7, 9);
 
-         const wstring text = ConvertFiltersToText(accept);
+         const wstring text = ConvertFiltersToText(filter);
 
          Assert::AreEqual(L"V1: \nrange [ 7, 9 ]", text.c_str());
 
@@ -207,6 +207,24 @@ namespace TreeReaderTests
 
          Assert::AreEqual<size_t>(7, rebuilt->MinLevel);
          Assert::AreEqual<size_t>(9, rebuilt->MaxLevel);
+      }
+
+      TEST_METHOD(ConvertToTextNamedFilter)
+      {
+         NamedFilters known;
+         known.Filters[L"abc"] = Contains(L"abc");
+
+         auto filter = Named(L"abc", known.Filters[L"abc"]);
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nnamed [ \"abc\" ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<NamedTreeFilter>(ConvertTextToFilters(text, known));
+         Assert::IsTrue(rebuilt != nullptr);
+
+         Assert::AreEqual(wstring(L"abc"), rebuilt->Name);
+         Assert::IsTrue(known.Filters[L"abc"] == rebuilt->Filter);
       }
 
       TEST_METHOD(ConvertSimpleText)
