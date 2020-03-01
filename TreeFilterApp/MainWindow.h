@@ -76,9 +76,6 @@ namespace TreeReaderApp
       void ClearUndoStack();
       void CommitToUndo();
 
-      // Layer manipulations.
-      void RequestNewFilter();
-
       // Closing and saving.
       void closeEvent(QCloseEvent* ev);
       bool SaveIfRequired(const std::wstring& action, const std::wstring& actioning);

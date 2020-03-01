@@ -161,11 +161,6 @@ namespace TreeReaderApp
          self->_data.Filter = self->_filterEditor->GetEdited();
       };
 
-      _filterEditor->NewFilterRequested = [self=this]()
-      {
-         self->RequestNewFilter();
-      };
-
       /////////////////////////////////////////////////////////////////////////
       //
       // Command line-edit.
@@ -349,20 +344,6 @@ namespace TreeReaderApp
    {
       _undoAction->setEnabled(_undoStack.HasUndo());
       _redoAction->setEnabled(_undoStack.HasRedo());
-   }
-
-   /////////////////////////////////////////////////////////////////////////
-   //
-   // Layer manipulations.
-
-   void MainWindow::RequestNewFilter()
-   {
-      // TODO insert a new filter in filter tree...
-      //_data.Filter = newFilter;
-      _data.ApplyFilterToTree();
-      FillFilterEditorUI();
-      FillTextTreeUI();
-      CommitToUndo();
    }
 
 }

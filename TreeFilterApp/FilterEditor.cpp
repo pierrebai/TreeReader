@@ -38,7 +38,7 @@ namespace TreeReaderApp
    {
    public:
       FiltersEditorUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
-      : editor(parent)
+      : _editor(parent)
       {
          BuildUI(parent, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon);
       }
@@ -62,16 +62,16 @@ namespace TreeReaderApp
 
       void UpdateListContent()
       {
-         disable_feedback++;
-         _filtersTree->blockSignals(disable_feedback > 0);
+         _disableFeedback++;
+         _filtersTree->blockSignals(_disableFeedback > 0);
 
          TreeFilterModel* model = new TreeFilterModel;
          model->Filter = _edited.size() ? _edited.front() : nullptr;
          _filtersTree->setModel(model);
          _filtersTree->expandAll();
 
-         disable_feedback--;
-         _filtersTree->blockSignals(disable_feedback > 0);
+         _disableFeedback--;
+         _filtersTree->blockSignals(_disableFeedback > 0);
       }
 
    private:
@@ -92,14 +92,8 @@ namespace TreeReaderApp
          QWidget* button_panel = new QWidget(&parent);
             QGridLayout* button_layout = new QGridLayout(button_panel);
             button_layout->setContentsMargins(0, 0, 0, 0);
-            AddFilter_button = MakeButton(add_icon, L::t(L"Add"));
-            button_layout->addWidget(AddFilter_button.get(), 0, 1);
-            RemoveFilters_button = MakeButton(remove_icon, L::t(L"Remove"));
-            button_layout->addWidget(RemoveFilters_button.get(), 0, 2);
-            MoveFiltersUp_button = MakeButton(move_up_icon, L::t(L"Move Up"));
-            button_layout->addWidget(MoveFiltersUp_button.get(), 0, 3);
-            MoveFiltersDown_button = MakeButton(move_down_icon, L::t(L"Move Down"));
-            button_layout->addWidget(MoveFiltersDown_button.get(), 0, 4);
+            _removeFiltersButton = MakeButton(remove_icon, L::t(L"Remove"));
+            button_layout->addWidget(_removeFiltersButton.get(), 0, 2);
          layout->addWidget(button_panel);
 
          _filtersTree = std::make_unique<QTreeView>();
@@ -113,26 +107,20 @@ namespace TreeReaderApp
          layout->addWidget(_filtersTree.get());
 
          _filtersTree->setEnabled(false);
-         AddFilter_button->setEnabled(true);
-         RemoveFilters_button->setEnabled(false);
-         MoveFiltersUp_button->setEnabled(false);
-         MoveFiltersDown_button->setEnabled(false);
+         _removeFiltersButton->setEnabled(false);
 
          _filtersTree->connect(_filtersTree->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
          {
             UpdateSelection(selected, deselected);
          });
 
-         AddFilter_button->connect(AddFilter_button.get(), &QPushButton::clicked, [&]() { AddFilter(); });
-         RemoveFilters_button->connect(RemoveFilters_button.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
-         MoveFiltersUp_button->connect(MoveFiltersUp_button.get(), &QPushButton::clicked, [&]() { MoveFiltersUp(); });
-         MoveFiltersDown_button->connect(MoveFiltersDown_button.get(), &QPushButton::clicked, [&]() { MoveFiltersDown(); });
+         _removeFiltersButton->connect(_removeFiltersButton.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
       }
 
       void FillUI(const QItemSelection& selected)
       {
-         disable_feedback++;
-         _filtersTree->blockSignals(disable_feedback > 0);
+         _disableFeedback++;
+         _filtersTree->blockSignals(_disableFeedback > 0);
 
          UpdateListContent();
 
@@ -140,8 +128,8 @@ namespace TreeReaderApp
 
          UpdateEnabled();
 
-         disable_feedback--;
-         _filtersTree->blockSignals(disable_feedback > 0);
+         _disableFeedback--;
+         _filtersTree->blockSignals(_disableFeedback > 0);
       }
 
       void UpdateEnabled()
@@ -149,21 +137,18 @@ namespace TreeReaderApp
          auto selected = GetSelection();
 
          _filtersTree->setEnabled(_edited.size() > 0);
-         AddFilter_button->setEnabled(true);
-         RemoveFilters_button->setEnabled(selected.size() > 0);
-         MoveFiltersUp_button->setEnabled(_edited.size() > 1 && selected.size() > 0);
-         MoveFiltersDown_button->setEnabled(_edited.size() > 1 && selected.size() > 0);
+         _removeFiltersButton->setEnabled(selected.size() > 0);
       }
 
       void UpdateSelection(const QItemSelection& selected, const QItemSelection& deselected)
       {
          UpdateEnabled();
 
-         if (disable_feedback)
+         if (_disableFeedback)
             return;
 
-         if (editor.SelectionChanged)
-            editor.SelectionChanged(_edited);
+         if (_editor.SelectionChanged)
+            _editor.SelectionChanged(_edited);
       }
 
       void UpdateFilters()
@@ -171,11 +156,11 @@ namespace TreeReaderApp
          UpdateEnabled();
 
          // Note: used to avoid re-calculating the layer when just setting its value in the UI.
-         if (disable_feedback)
+         if (_disableFeedback)
             return;
 
-         if (editor.FiltersChanged)
-            editor.FiltersChanged(_edited);
+         if (_editor.FiltersChanged)
+            _editor.FiltersChanged(_edited);
       }
 
       void SetSelection(const QItemSelection& selection)
@@ -196,17 +181,11 @@ namespace TreeReaderApp
          return selModel->selection();
       };
 
-      void AddFilter()
-      {
-         if (editor.NewFilterRequested)
-            editor.NewFilterRequested();
-      }
-
       void RemoveFilters()
       {
          // Note: clone in reverse index order to avoid changing indexes before processing them.
          auto selected = GetSelection();
-         // TODO: filters editor remove
+         // TODO: filter editor: implement remove filter button
          //std::reverse(selected.begin(), selected.end());
          //for (int index : selected)
          //{
@@ -216,59 +195,13 @@ namespace TreeReaderApp
          UpdateFilters();
       }
 
-      void MoveFiltersUp()
-      {
-         // Treat each target index in order: find if it must receive the layer from below moving up.
-         auto selected = GetSelection();
-         // TODO: filters editor move up
-         //int target = 0;
-         //for (int& index : selected)
-         //{
-         //   while (target < index-1)
-         //      target++;
-         //   if (target < index)
-         //   {
-         //      std::swap(_edited[target], _edited[index]);
-         //      index--;
-         //   }
-         //   target++;
-         //}
-         FillUI(selected);
-         UpdateFilters();
-      }
-
-      void MoveFiltersDown()
-      {
-         // Treat each target index in reverse order: find if it must receive the layer from up moving down.
-         auto selected = GetSelection();
-         // TODO: filters editor move down
-         //std::reverse(selected.begin(), selected.end());
-         //int target = int(_edited.size()) - 1;
-         //for (int& index : selected)
-         //{
-         //   while (target > index + 1)
-         //      target--;
-         //   if (target > index)
-         //   {
-         //      std::swap(_edited[target], _edited[index]);
-         //      index++;
-         //   }
-         //   target--;
-         //}
-         FillUI(selected);
-         UpdateFilters();
-      }
-
-      FilterEditor& editor;
+      FilterEditor& _editor;
       Filters _edited;
 
       std::unique_ptr<QTreeView> _filtersTree;
-      std::unique_ptr<QPushButton> AddFilter_button;
-      std::unique_ptr<QPushButton> RemoveFilters_button;
-      std::unique_ptr<QPushButton> MoveFiltersUp_button;
-      std::unique_ptr<QPushButton> MoveFiltersDown_button;
+      std::unique_ptr<QPushButton> _removeFiltersButton;
 
-      int disable_feedback = 0;
+      int _disableFeedback = 0;
    };
 
    ////////////////////////////////////////////////////////////////////////////

@@ -31,10 +31,6 @@ namespace TreeReaderApp
       typedef std::function<void(const Filters&)> FiltersChangedCallback;
       FiltersChangedCallback FiltersChanged;
 
-      // Callback when a new filter should be added.
-      typedef std::function<void()> NewFilterRequestedCallback;
-      NewFilterRequestedCallback NewFilterRequested;
-
       // Create a filter editor with the given parent widget.
       FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon);
 

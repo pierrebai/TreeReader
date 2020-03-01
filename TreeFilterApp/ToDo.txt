@@ -6,3 +6,6 @@ Implement drag-and-drop. Remove the move up/down buttons.
 Implement deleting a filter.
 Custom item renderer.
 Use row index when dropping.
+Apply filter when loading a tree.
+Allow dropping on empty filter editor.
+Fix how named filters are shown in available filter list.
