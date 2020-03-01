@@ -1,5 +1,6 @@
 #include "TreeFilterModel.h"
 #include "TreeFilterHelpers.h"
+#include "TreeFilterMimeData.h"
 
 #include <QtCore/qmimedata.h>
 #include <QtCore/qdatastream.h>
@@ -162,11 +163,6 @@ namespace TreeReaderApp
 
          return root;
       }
-
-      struct TreeFilterMimeData : QMimeData
-      {
-         vector<TreeFilterPtr> Filters;
-      };
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -225,6 +221,7 @@ namespace TreeReaderApp
 
       return GetChildrenCount(parentFilter);
    }
+
    int TreeFilterModel::columnCount(const QModelIndex& parent) const
    {
       return Filter ? 1 : 0;
@@ -241,19 +238,19 @@ namespace TreeReaderApp
          return Qt::ItemFlag::NoItemFlags;
 
       return Qt::ItemFlag::ItemIsDragEnabled
-         | Qt::ItemFlag::ItemIsDropEnabled
-         | Qt::ItemFlag::ItemIsEnabled
-         | Qt::ItemFlag::ItemIsSelectable;
+           | Qt::ItemFlag::ItemIsDropEnabled
+           | Qt::ItemFlag::ItemIsEnabled
+           | Qt::ItemFlag::ItemIsSelectable;
    }
 
    Qt::DropActions TreeFilterModel::supportedDropActions() const
    {
-      return Qt::MoveAction;
+      return Qt::MoveAction | Qt::CopyAction;
    }
 
    QStringList TreeFilterModel::mimeTypes() const
    {
-      return QStringList("x-tree-reader-tree-filter");
+      return QStringList(TreeFilterMimeData::MimeType);
    }
 
    QMimeData* TreeFilterModel::mimeData(const QModelIndexList& indexes) const

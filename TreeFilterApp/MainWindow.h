@@ -1,9 +1,10 @@
 #pragma once
 
 #include "FilterEditor.h"
-#include "UndoStack.h"
+#include "KnownFiltersModel.h"
 
 #include "TreeFilterCommands.h"
+#include "UndoStack.h"
 
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qdockwidget.h>
@@ -11,6 +12,7 @@
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qlistview.h>
 
 #include <vector>
 #include <map>
@@ -63,7 +65,8 @@ namespace TreeReaderApp
       // Fill the UI with the intial data.
       void FillUI();
       void FillTextTreeUI();
-      void FillFiltersUI();
+      void FillFilterEditorUI();
+      void FillAvailableFiltersUI();
 
       // Undo / redo tool-bar buttons.
       void DeadedFilters(std::any& data);
@@ -102,6 +105,8 @@ namespace TreeReaderApp
       QTreeView* _treeView = nullptr;
       QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
+      QListView* _availableFiltersList = nullptr;
+      KnownFiltersModel* _knownFiltersModel = nullptr;
    };
 }
 

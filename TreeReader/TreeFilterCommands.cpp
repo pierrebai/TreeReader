@@ -97,7 +97,9 @@ namespace TreeReader
    {
       wostringstream stream;
 
-      Filter = Options.UseV1 ? ConvertTextToFilters(filterText, KnownFilters) : ConvertSimpleTextToFilters(filterText, KnownFilters);
+      Filter = Options.UseV1
+             ? ConvertTextToFilters(filterText, *KnownFilters)
+             : ConvertSimpleTextToFilters(filterText, *KnownFilters);
 
       if (Options.Debug)
       {
@@ -117,27 +119,27 @@ namespace TreeReader
    void CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
    {
       if (filter)
-         KnownFilters.Filters[filterName] = filter;
+         KnownFilters->Filters[filterName] = filter;
    }
 
    wstring CommandsContext::ListNamedFilters()
    {
       wostringstream sstream;
-      for (const auto& [name, filter] : KnownFilters.Filters)
+      for (const auto& [name, filter] : KnownFilters->Filters)
          sstream << name << endl;
       return sstream.str();
    }
 
    void CommandsContext::SaveNamedFilters(const std::filesystem::path& filename)
    {
-      if (KnownFilters.Filters.size() > 0)
-         WriteNamedFilters(filename, KnownFilters);
+      if (KnownFilters->Filters.size() > 0)
+         WriteNamedFilters(filename, *KnownFilters);
    }
 
    void CommandsContext::LoadNamedFilters(const std::filesystem::path& filename)
    {
       auto filters = ReadNamedFilters(filename);
-      KnownFilters.Filters.insert(filters.Filters.begin(), filters.Filters.end());
+      KnownFilters->Filters.insert(filters.Filters.begin(), filters.Filters.end());
    }
 
    void CommandsContext::ApplyFilterToTree()

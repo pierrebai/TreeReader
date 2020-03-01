@@ -70,7 +70,13 @@ namespace TreeReaderApp
       auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
          filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          QWidget* filters_container = new QWidget();
-         QVBoxLayout* filters_layout = new QVBoxLayout(filters_container);
+         QHBoxLayout* filters_layout = new QHBoxLayout(filters_container);
+
+         _availableFiltersList = new QListView;
+         _availableFiltersList->setIconSize(QSize(64, 32));
+         _availableFiltersList->setDragEnabled(true);
+         _availableFiltersList->setDragDropMode(QListView::DragOnly);
+         filters_layout->addWidget(_availableFiltersList);
 
          _filterEditor = new FilterEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
          filters_layout->addWidget(_filterEditor);
@@ -155,11 +161,6 @@ namespace TreeReaderApp
          self->_data.Filter = self->_filterEditor->GetEdited();
       };
 
-      _filterEditor->SelectionChanged = [self=this](const FilterEditor::Filters& filters)
-      {
-         // Nothing...
-      };
-
       _filterEditor->NewFilterRequested = [self=this]()
       {
          self->RequestNewFilter();
@@ -175,7 +176,7 @@ namespace TreeReaderApp
          wstring result = ParseCommands(text.toStdWString(), self->_data);
 
          self->FillTextTreeUI();
-         self->FillFiltersUI();
+         self->FillFilterEditorUI();
       });
    }
 
@@ -187,13 +188,15 @@ namespace TreeReaderApp
    {
       try
       {
-         _data.KnownFilters = ReadNamedFilters(L"filters.txt");
-         ClearUndoStack();
+         *_data.KnownFilters = ReadNamedFilters(L"filters.txt");
       }
       catch (const exception &)
       {
          // Ignore.
       }
+
+      ClearUndoStack();
+      FillAvailableFiltersUI();
    }
 
    void MainWindow::FillTextTreeUI()
@@ -218,9 +221,33 @@ namespace TreeReaderApp
       CommitToUndo();
    }
 
-   void MainWindow::FillFiltersUI()
+   void MainWindow::FillFilterEditorUI()
    {
       _filterEditor->SetEdited(_data.Filter);
+   }
+
+   void MainWindow::FillAvailableFiltersUI()
+   {
+      _knownFiltersModel = new KnownFiltersModel;
+
+      _knownFiltersModel->KnownFilters = _data.KnownFilters;
+      _knownFiltersModel->BaseFilters.push_back(Accept());
+      _knownFiltersModel->BaseFilters.push_back(Stop());
+      _knownFiltersModel->BaseFilters.push_back(Until(nullptr));
+      _knownFiltersModel->BaseFilters.push_back(Contains(L""));
+      _knownFiltersModel->BaseFilters.push_back(Regex(L""));
+      _knownFiltersModel->BaseFilters.push_back(Not(nullptr));
+      _knownFiltersModel->BaseFilters.push_back(Any(vector<TreeFilterPtr>()));
+      _knownFiltersModel->BaseFilters.push_back(All(vector<TreeFilterPtr>()));
+      _knownFiltersModel->BaseFilters.push_back(Under(nullptr));
+      _knownFiltersModel->BaseFilters.push_back(CountSiblings(nullptr, 0));
+      _knownFiltersModel->BaseFilters.push_back(CountChildren(nullptr, 0));
+      _knownFiltersModel->BaseFilters.push_back(NoChild(nullptr));
+      _knownFiltersModel->BaseFilters.push_back(LevelRange(0, 100));
+      _knownFiltersModel->BaseFilters.push_back(IfSubTree(nullptr));
+      _knownFiltersModel->BaseFilters.push_back(IfSibling(nullptr));
+
+      _availableFiltersList->setModel(_knownFiltersModel);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -234,7 +261,7 @@ namespace TreeReaderApp
          QWidget::closeEvent(ev);
          try
          {
-            WriteNamedFilters(L"filters.txt", _data.KnownFilters);
+            WriteNamedFilters(L"filters.txt", *_data.KnownFilters);
          }
          catch (const exception&)
          {
@@ -288,16 +315,16 @@ namespace TreeReaderApp
 
    void MainWindow::AwakenFilters(const any& data)
    {
-      _data.Filter = ConvertTextToFilters(any_cast<wstring>(data), _data.KnownFilters);;
+      _data.Filter = ConvertTextToFilters(any_cast<wstring>(data), *_data.KnownFilters);;
 
-      FillFiltersUI();
+      FillFilterEditorUI();
    }
 
    void MainWindow::AwakenToEmptyFilters()
    {
       _data.Filter = nullptr;
 
-      FillFiltersUI();
+      FillFilterEditorUI();
    }
 
    void MainWindow::ClearUndoStack()
@@ -333,7 +360,7 @@ namespace TreeReaderApp
       // TODO insert a new filter in filter tree...
       //_data.Filter = newFilter;
       _data.ApplyFilterToTree();
-      FillFiltersUI();
+      FillFilterEditorUI();
       FillTextTreeUI();
       CommitToUndo();
    }
