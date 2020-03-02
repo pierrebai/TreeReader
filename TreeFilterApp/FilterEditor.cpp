@@ -1,5 +1,5 @@
 #include "FilterEditor.h"
-#include "TreeFilterModel.h"
+#include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -8,8 +8,7 @@
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qheaderview.h>
-#include <QtWidgets/qtablewidget.h>
-#include <QtWidgets/qtreeview.h>
+#include <QtWidgets/qlistwidget.h>
 
 #include <algorithm>
 #include <typeindex>
@@ -63,13 +62,16 @@ namespace TreeReaderApp
       void UpdateListContent()
       {
          //_disableFeedback++;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
 
-         _filterModel->SetRootFilter(_edited);
-         _filtersTree->expandAll();
+         TreeReader::VisitFilters(_edited.get(), true, [self=this](TreeFilter* filter) -> bool
+         {
+            self->_filterList->addItem(QString::fromStdWString(filter->GetName()));
+            return true;
+         });
 
          //_disableFeedback--;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
       }
 
    private:
@@ -94,38 +96,26 @@ namespace TreeReaderApp
             button_layout->addWidget(_removeFiltersButton.get(), 0, 2);
          layout->addWidget(button_panel);
 
-         _filterModel = make_unique<TreeFilterModel>();
+         _filterList = make_unique<QListWidget>();
+         //_filterList->setUniformRowHeights(true);
+         //_filterList->setHeaderHidden(true);
+         _filterList->setIconSize(QSize(64, 32));
+         _filterList->setAcceptDrops(true);
+         _filterList->setDragEnabled(true);
+         _filterList->setDragDropMode(QListWidget::DragDrop);
+         _filterList->setDefaultDropAction(Qt::MoveAction);
+         _filterList->setDropIndicatorShown(true);
+         layout->addWidget(_filterList.get());
 
-         _filtersTree = make_unique<QTreeView>();
-         _filtersTree->setUniformRowHeights(true);
-         _filtersTree->setIconSize(QSize(64, 32));
-         _filtersTree->setHeaderHidden(true);
-         _filtersTree->setModel(_filterModel.get());
-         _filtersTree->setAcceptDrops(true);
-         _filtersTree->setDragEnabled(true);
-         _filtersTree->setDragDropMode(QTreeView::DragDrop);
-         _filtersTree->setDropIndicatorShown(true);
-         layout->addWidget(_filtersTree.get());
-
-         _filtersTree->setEnabled(true);
+         _filterList->setEnabled(true);
          _removeFiltersButton->setEnabled(false);
       }
 
       void ConnectUI()
       {
-         _filtersTree->connect(_filtersTree->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
+         _filterList->connect(_filterList->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
          {
             UpdateSelection(selected, deselected);
-         });
-
-         _filtersTree->connect(_filtersTree->model(), &QAbstractItemModel::layoutChanged, [&](const QList<QPersistentModelIndex>& parents, QAbstractItemModel::LayoutChangeHint hint)
-         {
-            _filtersTree->expandAll();
-         });
-
-         _filtersTree->connect(_filtersTree->model(), &QAbstractItemModel::modelReset, [&]()
-         {
-            _filtersTree->expandAll();
          });
 
          _removeFiltersButton->connect(_removeFiltersButton.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
@@ -134,7 +124,7 @@ namespace TreeReaderApp
       void FillUI(const QItemSelection& selected)
       {
          //_disableFeedback++;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
 
          UpdateListContent();
 
@@ -143,7 +133,7 @@ namespace TreeReaderApp
          UpdateEnabled();
 
          //_disableFeedback--;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
       }
 
       void UpdateEnabled()
@@ -178,7 +168,7 @@ namespace TreeReaderApp
 
       void SetSelection(const QItemSelection& selection)
       {
-         QItemSelectionModel* selModel = _filtersTree->selectionModel();
+         QItemSelectionModel* selModel = _filterList->selectionModel();
          if (!selModel)
             return;
 
@@ -187,7 +177,7 @@ namespace TreeReaderApp
 
       QItemSelection GetSelection() const
       {
-         QItemSelectionModel* selModel = _filtersTree->selectionModel();
+         QItemSelectionModel* selModel = _filterList->selectionModel();
          if (!selModel)
             return {};
 
@@ -196,12 +186,12 @@ namespace TreeReaderApp
 
       void RemoveFilters()
       {
-         auto model = _filtersTree->model();
+         auto model = _filterList->model();
          if (!model)
             return;
 
          //_disableFeedback++;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
 
          // Note: remove in reverse index order to avoid changing indexes before processing them.
          auto selected = GetSelection().indexes();
@@ -215,15 +205,14 @@ namespace TreeReaderApp
          UpdateFilters();
 
          //_disableFeedback--;
-         //_filtersTree->blockSignals(_disableFeedback > 0);
+         //_filterList->blockSignals(_disableFeedback > 0);
       }
 
       FilterEditor& _editor;
       TreeFilterPtr _edited;
 
-      unique_ptr<TreeFilterModel> _filterModel;
-      unique_ptr<QTreeView> _filtersTree;
-      unique_ptr<QPushButton> _removeFiltersButton;
+      std::unique_ptr<QListWidget> _filterList;
+      std::unique_ptr<QPushButton> _removeFiltersButton;
 
       int _disableFeedback = 0;
    };

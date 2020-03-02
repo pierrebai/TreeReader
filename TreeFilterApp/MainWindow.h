@@ -12,7 +12,7 @@
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qlistview.h>
+#include <QtWidgets/qlistwidget.h>
 
 #include <vector>
 #include <map>
@@ -102,8 +102,7 @@ namespace TreeReaderApp
       QTreeView* _treeView = nullptr;
       QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
-      QListView* _availableFiltersList = nullptr;
-      KnownFiltersModel* _knownFiltersModel = nullptr;
+      QListWidget* _availableFiltersList = nullptr;
    };
 }
 
