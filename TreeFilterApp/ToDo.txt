@@ -5,3 +5,4 @@ Implement deleting a filter.
 Custom item renderer.
 Use row index when dropping.
 Apply filter when loading a tree.
+Clone filters gotten from the avail tree.

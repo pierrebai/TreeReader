@@ -10,7 +10,7 @@ namespace TreeReaderApp
    {
       std::vector<TreeReader::TreeFilterPtr> Filters;
 
-      static constexpr char MimeType[] = "x-tree-reader-tree-filter";
+      static constexpr char MimeType[] = "application/x-tree-reader-tree-filter";
    };
 }
 

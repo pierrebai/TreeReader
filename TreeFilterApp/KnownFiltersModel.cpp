@@ -104,7 +104,7 @@ namespace TreeReaderApp
          if (!filter)
             continue;
 
-         mimeData->Filters.push_back(filter);
+         mimeData->Filters.push_back(filter->Clone());
       }
 
       return mimeData;

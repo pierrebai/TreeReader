@@ -62,14 +62,14 @@ namespace TreeReaderApp
 
       void UpdateListContent()
       {
-         _disableFeedback++;
-         _filtersTree->blockSignals(_disableFeedback > 0);
+         //_disableFeedback++;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
 
-         _filterModel->Filter = _edited;
+         _filterModel->SetRootFilter(_edited);
          _filtersTree->expandAll();
 
-         _disableFeedback--;
-         _filtersTree->blockSignals(_disableFeedback > 0);
+         //_disableFeedback--;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
       }
 
    private:
@@ -100,11 +100,11 @@ namespace TreeReaderApp
          _filtersTree->setUniformRowHeights(true);
          _filtersTree->setIconSize(QSize(64, 32));
          _filtersTree->setHeaderHidden(true);
+         _filtersTree->setModel(_filterModel.get());
          _filtersTree->setAcceptDrops(true);
          _filtersTree->setDragEnabled(true);
          _filtersTree->setDragDropMode(QTreeView::DragDrop);
          _filtersTree->setDropIndicatorShown(true);
-         _filtersTree->setModel(_filterModel.get());
          layout->addWidget(_filtersTree.get());
 
          _filtersTree->setEnabled(true);
@@ -123,13 +123,18 @@ namespace TreeReaderApp
             _filtersTree->expandAll();
          });
 
+         _filtersTree->connect(_filtersTree->model(), &QAbstractItemModel::modelReset, [&]()
+         {
+            _filtersTree->expandAll();
+         });
+
          _removeFiltersButton->connect(_removeFiltersButton.get(), &QPushButton::clicked, [&]() { RemoveFilters(); });
       }
 
       void FillUI(const QItemSelection& selected)
       {
-         _disableFeedback++;
-         _filtersTree->blockSignals(_disableFeedback > 0);
+         //_disableFeedback++;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
 
          UpdateListContent();
 
@@ -137,8 +142,8 @@ namespace TreeReaderApp
 
          UpdateEnabled();
 
-         _disableFeedback--;
-         _filtersTree->blockSignals(_disableFeedback > 0);
+         //_disableFeedback--;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
       }
 
       void UpdateEnabled()
@@ -195,9 +200,8 @@ namespace TreeReaderApp
          if (!model)
             return;
 
-         _disableFeedback++;
-         _filtersTree->blockSignals(_disableFeedback > 0);
-
+         //_disableFeedback++;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
 
          // Note: remove in reverse index order to avoid changing indexes before processing them.
          auto selected = GetSelection().indexes();
@@ -210,8 +214,8 @@ namespace TreeReaderApp
          FillUI({});
          UpdateFilters();
 
-         _disableFeedback--;
-         _filtersTree->blockSignals(_disableFeedback > 0);
+         //_disableFeedback--;
+         //_filtersTree->blockSignals(_disableFeedback > 0);
       }
 
       FilterEditor& _editor;

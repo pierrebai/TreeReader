@@ -465,9 +465,9 @@ namespace TreeReader
    IMPLEMENT_STREAM_NAME(TextAddressTreeFilter,    L"Exact node " << ExactAddress,     L"Keeps one exact, previously selected node")
    IMPLEMENT_STREAM_NAME(RegexTreeFilter,          L"Match regex " << RegexTextForm,   L"Keeps the node if it matches the given regular expression")
    IMPLEMENT_SIMPLE_NAME(NotTreeFilter,            L"Not",                             L"Inverses the result of the sub-filter")
-   IMPLEMENT_SIMPLE_NAME(OrTreeFilter,             L"Any of",                          L"Keeps the node if any of the sub-filters accepts")
-   IMPLEMENT_SIMPLE_NAME(AndTreeFilter,            L"All of",                          L"Keeps the node if all of the sub-filters accepts")
-   IMPLEMENT_SIMPLE_NAME(UnderTreeFilter,          L"Keep nodes under if",             L"Keeps all nodes under")
+   IMPLEMENT_SIMPLE_NAME(OrTreeFilter,             L"If any",                          L"Keeps the node if any of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(AndTreeFilter,            L"If all",                          L"Keeps the node if all of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(UnderTreeFilter,          L"All under if",                    L"Keeps all nodes under")
    IMPLEMENT_STREAM_NAME(CountSiblingsTreeFilter,  L"Limit siblings to " << Count,     L"Keeps a maximum number of sibling nodes")
    IMPLEMENT_STREAM_NAME(CountChildrenTreeFilter,  L"Limit children to " << Count,     L"Keeps a maximum number of children nodes")
    IMPLEMENT_SIMPLE_NAME(RemoveChildrenTreeFilter, L"Remove all children",             L"Removes all children nodes")
@@ -478,4 +478,30 @@ namespace TreeReader
 
    #undef IMPLEMENT_SIMPLE_NAME
    #undef IMPLEMENT_STREAM_NAME
+
+   #define IMPLEMENT_CLONE(cl)                        \
+      TreeFilterPtr cl::Clone() const                 \
+      {                                               \
+         return make_shared<cl>(*this);               \
+      }                                               \
+
+   IMPLEMENT_CLONE(AcceptTreeFilter)
+   IMPLEMENT_CLONE(StopTreeFilter)
+   IMPLEMENT_CLONE(UntilTreeFilter)
+   IMPLEMENT_CLONE(ContainsTreeFilter)
+   IMPLEMENT_CLONE(TextAddressTreeFilter)
+   IMPLEMENT_CLONE(RegexTreeFilter)
+   IMPLEMENT_CLONE(NotTreeFilter)
+   IMPLEMENT_CLONE(OrTreeFilter)
+   IMPLEMENT_CLONE(AndTreeFilter)
+   IMPLEMENT_CLONE(UnderTreeFilter)
+   IMPLEMENT_CLONE(CountSiblingsTreeFilter)
+   IMPLEMENT_CLONE(CountChildrenTreeFilter)
+   IMPLEMENT_CLONE(RemoveChildrenTreeFilter)
+   IMPLEMENT_CLONE(LevelRangeTreeFilter)
+   IMPLEMENT_CLONE(IfSubTreeTreeFilter)
+   IMPLEMENT_CLONE(IfSiblingTreeFilter)
+   IMPLEMENT_CLONE(NamedTreeFilter)
+
+   #undef IMPLEMENT_CLONE
 }

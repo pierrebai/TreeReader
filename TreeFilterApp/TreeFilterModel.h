@@ -10,7 +10,9 @@ namespace TreeReaderApp
 
    struct TreeFilterModel : QAbstractItemModel
    {
-      TreeFilterPtr Filter;
+      // Set the root filter being edited.
+
+      void SetRootFilter(const TreeFilterPtr& filter);
 
       // Basic model support.
 
@@ -33,6 +35,9 @@ namespace TreeReaderApp
       QMimeData* mimeData(const QModelIndexList& indexes) const override;
       bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
       bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
+
+   private:
+      TreeFilterPtr _filter;
    };
 }
 

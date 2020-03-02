@@ -116,11 +116,22 @@ namespace TreeReaderApp
 
    /////////////////////////////////////////////////////////////////////////
    //
+   // Set the root filter being edited.
+
+   void TreeFilterModel::SetRootFilter(const TreeFilterPtr& filter)
+   {
+      beginResetModel();
+      _filter = filter;
+      endResetModel();
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Basic model support.
 
    QVariant TreeFilterModel::data(const QModelIndex& index, int role) const
    {
-      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
+      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
       if (!filter)
          return QVariant();
 
@@ -142,7 +153,7 @@ namespace TreeReaderApp
    QModelIndex TreeFilterModel::index(int row, int column, const QModelIndex& parent) const
    {
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
-      TreeFilter* child = parentFilter ? GetChildFilter(parentFilter, row) : Filter.get();
+      TreeFilter* child = parentFilter ? GetChildFilter(parentFilter, row) : _filter.get();
       if (!child)
          return QModelIndex();
 
@@ -151,11 +162,11 @@ namespace TreeReaderApp
 
    QModelIndex TreeFilterModel::parent(const QModelIndex& index) const
    {
-      TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
+      TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
       if (!filter)
          return QModelIndex();
 
-      auto [parent, indexInParent] = GetParentFilter(Filter, filter);
+      auto [parent, indexInParent] = GetParentFilter(_filter, filter);
       if (!parent)
          return QModelIndex();
 
@@ -166,14 +177,14 @@ namespace TreeReaderApp
    {
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
       if (!parentFilter)
-         return Filter ? 1 : 0;
+         return _filter ? 1 : 0;
 
       return GetChildrenCount(parentFilter);
    }
 
    int TreeFilterModel::columnCount(const QModelIndex& parent) const
    {
-      return Filter ? 1 : 0;
+      return 1;
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -187,7 +198,7 @@ namespace TreeReaderApp
       if (parentFilter)
          parentFilter->RemoveSubFilter(row);
       else
-         Filter = nullptr;
+         _filter = nullptr;
       endRemoveRows();
       return true;
    }
@@ -220,8 +231,8 @@ namespace TreeReaderApp
 
       for (const QModelIndex& index : indexes)
       {
-         TreeFilter* rawFilter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : Filter.get();
-         TreeFilterPtr filter = FindFilter(Filter, rawFilter);
+         TreeFilter* rawFilter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
+         TreeFilterPtr filter = FindFilter(_filter, rawFilter);
          if (filter)
             mimeData->Filters.push_back(filter);
       }
@@ -235,17 +246,20 @@ namespace TreeReaderApp
       if (!filterData)
          return false;
 
-      if (column > 0)
-         return false;
-
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
 
       bool canAccept = true;
-      for (TreeFilterPtr filter : filterData->Filters)
-         if (parentFilter)
-            canAccept &= parentFilter->CanAccept(filter);
-         else if (filter)
-            canAccept &= filter->CanAccept(Filter);
+      //for (TreeFilterPtr filter : filterData->Filters)
+      //{
+      //   if (parentFilter)
+      //   {
+      //      canAccept &= parentFilter->CanAccept(filter);
+      //   }
+      //   else
+      //   {
+      //      canAccept &= (filter && filter->CanAccept(_filter)) || (_filter && _filter->CanAccept(filter));
+      //   }
+      //}
 
       return canAccept;
    }
@@ -260,6 +274,8 @@ namespace TreeReaderApp
 
       const TreeFilterMimeData* filterData = dynamic_cast<const TreeFilterMimeData*>(data);
 
+      beginResetModel();
+
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
       for (TreeFilterPtr filter : filterData->Filters)
       {
@@ -268,14 +284,21 @@ namespace TreeReaderApp
             parentFilter->AddSubFilter(filter, row);
             row++;
          }
-         else if (filter)
+         else
          {
-            filter->AddSubFilter(Filter, row);
-            Filter = filter;
+            if (filter && filter->CanAccept(_filter))
+            {
+               filter->AddSubFilter(_filter, row);
+               _filter = filter;
+            }
+            else if (_filter && _filter->CanAccept(filter))
+            {
+               _filter->AddSubFilter(filter, row);
+            }
          }
       }
 
-      layoutChanged();
+      endResetModel();
 
       return true;
    }
