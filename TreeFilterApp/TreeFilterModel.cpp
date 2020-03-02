@@ -85,32 +85,25 @@ namespace TreeReaderApp
 
       TreeFilterPtr FindFilter(TreeFilterPtr filter, TreeFilter* rawFilter)
       {
-         while (filter)
-         {
-            if (filter.get() == rawFilter)
-               break;
+         if (filter.get() == rawFilter)
+            return filter;
 
-            if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         {
+            return FindFilter(delegate->Filter, rawFilter);
+         }
+         else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+         {
+            for (size_t i = 0; i < combine->Filters.size(); ++i)
             {
-               filter = delegate->Filter;
-            }
-            else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
-            {
-               for (size_t i = 0; i < combine->Filters.size(); ++i)
+               if (TreeFilterPtr found = FindFilter(combine->Filters[i], rawFilter))
                {
-                  if (TreeFilterPtr found = FindFilter(combine->Filters[i], rawFilter))
-                  {
-                     return found;
-                  }
+                  return found;
                }
-               filter = nullptr;
-            }
-            else
-            {
-               filter = nullptr;
             }
          }
-         return filter;
+
+         return {};
       }
    }
 
@@ -131,7 +124,7 @@ namespace TreeReaderApp
 
    QVariant TreeFilterModel::data(const QModelIndex& index, int role) const
    {
-      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
+      const TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : nullptr;
       if (!filter)
          return QVariant();
 
@@ -162,7 +155,7 @@ namespace TreeReaderApp
 
    QModelIndex TreeFilterModel::parent(const QModelIndex& index) const
    {
-      TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
+      TreeFilter* filter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : nullptr;
       if (!filter)
          return QModelIndex();
 
@@ -193,7 +186,7 @@ namespace TreeReaderApp
 
    bool TreeFilterModel::removeRows(int row, int count, const QModelIndex& parent)
    {
-      beginRemoveRows(parent, row, row + count);
+      beginRemoveRows(parent, row, row + count - 1);
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
       if (parentFilter)
          parentFilter->RemoveSubFilter(row);
@@ -217,7 +210,7 @@ namespace TreeReaderApp
 
    Qt::DropActions TreeFilterModel::supportedDropActions() const
    {
-      return Qt::MoveAction | Qt::CopyAction;
+      return Qt::MoveAction;
    }
 
    QStringList TreeFilterModel::mimeTypes() const
@@ -231,7 +224,9 @@ namespace TreeReaderApp
 
       for (const QModelIndex& index : indexes)
       {
-         TreeFilter* rawFilter = index.isValid() ? static_cast<TreeFilter*>(index.internalPointer()) : _filter.get();
+         if (!index.isValid())
+            continue;
+         TreeFilter* rawFilter =  static_cast<TreeFilter*>(index.internalPointer());
          TreeFilterPtr filter = FindFilter(_filter, rawFilter);
          if (filter)
             mimeData->Filters.push_back(filter);
@@ -249,17 +244,17 @@ namespace TreeReaderApp
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
 
       bool canAccept = true;
-      //for (TreeFilterPtr filter : filterData->Filters)
-      //{
-      //   if (parentFilter)
-      //   {
-      //      canAccept &= parentFilter->CanAccept(filter);
-      //   }
-      //   else
-      //   {
-      //      canAccept &= (filter && filter->CanAccept(_filter)) || (_filter && _filter->CanAccept(filter));
-      //   }
-      //}
+      for (TreeFilterPtr filter : filterData->Filters)
+      {
+         if (parentFilter)
+         {
+            canAccept &= parentFilter->CanAccept(filter);
+         }
+         else
+         {
+            canAccept &= (filter && filter->CanAccept(_filter)) || (_filter && _filter->CanAccept(filter));
+         }
+      }
 
       return canAccept;
    }

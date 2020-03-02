@@ -47,12 +47,12 @@ namespace TreeReader
       }
    }
 
-   bool TreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   bool TreeFilter::CanAccept(const TreeFilterPtr& child) const
    {
-      return false;
+      return child == nullptr;
    }
 
-   void TreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   void TreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
    {
    }
 
@@ -68,7 +68,7 @@ namespace TreeReader
       return Filter->IsKept(tree, node, level);
    }
 
-   bool DelegateTreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   bool DelegateTreeFilter::CanAccept(const TreeFilterPtr& child) const
    {
       if (!child)
          return true;
@@ -82,9 +82,12 @@ namespace TreeReader
       return child->CanAccept(Filter);
    }
 
-   void DelegateTreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   void DelegateTreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
    {
       if (!child)
+         return;
+
+      if (IsParentInChild(this, child))
          return;
 
       const TreeFilterPtr oldChild = Filter;
@@ -127,12 +130,12 @@ namespace TreeReader
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
    }
 
-   bool CombineTreeFilter::CanAccept(const std::shared_ptr<TreeFilter>& child) const
+   bool CombineTreeFilter::CanAccept(const TreeFilterPtr& child) const
    {
       return !IsParentInChild(this, child);
    }
 
-   void CombineTreeFilter::AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index)
+   void CombineTreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
    {
       if (!child)
          return;
@@ -143,7 +146,10 @@ namespace TreeReader
 
    void CombineTreeFilter::RemoveSubFilter(size_t index)
    {
-      auto pos = (index < Filters.size()) ? (Filters.begin() + index) : Filters.end();
+      if (index >= Filters.size())
+         return;
+
+      auto pos = Filters.begin() + index;
       Filters.erase(pos);
    }
 

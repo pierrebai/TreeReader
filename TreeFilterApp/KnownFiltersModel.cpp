@@ -86,7 +86,7 @@ namespace TreeReaderApp
 
    Qt::DropActions KnownFiltersModel::supportedDragActions() const
    {
-      return Qt::CopyAction;
+      return Qt::MoveAction;
    }
 
    QStringList KnownFiltersModel::mimeTypes() const
