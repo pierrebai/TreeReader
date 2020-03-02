@@ -54,6 +54,9 @@ namespace TreeReaderApp
       if (!node)
          return QModelIndex();
 
+      if (!node->Parent)
+         return QModelIndex();
+
       return createIndex(int(node->IndexInParent), 0, static_cast<void*>(node->Parent));
    }
 

@@ -21,6 +21,10 @@ namespace TreeReaderApp
       int rowCount(const QModelIndex& parent = QModelIndex()) const override;
       int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+      // Row removal.
+
+      bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
       // Drag and drop support.
 
       Qt::ItemFlags flags(const QModelIndex& index) const override;

@@ -178,6 +178,22 @@ namespace TreeReaderApp
 
    /////////////////////////////////////////////////////////////////////////
    //
+   // Row removal.
+
+   bool TreeFilterModel::removeRows(int row, int count, const QModelIndex& parent)
+   {
+      beginRemoveRows(parent, row, row + count);
+      TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
+      if (parentFilter)
+         parentFilter->RemoveSubFilter(row);
+      else
+         Filter = nullptr;
+      endRemoveRows();
+      return true;
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Drag and drop support.
 
    Qt::ItemFlags TreeFilterModel::flags(const QModelIndex& index) const
@@ -242,8 +258,6 @@ namespace TreeReaderApp
       if (action == Qt::IgnoreAction)
          return true;
 
-      // TODO: use row to position the drop
-
       const TreeFilterMimeData* filterData = dynamic_cast<const TreeFilterMimeData*>(data);
 
       TreeFilter* parentFilter = parent.isValid() ? static_cast<TreeFilter*>(parent.internalPointer()) : nullptr;
@@ -252,6 +266,7 @@ namespace TreeReaderApp
          if (parentFilter)
          {
             parentFilter->AddSubFilter(filter, row);
+            row++;
          }
          else if (filter)
          {

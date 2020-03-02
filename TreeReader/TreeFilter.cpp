@@ -10,12 +10,12 @@ namespace TreeReader
    using Result = TreeFilter::Result;
    using Node = TextTree::Node;
 
-   constexpr Result Keep{ false, false, true };
-   constexpr Result Drop{ false, false, false };
-   constexpr Result StopAndKeep{ true, false, true };
-   constexpr Result StopAndDrop{ true, false, false };
-   constexpr Result DropAndSkip{ false, true, false };
-   constexpr Result KeepAndSkip{ false, true, true };
+   constexpr Result Keep { false, false, true };
+   constexpr Result Drop { false, false, false };
+   constexpr Result StopAndKeep { true, false, true };
+   constexpr Result StopAndDrop { true, false, false };
+   constexpr Result DropAndSkip { false, true, false };
+   constexpr Result KeepAndSkip { false, true, true };
 
    namespace L
    {
@@ -56,6 +56,10 @@ namespace TreeReader
    {
    }
 
+   void TreeFilter::RemoveSubFilter(size_t index)
+   {
+   }
+
    Result DelegateTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
    {
       if (!Filter)
@@ -86,6 +90,11 @@ namespace TreeReader
       const TreeFilterPtr oldChild = Filter;
       Filter = child;
       child->AddSubFilter(oldChild, size_t(-1));
+   }
+
+   void DelegateTreeFilter::RemoveSubFilter(size_t index)
+   {
+      Filter = nullptr;
    }
 
    Result AcceptTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
@@ -130,6 +139,12 @@ namespace TreeReader
 
       auto pos = (index < Filters.size()) ? (Filters.begin() + index) : Filters.end();
       Filters.insert(pos, child);
+   }
+
+   void CombineTreeFilter::RemoveSubFilter(size_t index)
+   {
+      auto pos = (index < Filters.size()) ? (Filters.begin() + index) : Filters.end();
+      Filters.erase(pos);
    }
 
    Result NotTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)

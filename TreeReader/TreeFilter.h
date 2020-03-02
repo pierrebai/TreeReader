@@ -42,8 +42,9 @@ namespace TreeReader
       // Verify if a sub-filter could be added. By default nothing can be accepted.
       virtual bool CanAccept(const std::shared_ptr<TreeFilter>& child) const;
 
-      // Add a sub-filter at the given index.
+      // Add or remove a sub-filter at the given index.
       virtual void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index);
+      virtual void RemoveSubFilter(size_t index);
 
       // Gets the name of the node.
       virtual std::wstring GetName() const = 0;
@@ -69,6 +70,7 @@ namespace TreeReader
 
       bool CanAccept(const std::shared_ptr<TreeFilter>& child) const override;
       void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index) override;
+      void RemoveSubFilter(size_t index) override;
    };
 
    // Filter that accepts all nodes.
@@ -167,6 +169,7 @@ namespace TreeReader
 
       bool CanAccept(const std::shared_ptr<TreeFilter>& child) const override;
       void AddSubFilter(const std::shared_ptr<TreeFilter>& child, size_t index) override;
+      void RemoveSubFilter(size_t index) override;
    };
 
    // Filter that inverts the keep decision of another filter.

@@ -16,8 +16,8 @@
 
 namespace TreeReaderApp
 {
-   typedef std::vector<TreeFilterPtr> Filters;
    using namespace TreeReader;
+   using namespace std;
 
    namespace
    {
@@ -32,7 +32,7 @@ namespace TreeReaderApp
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // A QWidget to select and order Filters.
+   // A QWidget to select and order filters.
 
    class FiltersEditorUI
    {
@@ -46,16 +46,15 @@ namespace TreeReaderApp
 
       TreeFilterPtr GetEdited() const
       {
-         return _edited.size() > 0 ? _edited.front() : nullptr;
+         return _edited;
       }
 
       void SetEdited(const TreeFilterPtr& ed)
       {
-         if (_edited.size() > 0 && ed == _edited[0])
+         if (ed == _edited)
             return;
 
-         _edited.clear();
-         _edited.push_back(ed);
+         _edited = ed;
 
          auto selected = GetSelection();
          FillUI(selected);
@@ -66,9 +65,7 @@ namespace TreeReaderApp
          _disableFeedback++;
          _filtersTree->blockSignals(_disableFeedback > 0);
 
-         TreeFilterModel* model = new TreeFilterModel;
-         model->Filter = _edited.size() ? _edited.front() : nullptr;
-         _filtersTree->setModel(model);
+         _filterModel->Filter = _edited;
          _filtersTree->expandAll();
 
          _disableFeedback--;
@@ -77,12 +74,12 @@ namespace TreeReaderApp
 
    private:
 
-      static std::unique_ptr<QPushButton> MakeButton(int icon, const wchar_t* tooltip)
+      static unique_ptr<QPushButton> MakeButton(int icon, const wchar_t* tooltip)
       {
-         std::unique_ptr<QPushButton> button = std::make_unique<QPushButton>();
+         unique_ptr<QPushButton> button = make_unique<QPushButton>();
          button->setIcon(QIcon(CreatePixmapFromResource(icon)));
          button->setToolTip(QString::fromWCharArray(tooltip));
-         return std::move(button);
+         return move(button);
       }
 
       void BuildUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
@@ -97,7 +94,9 @@ namespace TreeReaderApp
             button_layout->addWidget(_removeFiltersButton.get(), 0, 2);
          layout->addWidget(button_panel);
 
-         _filtersTree = std::make_unique<QTreeView>();
+         _filterModel = make_unique<TreeFilterModel>();
+
+         _filtersTree = make_unique<QTreeView>();
          _filtersTree->setUniformRowHeights(true);
          _filtersTree->setIconSize(QSize(64, 32));
          _filtersTree->setHeaderHidden(true);
@@ -105,7 +104,7 @@ namespace TreeReaderApp
          _filtersTree->setDragEnabled(true);
          _filtersTree->setDragDropMode(QTreeView::DragDrop);
          _filtersTree->setDropIndicatorShown(true);
-         _filtersTree->setModel(new TreeFilterModel());
+         _filtersTree->setModel(_filterModel.get());
          layout->addWidget(_filtersTree.get());
 
          _filtersTree->setEnabled(true);
@@ -168,8 +167,8 @@ namespace TreeReaderApp
          if (_disableFeedback)
             return;
 
-         if (_editor.FiltersChanged)
-            _editor.FiltersChanged(_edited);
+         if (_editor.FilterChanged)
+            _editor.FilterChanged(_edited);
       }
 
       void SetSelection(const QItemSelection& selection)
@@ -192,23 +191,35 @@ namespace TreeReaderApp
 
       void RemoveFilters()
       {
-         // Note: clone in reverse index order to avoid changing indexes before processing them.
-         auto selected = GetSelection();
-         // TODO: filter editor: implement remove filter button
-         //std::reverse(selected.begin(), selected.end());
-         //for (int index : selected)
-         //{
-         //   _edited.erase(_edited.begin() + index);
-         //}
+         auto model = _filtersTree->model();
+         if (!model)
+            return;
+
+         _disableFeedback++;
+         _filtersTree->blockSignals(_disableFeedback > 0);
+
+
+         // Note: remove in reverse index order to avoid changing indexes before processing them.
+         auto selected = GetSelection().indexes();
+         const auto end = selected.rend();
+         for (auto pos = selected.rbegin(); pos != end; ++pos)
+         {
+            model->removeRow(pos->row(), pos->parent());
+         }
+
          FillUI({});
          UpdateFilters();
+
+         _disableFeedback--;
+         _filtersTree->blockSignals(_disableFeedback > 0);
       }
 
       FilterEditor& _editor;
-      Filters _edited;
+      TreeFilterPtr _edited;
 
-      std::unique_ptr<QTreeView> _filtersTree;
-      std::unique_ptr<QPushButton> _removeFiltersButton;
+      unique_ptr<TreeFilterModel> _filterModel;
+      unique_ptr<QTreeView> _filtersTree;
+      unique_ptr<QPushButton> _removeFiltersButton;
 
       int _disableFeedback = 0;
    };
@@ -218,7 +229,7 @@ namespace TreeReaderApp
    // A QWidget to select and order filters.
 
    FilterEditor::FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
-   : QWidget(parent), _ui(std::make_unique<FiltersEditorUI>(*this, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon))
+   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(*this, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon))
    {
    }
 

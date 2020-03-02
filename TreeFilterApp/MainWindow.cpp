@@ -155,7 +155,7 @@ namespace TreeReaderApp
       //
       // The filter list UI call-backs.
 
-      _filterEditor->FiltersChanged = [self=this](const FilterEditor::Filters& filters)
+      _filterEditor->FilterChanged = [self=this](const TreeFilterPtr& filter)
       {
          self->CommitToUndo();
          self->_data.Filter = self->_filterEditor->GetEdited();
