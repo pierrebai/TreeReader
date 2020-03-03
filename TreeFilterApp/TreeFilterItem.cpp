@@ -1,4 +1,5 @@
 #include "TreeFilterItem.h"
+#include "TreeFilterPanel.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
@@ -18,24 +19,12 @@ namespace TreeReaderApp
       if (!filter)
          return nullptr;
 
-      auto item = new QListWidgetItem(QString::fromStdWString(filter->GetName()));
+      //auto item = new QListWidgetItem(QString::fromStdWString(filter->GetName()));
+      //item->setToolTip(QString::fromStdWString(filter->GetDescription()));
 
-      item->setToolTip(QString::fromStdWString(filter->GetDescription()));
+      auto item = new QListWidgetItem;
 
       return item;
-   }
-
-   QWidget* CreateTreeFilterWidget(const TreeFilterPtr& filter)
-   {
-      QWidget* container = new QWidget();
-      QVBoxLayout* layout = new QVBoxLayout(container);
-      QString text = QString::fromStdWString(filter->GetName());
-      QLabel* textLabel = new QLabel(text);
-      layout->addWidget(textLabel);
-      layout->addSpacing(50);
-      layout->setSizeConstraint(QLayout::SetFixedSize);
-      container->setLayout(layout);
-      return container;
    }
 
    void AddTreeFilterItem(QListWidget* list, const TreeFilterPtr& filter)
@@ -47,11 +36,11 @@ namespace TreeReaderApp
       if (!item)
          return;
 
-      //auto widget = CreateTreeFilterWidget(filter);
-      //item->setSizeHint(widget->sizeHint());
+      auto widget = ConvertFilterToPanel(filter);
+      item->setSizeHint(widget->sizeHint());
 
       list->addItem(item);
-      //list->setItemWidget(item, widget);
+      list->setItemWidget(item, widget);
    }
 
    //void TreeFilterItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const

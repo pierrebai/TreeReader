@@ -42,8 +42,11 @@ namespace TreeReader
       // Filter a node to decide to keep drop the node.
       virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
 
-      // Gets the name of the node.
-      virtual std::wstring GetName() const = 0;
+      // Gets the name of the node, including its data.
+      virtual std::wstring GetName() const;
+
+      // Gets the short name of the node, without its data.
+      virtual std::wstring GetShortName() const = 0;
 
       // Gets a longer description of the purpose of the node.
       virtual std::wstring GetDescription() const = 0;
@@ -71,7 +74,7 @@ namespace TreeReader
    struct AcceptTreeFilter : TreeFilter
    {
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -88,7 +91,7 @@ namespace TreeReader
       StopTreeFilter(bool keep) : Keep(keep) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -103,7 +106,7 @@ namespace TreeReader
       UntilTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -119,6 +122,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -135,6 +139,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -151,6 +156,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -175,7 +181,7 @@ namespace TreeReader
       NotTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -189,7 +195,7 @@ namespace TreeReader
       OrTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -203,7 +209,7 @@ namespace TreeReader
       AndTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -221,7 +227,7 @@ namespace TreeReader
          : DelegateTreeFilter(filter), IncludeSelf(includeSelf) {}
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
 
@@ -244,6 +250,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
 
@@ -267,6 +274,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
 
@@ -288,7 +296,7 @@ namespace TreeReader
          : DelegateTreeFilter(filter), IncludeSelf(removeSelf) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -305,6 +313,7 @@ namespace TreeReader
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
       std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -317,7 +326,7 @@ namespace TreeReader
       IfSubTreeTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
 
@@ -333,7 +342,7 @@ namespace TreeReader
       IfSiblingTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
@@ -352,7 +361,7 @@ namespace TreeReader
       NamedTreeFilter(const TreeFilterPtr& filter, const std::wstring& name) : Filter(filter), Name(name) { }
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
+      std::wstring GetShortName() const override;
       std::wstring GetDescription() const override;
       TreeFilterPtr Clone() const override;
    };
