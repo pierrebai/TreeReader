@@ -15,7 +15,6 @@ add_executable(TreeFilterApp WIN32
    MainWindow.cpp          MainWindow.h
    QtUtilities.cpp         QtUtilities.h
    TextTreeModel.cpp       TextTreeModel.h
-   TreeFilterItem.cpp      TreeFilterItem.h
    TreeFilterPanel.cpp     TreeFilterPanel.h
 
    Resource.rc             resource.h

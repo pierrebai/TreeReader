@@ -29,14 +29,15 @@ namespace TreeReaderApp
       }
 
       QWidget* CreateFilterPanel(
-         const TreeFilter& filter,
+         const shared_ptr<TreeFilter>& filter,
+         DeleteCallbackFunction delFunc,
          const wchar_t* textContent = nullptr,
          const bool* includeSelf = nullptr,
          const size_t* count = nullptr,
          const size_t* count2 = nullptr)
       {
          auto container = new QWidget;
-         container->setToolTip(QString::fromStdWString(filter.GetDescription()));
+         container->setToolTip(QString::fromStdWString(filter->GetDescription()));
          container->setBackgroundRole(QPalette::ColorRole::Base);
 
          auto container_layout = new QVBoxLayout(container);
@@ -49,7 +50,7 @@ namespace TreeReaderApp
          name_layout->setMargin(0);
          container_layout->addLayout(name_layout);
 
-         auto nameLabel = new QLabel(QString::fromStdWString(filter.GetShortName()));
+         auto nameLabel = new QLabel(QString::fromStdWString(filter->GetShortName()));
          name_layout->addWidget(nameLabel);
 
          if (textContent)
@@ -77,11 +78,19 @@ namespace TreeReaderApp
             name_layout->addWidget(numberEdit);
          }
 
-         auto deleteButton = new QPushButton;
-         deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
-         deleteButton->setFlat(true);
-         deleteButton->setMaximumSize(QSize(16, 16));
-         name_layout->addWidget(deleteButton);
+         if (delFunc)
+         {
+            auto deleteButton = new QPushButton;
+            deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
+            deleteButton->setFlat(true);
+            deleteButton->setMaximumSize(QSize(16, 16));
+            name_layout->addWidget(deleteButton);
+
+            deleteButton->connect(deleteButton, &QPushButton::pressed, [filter, container, delFunc]()
+            {
+               delFunc(filter, container);
+            });
+         }
 
          if (includeSelf)
          {
@@ -92,90 +101,90 @@ namespace TreeReaderApp
          return container;
       }
 
-      QWidget* ConvertFilterToPanel(const AcceptTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<AcceptTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const StopTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<StopTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const UntilTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<UntilTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const ContainsTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<ContainsTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, filter.Contained.c_str());
+         return CreateFilterPanel(filter, delFunc, filter->Contained.c_str());
       }
 
-      QWidget* ConvertFilterToPanel(const RegexTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, filter.RegexTextForm.c_str());
+         return CreateFilterPanel(filter, delFunc, filter->RegexTextForm.c_str());
       }
 
-      QWidget* ConvertFilterToPanel(const NotTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<NotTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const IfSubTreeTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<IfSubTreeTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const IfSiblingTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<IfSiblingTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const CountChildrenTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<CountChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, nullptr, &filter.IncludeSelf, &filter.Count);
+         return CreateFilterPanel(filter, delFunc, nullptr, &filter->IncludeSelf, &filter->Count);
       }
 
-      QWidget* ConvertFilterToPanel(const CountSiblingsTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<CountSiblingsTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, nullptr, &filter.IncludeSelf, &filter.Count);
+         return CreateFilterPanel(filter, delFunc, nullptr, &filter->IncludeSelf, &filter->Count);
       }
 
-      QWidget* ConvertFilterToPanel(const OrTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<OrTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const AndTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<AndTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
 
-      QWidget* ConvertFilterToPanel(const UnderTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<UnderTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, nullptr, &filter.IncludeSelf);
+         return CreateFilterPanel(filter, delFunc, nullptr, &filter->IncludeSelf);
       }
 
-      QWidget* ConvertFilterToPanel(const RemoveChildrenTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<RemoveChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, nullptr, &filter.IncludeSelf);
+         return CreateFilterPanel(filter, delFunc, nullptr, &filter->IncludeSelf);
       }
 
-      QWidget* ConvertFilterToPanel(const LevelRangeTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<LevelRangeTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter, nullptr, nullptr, &filter.MinLevel, &filter.MaxLevel);
+         return CreateFilterPanel(filter, delFunc, nullptr, nullptr, &filter->MinLevel, &filter->MaxLevel);
       }
 
-      QWidget* ConvertFilterToPanel(const NamedTreeFilter& filter)
+      QWidget* CreateFilterPanel(const shared_ptr<NamedTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return CreateFilterPanel(filter);
+         return CreateFilterPanel(filter, delFunc, nullptr);
       }
    }
 
-   QWidget* ConvertFilterToPanel(const TreeFilterPtr& filter)
+   QWidget* ConvertFilterToPanel(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
    {
-      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return ConvertFilterToPanel(*ptr); }
+      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc); }
 
       CALL_CONVERTER(AcceptTreeFilter)
       CALL_CONVERTER(StopTreeFilter)
@@ -233,7 +242,7 @@ namespace TreeReaderApp
             delete child;
    }
 
-   void AddTreeFilterPanel(QScrollArea* list, const TreeFilterPtr& filter)
+   void AddTreeFilterPanel(QScrollArea* list, const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
    {
       if (!list)
          return;
@@ -246,7 +255,7 @@ namespace TreeReaderApp
       if (!layout)
          return;
 
-      auto widget = ConvertFilterToPanel(filter);
+      auto widget = ConvertFilterToPanel(filter, delFunc);
       if (!widget)
          return;
 
