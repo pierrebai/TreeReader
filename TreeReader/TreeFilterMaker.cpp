@@ -128,7 +128,7 @@ namespace TreeReader
       wstring ConvertFilterToText(const RemoveChildrenTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"no-child [ " << boolalpha << filter.RemoveSelf << L", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
+         sstream << L"no-child [ " << boolalpha << filter.IncludeSelf << L", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 

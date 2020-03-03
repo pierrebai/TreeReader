@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FilterEditor.h"
-#include "KnownFiltersModel.h"
 
 #include "TreeFilterCommands.h"
 #include "UndoStack.h"

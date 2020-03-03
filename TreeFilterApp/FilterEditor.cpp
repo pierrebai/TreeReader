@@ -1,4 +1,5 @@
 #include "FilterEditor.h"
+#include "TreeFilterItem.h"
 #include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
 
@@ -61,17 +62,18 @@ namespace TreeReaderApp
 
       void UpdateListContent()
       {
-         //_disableFeedback++;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback++;
+         _filterList->blockSignals(_disableFeedback > 0);
 
-         TreeReader::VisitFilters(_edited.get(), true, [self=this](TreeFilter* filter) -> bool
+         _filterList->clear();
+         TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
          {
-            self->_filterList->addItem(QString::fromStdWString(filter->GetName()));
+            AddTreeFilterItem(self->_filterList.get(), filter);
             return true;
          });
 
-         //_disableFeedback--;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback--;
+         _filterList->blockSignals(_disableFeedback > 0);
       }
 
    private:
@@ -123,8 +125,8 @@ namespace TreeReaderApp
 
       void FillUI(const QItemSelection& selected)
       {
-         //_disableFeedback++;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback++;
+         _filterList->blockSignals(_disableFeedback > 0);
 
          UpdateListContent();
 
@@ -132,8 +134,8 @@ namespace TreeReaderApp
 
          UpdateEnabled();
 
-         //_disableFeedback--;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback--;
+         _filterList->blockSignals(_disableFeedback > 0);
       }
 
       void UpdateEnabled()
@@ -190,8 +192,8 @@ namespace TreeReaderApp
          if (!model)
             return;
 
-         //_disableFeedback++;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback++;
+         _filterList->blockSignals(_disableFeedback > 0);
 
          // Note: remove in reverse index order to avoid changing indexes before processing them.
          auto selected = GetSelection().indexes();
@@ -204,8 +206,8 @@ namespace TreeReaderApp
          FillUI({});
          UpdateFilters();
 
-         //_disableFeedback--;
-         //_filterList->blockSignals(_disableFeedback > 0);
+         _disableFeedback--;
+         _filterList->blockSignals(_disableFeedback > 0);
       }
 
       FilterEditor& _editor;

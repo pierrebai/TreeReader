@@ -187,7 +187,7 @@ namespace TreeReaderTests
          auto rebuilt = dynamic_pointer_cast<RemoveChildrenTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::IsFalse(rebuilt->RemoveSelf);
+         Assert::IsFalse(rebuilt->IncludeSelf);
 
          auto subFilter = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
          Assert::IsTrue(subFilter != nullptr);

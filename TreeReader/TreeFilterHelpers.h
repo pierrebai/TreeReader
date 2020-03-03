@@ -10,11 +10,11 @@ namespace TreeReader
    //
    // (Not visiting siblings also skip the initial node too.)
 
-   typedef std::function<bool(TreeFilter* filter)> FilterVisitFunction;
+   typedef std::function<bool(const TreeFilterPtr& filter)> FilterVisitFunction;
 
-   bool VisitFilters(TreeFilter* filter, bool includeSelf, FilterVisitFunction func);
+   bool VisitFilters(const TreeFilterPtr& filter, bool includeSelf, FilterVisitFunction func);
 
-   inline bool VisitFilters(TreeFilter* filter, FilterVisitFunction func)
+   inline bool VisitFilters(const TreeFilterPtr& filter, FilterVisitFunction func)
    {
       return VisitFilters(filter, true, func);
    }

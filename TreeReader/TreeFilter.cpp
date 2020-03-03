@@ -25,79 +25,12 @@ namespace TreeReader
       }
    }
 
-   namespace
-   {
-      // Do not allow making a loop: do not allow adding as a child a node that is
-      // an ancestor of the parent.
-      bool IsParentInChild(const TreeFilter* parent, const TreeFilterPtr& newChild)
-      {
-         bool isChild = false;
-         VisitFilters(newChild.get(), true, [parent, &isChild](TreeFilter* filter)
-         {
-            if (parent == filter)
-            {
-               isChild = true;
-               return false;
-            }
-
-            return true;
-         });
-
-         return isChild;
-      }
-   }
-
-   bool TreeFilter::CanAccept(const TreeFilterPtr& child) const
-   {
-      return child == nullptr;
-   }
-
-   void TreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
-   {
-   }
-
-   void TreeFilter::RemoveSubFilter(size_t index)
-   {
-   }
-
    Result DelegateTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
    {
       if (!Filter)
          return Keep;
 
       return Filter->IsKept(tree, node, level);
-   }
-
-   bool DelegateTreeFilter::CanAccept(const TreeFilterPtr& child) const
-   {
-      if (!child)
-         return true;
-
-      if (IsParentInChild(this, child))
-         return false;
-
-      if (!Filter)
-         return true;
-
-      return child->CanAccept(Filter);
-   }
-
-   void DelegateTreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
-   {
-      if (!child)
-         return;
-
-      if (IsParentInChild(this, child))
-         return;
-
-      const TreeFilterPtr oldChild = Filter;
-      Filter = child;
-      child->AddSubFilter(oldChild, size_t(-1));
-   }
-
-   void DelegateTreeFilter::RemoveSubFilter(size_t index)
-   {
-      Filter = nullptr;
    }
 
    Result AcceptTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
@@ -128,29 +61,6 @@ namespace TreeReader
    Result RegexTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
-   }
-
-   bool CombineTreeFilter::CanAccept(const TreeFilterPtr& child) const
-   {
-      return !IsParentInChild(this, child);
-   }
-
-   void CombineTreeFilter::AddSubFilter(const TreeFilterPtr& child, size_t index)
-   {
-      if (!child)
-         return;
-
-      auto pos = (index < Filters.size()) ? (Filters.begin() + index) : Filters.end();
-      Filters.insert(pos, child);
-   }
-
-   void CombineTreeFilter::RemoveSubFilter(size_t index)
-   {
-      if (index >= Filters.size())
-         return;
-
-      auto pos = Filters.begin() + index;
-      Filters.erase(pos);
    }
 
    Result NotTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
@@ -301,7 +211,7 @@ namespace TreeReader
       if (!DelegateTreeFilter::IsKept(tree, node, level).Keep)
          return Keep;
 
-      return RemoveSelf ? DropAndSkip : KeepAndSkip;
+      return IncludeSelf ? DropAndSkip : KeepAndSkip;
    }
 
    Result LevelRangeTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)

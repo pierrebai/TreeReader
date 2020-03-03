@@ -4,7 +4,7 @@ namespace TreeReader
 {
    using namespace std;
 
-   bool VisitFilters(TreeFilter* filter, bool includeSelf, FilterVisitFunction func)
+   bool VisitFilters(const TreeFilterPtr& filter, bool includeSelf, FilterVisitFunction func)
    {
       if (!filter)
          return true;
@@ -12,16 +12,16 @@ namespace TreeReader
       if (includeSelf && !func(filter))
          return false;
 
-      if (auto delegate = dynamic_cast<DelegateTreeFilter *>(filter))
+      if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
       {
-         if (!VisitFilters(delegate->Filter.get(), func))
+         if (!VisitFilters(delegate->Filter, func))
             return false;
       }
-      else if (auto combined = dynamic_cast<CombineTreeFilter *>(filter))
+      else if (auto combined = dynamic_pointer_cast<CombineTreeFilter>(filter))
       {
          for (auto& child : combined->Filters)
          {
-            if (!VisitFilters(child.get(), func))
+            if (!VisitFilters(child, func))
                return false;
          }
       }
