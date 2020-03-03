@@ -1,7 +1,8 @@
 #include "MainWindow.h"
 #include "TextTreeModel.h"
-#include "TreeFilterItem.h"
+#include "TreeFilterPanel.h"
 #include "QtUtilities.h"
+
 #include "TreeFilterMaker.h"
 
 #include <QtGui/qpainter.h>
@@ -74,10 +75,18 @@ namespace TreeReaderApp
          QWidget* filters_container = new QWidget();
          QHBoxLayout* filters_layout = new QHBoxLayout(filters_container);
 
-         _availableFiltersList = new QListWidget;
-         _availableFiltersList->setIconSize(QSize(64, 32));
-         _availableFiltersList->setDragEnabled(true);
-         _availableFiltersList->setDragDropMode(QListView::DragOnly);
+         QWidget* availWidget = new QWidget;
+         availWidget->setBackgroundRole(QPalette::ColorRole::Base);
+         _availableFiltersLayout = new QVBoxLayout;
+         _availableFiltersLayout->setSizeConstraint(QLayout::SetMinimumSize);
+         _availableFiltersLayout->setMargin(2);
+         availWidget->setLayout(_availableFiltersLayout);
+
+         _availableFiltersList = new QScrollArea;
+         _availableFiltersList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+         _availableFiltersList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+         _availableFiltersList->setWidget(availWidget);
+         _availableFiltersList->setWidgetResizable(true);
          filters_layout->addWidget(_availableFiltersList);
 
          _filterEditor = new FilterEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
@@ -216,23 +225,23 @@ namespace TreeReaderApp
    void MainWindow::FillAvailableFiltersUI()
    {
       for (const auto& [name, item] : _data.KnownFilters->All())
-         AddTreeFilterItem(_availableFiltersList, item);
+         AddTreeFilterPanel(_availableFiltersLayout, item);
 
-      AddTreeFilterItem(_availableFiltersList, Accept());
-      AddTreeFilterItem(_availableFiltersList, Stop());
-      AddTreeFilterItem(_availableFiltersList, Until(nullptr));
-      AddTreeFilterItem(_availableFiltersList, Contains(L""));
-      AddTreeFilterItem(_availableFiltersList, Regex(L""));
-      AddTreeFilterItem(_availableFiltersList, Not(nullptr));
-      AddTreeFilterItem(_availableFiltersList, Any(vector<TreeFilterPtr>()));
-      AddTreeFilterItem(_availableFiltersList, All(vector<TreeFilterPtr>()));
-      AddTreeFilterItem(_availableFiltersList, Under(nullptr));
-      AddTreeFilterItem(_availableFiltersList, CountSiblings(nullptr, 0));
-      AddTreeFilterItem(_availableFiltersList, CountChildren(nullptr, 0));
-      AddTreeFilterItem(_availableFiltersList, NoChild(nullptr));
-      AddTreeFilterItem(_availableFiltersList, LevelRange(0, 100));
-      AddTreeFilterItem(_availableFiltersList, IfSubTree(nullptr));
-      AddTreeFilterItem(_availableFiltersList, IfSibling(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, Accept());
+      AddTreeFilterPanel(_availableFiltersLayout, Stop());
+      AddTreeFilterPanel(_availableFiltersLayout, Until(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, Contains(L""));
+      AddTreeFilterPanel(_availableFiltersLayout, Regex(L""));
+      AddTreeFilterPanel(_availableFiltersLayout, Not(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, Any(vector<TreeFilterPtr>()));
+      AddTreeFilterPanel(_availableFiltersLayout, All(vector<TreeFilterPtr>()));
+      AddTreeFilterPanel(_availableFiltersLayout, Under(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, CountSiblings(nullptr, 0));
+      AddTreeFilterPanel(_availableFiltersLayout, CountChildren(nullptr, 0));
+      AddTreeFilterPanel(_availableFiltersLayout, NoChild(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, LevelRange(0, 100));
+      AddTreeFilterPanel(_availableFiltersLayout, IfSubTree(nullptr));
+      AddTreeFilterPanel(_availableFiltersLayout, IfSibling(nullptr));
    }
 
    /////////////////////////////////////////////////////////////////////////

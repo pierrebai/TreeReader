@@ -28,15 +28,20 @@ namespace TreeReaderApp
          const size_t* count = nullptr,
          const size_t* count2 = nullptr)
       {
-         QWidget* container = new QWidget();
+         QWidget* container = new QWidget;
          container->setToolTip(QString::fromStdWString(filter.GetDescription()));
+         container->setBackgroundRole(QPalette::ColorRole::Base);
 
          QVBoxLayout* container_layout = new QVBoxLayout(container);
-         container_layout->setSizeConstraint(QLayout::SetFixedSize);
+         container_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+         container_layout->setMargin(4);
          container->setLayout(container_layout);
 
          QHBoxLayout* name_layout = new QHBoxLayout;
+         name_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+         name_layout->setMargin(0);
          container_layout->addLayout(name_layout);
+
          QLabel* nameLabel = new QLabel(QString::fromStdWString(filter.GetShortName()));
          name_layout->addWidget(nameLabel);
 
@@ -181,6 +186,18 @@ namespace TreeReaderApp
       #undef CALL_CONVERTER
 
       return nullptr;
+   }
+
+   void AddTreeFilterPanel(QLayout* list, const TreeFilterPtr& filter)
+   {
+      if (!list)
+         return;
+
+      QWidget* widget = ConvertFilterToPanel(filter);
+      if (!widget)
+         return;
+
+      list->addWidget(widget);
    }
 
 }
