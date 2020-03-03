@@ -2,9 +2,8 @@ Move command-line and debug output to an optional panel in UI.
 Support up/down key to go back to previous text entered in input-command field.
 Add more buttons to the toolbar.
 Implement deleting a filter.
-Custom item renderer.
 Apply filter when loading a tree.
 Apply filter when modifying filter in UI.
-Use panels for filter list.
 Add general options panel.
 Add input-line filtering options.
+Add drag-and-drop for filter panel.
