@@ -1,10 +1,17 @@
 #include "TreeFilterPanel.h"
+#include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qscrollarea.h>
+#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qpushbutton.h>
+
 #include <QtGui/qvalidator.h>
+
+#include "resource.h"
 
 namespace TreeReaderApp
 {
@@ -28,33 +35,33 @@ namespace TreeReaderApp
          const size_t* count = nullptr,
          const size_t* count2 = nullptr)
       {
-         QWidget* container = new QWidget;
+         auto container = new QWidget;
          container->setToolTip(QString::fromStdWString(filter.GetDescription()));
          container->setBackgroundRole(QPalette::ColorRole::Base);
 
-         QVBoxLayout* container_layout = new QVBoxLayout(container);
+         auto container_layout = new QVBoxLayout(container);
          container_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
          container_layout->setMargin(4);
          container->setLayout(container_layout);
 
-         QHBoxLayout* name_layout = new QHBoxLayout;
+         auto name_layout = new QHBoxLayout;
          name_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
          name_layout->setMargin(0);
          container_layout->addLayout(name_layout);
 
-         QLabel* nameLabel = new QLabel(QString::fromStdWString(filter.GetShortName()));
+         auto nameLabel = new QLabel(QString::fromStdWString(filter.GetShortName()));
          name_layout->addWidget(nameLabel);
 
          if (textContent)
          {
-            QLineEdit* textEdit = new QLineEdit(QString::fromWCharArray(textContent));
+            auto textEdit = new QLineEdit(QString::fromWCharArray(textContent));
             textEdit->setMaximumWidth(80);
             name_layout->addWidget(textEdit);
          }
 
          if (count)
          {
-            QLineEdit* numberEdit = new QLineEdit(QString().setNum(*count));
+            auto numberEdit = new QLineEdit(QString().setNum(*count));
             numberEdit->setMaximumWidth(count2 ? 40 : 80);
             numberEdit->setMaxLength(3);
             numberEdit->setValidator(new QIntValidator);
@@ -63,18 +70,22 @@ namespace TreeReaderApp
 
          if (count2)
          {
-            QLineEdit* numberEdit = new QLineEdit(QString().setNum(*count2));
+            auto numberEdit = new QLineEdit(QString().setNum(*count2));
             numberEdit->setMaximumWidth(count ? 40 : 80);
             numberEdit->setMaxLength(3);
             numberEdit->setValidator(new QIntValidator);
             name_layout->addWidget(numberEdit);
          }
 
-         // TODO: add delete button.
+         auto deleteButton = new QPushButton;
+         deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
+         deleteButton->setFlat(true);
+         deleteButton->setMaximumSize(QSize(16, 16));
+         name_layout->addWidget(deleteButton);
 
          if (includeSelf)
          {
-            QCheckBox* includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
+            auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
             container_layout->addWidget(includeBox);
          }
 
@@ -188,16 +199,60 @@ namespace TreeReaderApp
       return nullptr;
    }
 
-   void AddTreeFilterPanel(QLayout* list, const TreeFilterPtr& filter)
+   QScrollArea* CreateTreeFilterList()
+   {
+      auto availLayout = new QVBoxLayout;
+      availLayout->setSizeConstraint(QLayout::SetMinimumSize);
+      availLayout->setMargin(2);
+
+      auto availWidget = new QWidget;
+      availWidget->setBackgroundRole(QPalette::ColorRole::Base);
+      availWidget->setLayout(availLayout);
+
+      auto availList = new QScrollArea;
+      availList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+      availList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+      availList->setWidget(availWidget);
+      availList->setWidgetResizable(true);
+      availList->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+      return availList;
+   }
+
+   void ClearTreeFilterList(QScrollArea* list)
    {
       if (!list)
          return;
 
-      QWidget* widget = ConvertFilterToPanel(filter);
+      auto availWidget = list->widget();
+      if (!availWidget)
+         return;
+
+      for (auto child : list->children())
+         if (!dynamic_cast<QLayout*>(child))
+            delete child;
+   }
+
+   void AddTreeFilterPanel(QScrollArea* list, const TreeFilterPtr& filter)
+   {
+      if (!list)
+         return;
+
+      auto availWidget = list->widget();
+      if (!availWidget)
+         return;
+
+      auto layout = availWidget->layout();
+      if (!layout)
+         return;
+
+      auto widget = ConvertFilterToPanel(filter);
       if (!widget)
          return;
 
-      list->addWidget(widget);
-   }
+      layout->addWidget(widget);
 
+      availWidget->setMinimumWidth(max(availWidget->minimumWidth(), widget->sizeHint().width()));
+      list->setMinimumWidth(max(list->minimumWidth(), widget->sizeHint().width()));
+   }
 }

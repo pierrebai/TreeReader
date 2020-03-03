@@ -12,7 +12,6 @@
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qscrollarea.h>
-#include <QtWidgets/qlayout.h>
 
 #include <vector>
 #include <map>
@@ -104,7 +103,6 @@ namespace TreeReaderApp
       QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
       QScrollArea* _availableFiltersList = nullptr;
-      QLayout* _availableFiltersLayout = nullptr;
    };
 }
 

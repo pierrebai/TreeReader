@@ -20,10 +20,6 @@ namespace TreeReaderApp
    class FilterEditor : public QWidget
    {
    public:
-      // Callback when the selection changed.
-      typedef std::function<void(const TreeFilterPtr&)> SelectionChangedCallback;
-      SelectionChangedCallback SelectionChanged;
-
       // Callback when the edited filter is changed.
       typedef std::function<void(const TreeFilterPtr&)> FilterChangedCallback;
       FilterChangedCallback FilterChanged;
