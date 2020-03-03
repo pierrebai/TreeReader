@@ -1,5 +1,8 @@
 #include "TreeFilterItem.h"
 
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlabel.h>
+
 namespace TreeReaderApp
 {
    static constexpr int FilterTypeRole          = Qt::UserRole + 0;
@@ -22,6 +25,19 @@ namespace TreeReaderApp
       return item;
    }
 
+   QWidget* CreateTreeFilterWidget(const TreeFilterPtr& filter)
+   {
+      QWidget* container = new QWidget();
+      QVBoxLayout* layout = new QVBoxLayout(container);
+      QString text = QString::fromStdWString(filter->GetName());
+      QLabel* textLabel = new QLabel(text);
+      layout->addWidget(textLabel);
+      layout->addSpacing(50);
+      layout->setSizeConstraint(QLayout::SetFixedSize);
+      container->setLayout(layout);
+      return container;
+   }
+
    void AddTreeFilterItem(QListWidget* list, const TreeFilterPtr& filter)
    {
       if (!list)
@@ -31,8 +47,28 @@ namespace TreeReaderApp
       if (!item)
          return;
 
+      //auto widget = CreateTreeFilterWidget(filter);
+      //item->setSizeHint(widget->sizeHint());
+
       list->addItem(item);
+      //list->setItemWidget(item, widget);
    }
+
+   //void TreeFilterItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+   //{
+   //   QStyleOption
+   //   QStyleOptionFrameV3 frame;
+   //   frame.fontMetrics = option.fontMetrics;
+   //   frame;
+   //}
+
+   //QSize TreeFilterItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+   //{
+   //   QString text = index.data(Qt::DisplayRole).value<QString>();
+   //   QRect textRect = option.fontMetrics.tightBoundingRect(text);
+   //   return textRect.size();
+   //}
+
 }
 
 // vim: sw=3 : sts=3 : et : sta : 
