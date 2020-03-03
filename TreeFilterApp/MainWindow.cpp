@@ -25,6 +25,8 @@ namespace TreeReaderApp
             return text;
          }
       }
+
+      static constexpr wchar_t TreeFileTypes[] = L"Text files (*.txt);;Log files (*.log)";
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -133,17 +135,7 @@ namespace TreeReaderApp
 
       _loadTreeAction->connect(_loadTreeAction, &QAction::triggered, [self=this]()
       {
-         if (!self->SaveIfRequired(L::t(L"load a text tree"), L::t(L"loading a text tree")))
-            return;
-
-         filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(L"txt"), self);
-         self->_data.LoadTree(path);
-         self->_data.ApplyFilterToTree();
-
-         if (self->_data.Trees.size() == 0)
-            return;
-
-         self->FillTextTreeUI();
+         self->LoadTree();
       });
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
@@ -285,12 +277,27 @@ namespace TreeReaderApp
       return true;
    }
 
+   void MainWindow::LoadTree()
+   {
+      if (!SaveIfRequired(L::t(L"load a text tree"), L::t(L"loading a text tree")))
+         return;
+
+      filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(TreeFileTypes), this);
+      _data.LoadTree(path);
+      _data.ApplyFilterToTree();
+
+      if (_data.Trees.size() == 0)
+         return;
+
+      FillTextTreeUI();
+   }
+
    bool MainWindow::SaveFilteredTree()
    {
       if (_data.Trees.size() == 0)
          return true;
 
-      filesystem::path path = AskSave(L::t(L"Save Text Tree"), L::t(L"txt"), this);
+      filesystem::path path = AskSave(L::t(L"Save Text Tree"), L::t(TreeFileTypes), this);
       _data.SaveTree(path);
 
       return true;

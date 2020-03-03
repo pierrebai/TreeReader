@@ -4,3 +4,7 @@ Add more buttons to the toolbar.
 Implement deleting a filter.
 Custom item renderer.
 Apply filter when loading a tree.
+Apply filter when modifying filter in UI.
+Use panels for filter list.
+Add general options panel.
+Add input-line filtering options.

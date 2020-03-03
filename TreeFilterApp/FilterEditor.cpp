@@ -62,8 +62,7 @@ namespace TreeReaderApp
 
       void UpdateListContent()
       {
-         _disableFeedback++;
-         _filterList->blockSignals(_disableFeedback > 0);
+         DisableFeedback df(_filterList.get(), _disableFeedback);
 
          _filterList->clear();
          TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
@@ -71,9 +70,6 @@ namespace TreeReaderApp
             AddTreeFilterItem(self->_filterList.get(), filter);
             return true;
          });
-
-         _disableFeedback--;
-         _filterList->blockSignals(_disableFeedback > 0);
       }
 
    private:
@@ -125,17 +121,11 @@ namespace TreeReaderApp
 
       void FillUI(const QItemSelection& selected)
       {
-         _disableFeedback++;
-         _filterList->blockSignals(_disableFeedback > 0);
+         DisableFeedback df(_filterList.get(), _disableFeedback);
 
          UpdateListContent();
-
          SetSelection(selected);
-
          UpdateEnabled();
-
-         _disableFeedback--;
-         _filterList->blockSignals(_disableFeedback > 0);
       }
 
       void UpdateEnabled()
@@ -192,8 +182,7 @@ namespace TreeReaderApp
          if (!model)
             return;
 
-         _disableFeedback++;
-         _filterList->blockSignals(_disableFeedback > 0);
+         DisableFeedback df(_filterList.get(), _disableFeedback);
 
          // Note: remove in reverse index order to avoid changing indexes before processing them.
          auto selected = GetSelection().indexes();
@@ -205,9 +194,6 @@ namespace TreeReaderApp
 
          FillUI({});
          UpdateFilters();
-
-         _disableFeedback--;
-         _filterList->blockSignals(_disableFeedback > 0);
       }
 
       FilterEditor& _editor;

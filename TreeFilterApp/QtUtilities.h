@@ -40,6 +40,34 @@ namespace TreeReaderApp
 
    YesNoCancel AskYesNoCancel(const std::wstring& title, const std::wstring& text, QWidget* parent);
    YesNoCancel AskYesNoCancel(const wchar_t* title, const wchar_t* text, QWidget* parent);
+
+   // Disable feedback in a widget.
+
+   struct DisableFeedback
+   {
+      DisableFeedback(QWidget* widget, int& recursionCounter)
+      : _widget(widget), _recursionCounter(recursionCounter)
+      {
+         if (_widget)
+         {
+            _recursionCounter++;
+            _widget->blockSignals(_recursionCounter > 0);
+         }
+      }
+
+      ~DisableFeedback()
+      {
+         if (_widget)
+         {
+            _recursionCounter--;
+            _widget->blockSignals(_recursionCounter > 0);
+         }
+      }
+
+   private:
+      QWidget* _widget;
+      int& _recursionCounter;
+   };
 }
 
 // vim: sw=3 : sts=3 : et : sta : 

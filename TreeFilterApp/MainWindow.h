@@ -78,6 +78,7 @@ namespace TreeReaderApp
       // Closing and saving.
       void closeEvent(QCloseEvent* ev);
       bool SaveIfRequired(const std::wstring& action, const std::wstring& actioning);
+      void LoadTree();
       bool SaveFilteredTree();
 
       // Data.
