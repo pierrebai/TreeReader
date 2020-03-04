@@ -38,10 +38,10 @@ namespace TreeReaderApp
    class FiltersEditorUI
    {
    public:
-      FiltersEditorUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
+      FiltersEditorUI(FilterEditor& parent)
       : _editor(parent)
       {
-         BuildUI(parent, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon);
+         BuildUI(parent);
          ConnectUI();
       }
 
@@ -74,7 +74,7 @@ namespace TreeReaderApp
 
    private:
 
-      void BuildUI(FilterEditor& parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
+      void BuildUI(FilterEditor& parent)
       {
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
@@ -123,8 +123,8 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   FilterEditor::FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon)
-   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(*this, copy_icon, add_icon, remove_icon, move_up_icon, move_down_icon))
+   FilterEditor::FilterEditor(QWidget* parent)
+   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(*this))
    {
    }
 

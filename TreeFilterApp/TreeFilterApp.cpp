@@ -1,16 +1,6 @@
-#include "TextTreeModel.h"
-#include "TreeFilterCommands.h"
-
 #include "MainWindow.h"
-#include "resource.h"
 
 #include <QtWidgets/qapplication.h>
-#include <QtWidgets/qmainwindow.h>
-#include <QtWidgets/qtreeview.h>
-#include <QtWidgets/qtextedit.h>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qdockwidget.h>
-#include <QtWidgets/qlayout.h>
 
 static HINSTANCE appInstance;
 
@@ -22,23 +12,7 @@ namespace TreeReaderApp
    {
       QScopedPointer<QApplication> app(new QApplication(argc, argv));
 
-      MainWindowIcons icons;
-
-      icons.AppIcon = IDI_APP_ICON;
-
-      icons.TextTreeOpen = IDB_TREE_OPEN;
-      icons.TextTreeSave = IDB_TREE_SAVE;
-
-      icons.Undo = IDB_UNDO;
-      icons.Redo = IDB_REDO;
-
-      icons.FilterAdd = IDB_FILTER_ADD;
-      icons.FilterCopy = IDB_FILTER_COPY;
-      icons.FilterDelete = IDB_FILTER_DELETE;
-      icons.FilterMoveDown = IDB_FILTER_MOVE_DOWN;
-      icons.FilterMoveUp = IDB_FILTER_MOVE_UP;
-
-      auto mainWindow = new MainWindow(icons);
+      auto mainWindow = new MainWindow;
 
       mainWindow->resize(1000, 800);
       mainWindow->show();

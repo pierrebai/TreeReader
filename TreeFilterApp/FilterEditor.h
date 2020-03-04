@@ -25,7 +25,7 @@ namespace TreeReaderApp
       FilterChangedCallback FilterChanged;
 
       // Create a filter editor with the given parent widget.
-      FilterEditor(QWidget* parent, int copy_icon, int add_icon, int remove_icon, int move_up_icon, int move_down_icon);
+      FilterEditor(QWidget* parent);
 
       // Set the Filters being edited.
       void SetEdited(const TreeFilterPtr& edited);

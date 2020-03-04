@@ -25,41 +25,20 @@ namespace TreeReaderApp
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Main window icon IDs.
-
-   struct MainWindowIcons
-   {
-      int AppIcon = 0;
-
-      int Undo = 0;
-      int Redo = 0;
-
-      int TextTreeOpen = 0;
-      int TextTreeSave = 0;
-
-      int FilterCopy = 0;
-      int FilterAdd = 0;
-      int FilterDelete = 0;
-      int FilterMoveUp = 0;
-      int FilterMoveDown = 0;
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   //
    // The main window of Alhambra.
 
    class MainWindow : public QMainWindow
    {
    public:
       // Create the main window.
-      MainWindow(const MainWindowIcons& icons);
+      MainWindow();
 
    protected:
       // Create the UI elements.
-      void BuildUI(const MainWindowIcons& icons);
+      void BuildUI();
 
       // Connect the signals of the UI elements.
-      void ConnectUI(const MainWindowIcons& icons);
+      void ConnectUI();
 
       // Fill the UI with the intial data.
       void FillUI();

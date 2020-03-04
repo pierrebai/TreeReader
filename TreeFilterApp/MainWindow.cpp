@@ -11,6 +11,8 @@
 #include <QtWidgets/qtoolbar.h>
 #include <QtWinExtras/qwinfunctions.h>
 
+#include "resource.h"
+
 namespace TreeReaderApp
 {
    using namespace TreeReader;
@@ -34,38 +36,38 @@ namespace TreeReaderApp
    //
    // Create the main window.
 
-   MainWindow::MainWindow(const MainWindowIcons& icons)
+   MainWindow::MainWindow()
    {
-      BuildUI(icons);
+      BuildUI();
       FillUI();
-      ConnectUI(icons);
+      ConnectUI();
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Create the UI elements.
 
-   void MainWindow::BuildUI(const MainWindowIcons& icons)
+   void MainWindow::BuildUI()
    {
       QToolBar* toolbar = new QToolBar();
          toolbar->setIconSize(QSize(32, 32));
 
-         _loadTreeAction = CreateAction(L::t(L"Load Tree"), icons.TextTreeOpen, QKeySequence(QKeySequence::StandardKey::Open));
+         _loadTreeAction = CreateAction(L::t(L"Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
          _loadTreeButton = CreateToolButton(_loadTreeAction);
          toolbar->addWidget(_loadTreeButton);
 
-         _saveTreeAction = CreateAction(L::t(L"Save Tree"), icons.TextTreeSave, QKeySequence(QKeySequence::StandardKey::Save));
+         _saveTreeAction = CreateAction(L::t(L"Save Tree"), IDB_TREE_SAVE, QKeySequence(QKeySequence::StandardKey::Save));
          _saveTreeButton = CreateToolButton(_saveTreeAction);
          toolbar->addWidget(_saveTreeButton);
 
          toolbar->addSeparator();
 
-         _undoAction = CreateAction(L::t(L"Undo"), icons.Undo, QKeySequence(QKeySequence::StandardKey::Undo));
+         _undoAction = CreateAction(L::t(L"Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
          _undoButton = CreateToolButton(_undoAction);
          _undoAction->setEnabled(false);
          toolbar->addWidget(_undoButton);
 
-         _redoAction = CreateAction(L::t(L"Redo"), icons.Redo, QKeySequence(QKeySequence::StandardKey::Redo));
+         _redoAction = CreateAction(L::t(L"Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
          _redoButton = CreateToolButton(_redoAction);
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
@@ -78,7 +80,7 @@ namespace TreeReaderApp
          _availableFiltersList = new TreeFilterListWidget;
          filters_layout->addWidget(_availableFiltersList);
 
-         _filterEditor = new FilterEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
+         _filterEditor = new FilterEditor(filters_container);
          filters_layout->addWidget(_filterEditor);
 
          filtersDock->setWidget(filters_container);
@@ -102,14 +104,14 @@ namespace TreeReaderApp
       addToolBar(toolbar);
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
       addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, cmdDock);
-      setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(icons.AppIcon), IMAGE_ICON, 256, 256, 0))));
+      setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Connect the signals of the UI elements.
 
-   void MainWindow::ConnectUI(const MainWindowIcons& icons)
+   void MainWindow::ConnectUI()
    {
       /////////////////////////////////////////////////////////////////////////
       //
