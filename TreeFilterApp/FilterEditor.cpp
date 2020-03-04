@@ -63,10 +63,10 @@ namespace TreeReaderApp
       {
          DisableFeedback df(_filterList, _disableFeedback);
 
-         ClearTreeFilterList(_filterList);
+         _filterList->Clear();
          TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
          {
-            AddTreeFilterPanel(self->_filterList, filter);
+            self->_filterList->AddTreeFilterPanel(filter);
             return true;
          });
       }
@@ -78,13 +78,9 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = CreateTreeFilterList();
+         _filterList = new TreeFilterPanel;
          // TODO: drag and drop.
-         //_filterList->setAcceptDrops(true);
-         //_filterList->setDragEnabled(true);
-         //_filterList->setDragDropMode(QListWidget::DragDrop);
-         //_filterList->setDefaultDropAction(Qt::MoveAction);
-         //_filterList->setDropIndicatorShown(true);
+         _filterList->setAcceptDrops(true);
          layout->addWidget(_filterList);
 
          _filterList->setEnabled(true);
@@ -114,7 +110,7 @@ namespace TreeReaderApp
       FilterEditor& _editor;
       TreeFilterPtr _edited;
 
-      QScrollArea* _filterList;
+      TreeFilterPanel* _filterList;
 
       int _disableFeedback = 0;
    };

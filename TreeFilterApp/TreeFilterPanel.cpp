@@ -9,6 +9,11 @@
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qpushbutton.h>
 
+#include <QDrag>
+#include <QDragEnterEvent>
+#include <QMimeData>
+#include <QPainter>
+
 #include <QtGui/qvalidator.h>
 
 #include "resource.h"
@@ -20,6 +25,8 @@ namespace TreeReaderApp
 
    namespace
    {
+      using DeleteCallbackFunction = TreeFilterPanel::DeleteCallbackFunction;
+
       namespace L
       {
          inline const wchar_t* t(const wchar_t* text)
@@ -27,6 +34,10 @@ namespace TreeReaderApp
             return text;
          }
       }
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Filter panel creation helpers.
 
       QWidget* CreateFilterPanel(
          const shared_ptr<TreeFilter>& filter,
@@ -180,35 +191,40 @@ namespace TreeReaderApp
       {
          return CreateFilterPanel(filter, delFunc, nullptr);
       }
+
+      QWidget* ConvertFilterToPanel(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
+      {
+         #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc); }
+
+         CALL_CONVERTER(AcceptTreeFilter)
+            CALL_CONVERTER(StopTreeFilter)
+            CALL_CONVERTER(UntilTreeFilter)
+            CALL_CONVERTER(ContainsTreeFilter)
+            CALL_CONVERTER(RegexTreeFilter)
+            CALL_CONVERTER(NotTreeFilter)
+            CALL_CONVERTER(IfSubTreeTreeFilter)
+            CALL_CONVERTER(IfSiblingTreeFilter)
+            CALL_CONVERTER(CountChildrenTreeFilter)
+            CALL_CONVERTER(CountSiblingsTreeFilter)
+            CALL_CONVERTER(OrTreeFilter)
+            CALL_CONVERTER(AndTreeFilter)
+            CALL_CONVERTER(UnderTreeFilter)
+            CALL_CONVERTER(RemoveChildrenTreeFilter)
+            CALL_CONVERTER(LevelRangeTreeFilter)
+            CALL_CONVERTER(NamedTreeFilter)
+
+            #undef CALL_CONVERTER
+
+            return nullptr;
+      }
    }
 
-   QWidget* ConvertFilterToPanel(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
-   {
-      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc); }
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Tree filter panel.
 
-      CALL_CONVERTER(AcceptTreeFilter)
-      CALL_CONVERTER(StopTreeFilter)
-      CALL_CONVERTER(UntilTreeFilter)
-      CALL_CONVERTER(ContainsTreeFilter)
-      CALL_CONVERTER(RegexTreeFilter)
-      CALL_CONVERTER(NotTreeFilter)
-      CALL_CONVERTER(IfSubTreeTreeFilter)
-      CALL_CONVERTER(IfSiblingTreeFilter)
-      CALL_CONVERTER(CountChildrenTreeFilter)
-      CALL_CONVERTER(CountSiblingsTreeFilter)
-      CALL_CONVERTER(OrTreeFilter)
-      CALL_CONVERTER(AndTreeFilter)
-      CALL_CONVERTER(UnderTreeFilter)
-      CALL_CONVERTER(RemoveChildrenTreeFilter)
-      CALL_CONVERTER(LevelRangeTreeFilter)
-      CALL_CONVERTER(NamedTreeFilter)
-
-      #undef CALL_CONVERTER
-
-      return nullptr;
-   }
-
-   QScrollArea* CreateTreeFilterList()
+   TreeFilterPanel::TreeFilterPanel(QWidget* parent)
+      : QScrollArea(parent)
    {
       auto availLayout = new QVBoxLayout;
       availLayout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -218,36 +234,27 @@ namespace TreeReaderApp
       availWidget->setBackgroundRole(QPalette::ColorRole::Base);
       availWidget->setLayout(availLayout);
 
-      auto availList = new QScrollArea;
-      availList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-      availList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-      availList->setWidget(availWidget);
-      availList->setWidgetResizable(true);
-      availList->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-      return availList;
+      setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+      setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+      setWidget(availWidget);
+      setWidgetResizable(true);
+      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
    }
 
-   void ClearTreeFilterList(QScrollArea* list)
+   void TreeFilterPanel::Clear()
    {
-      if (!list)
-         return;
-
-      auto availWidget = list->widget();
+      auto availWidget = widget();
       if (!availWidget)
          return;
 
-      for (auto child : list->children())
+      for (auto child : children())
          if (!dynamic_cast<QLayout*>(child))
             delete child;
    }
 
-   void AddTreeFilterPanel(QScrollArea* list, const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
+   void TreeFilterPanel::AddTreeFilterPanel(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
    {
-      if (!list)
-         return;
-
-      auto availWidget = list->widget();
+      auto availWidget = widget();
       if (!availWidget)
          return;
 
@@ -262,6 +269,74 @@ namespace TreeReaderApp
       layout->addWidget(widget);
 
       availWidget->setMinimumWidth(max(availWidget->minimumWidth(), widget->sizeHint().width()));
-      list->setMinimumWidth(max(list->minimumWidth(), widget->sizeHint().width()));
+      setMinimumWidth(max(minimumWidth(), widget->sizeHint().width()));
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Drag and drop.
+
+   static constexpr char TreeFilterMimeType[] = "application/x-tree-reader-tree-filter";
+
+   void TreeFilterPanel::dragEnterEvent(QDragEnterEvent* event)
+   {
+      if (event->mimeData()->hasFormat(TreeFilterMimeType))
+         event->accept();
+      else
+         event->ignore();
+   }
+
+   void TreeFilterPanel::dragLeaveEvent(QDragLeaveEvent* event)
+   {
+      QRect updateRect = _highlightedRect;
+      _highlightedRect = QRect();
+      update(updateRect);
+      event->accept();
+   }
+
+   void TreeFilterPanel::dragMoveEvent(QDragMoveEvent* event)
+   {
+      if (event->mimeData()->hasFormat(TreeFilterMimeType))
+      {
+         event->setDropAction(Qt::MoveAction);
+         event->accept();
+      }
+      else
+      {
+         event->ignore();
+      }
+   }
+
+   void TreeFilterPanel::dropEvent(QDropEvent* event)
+   {
+      if (event->mimeData()->hasFormat(TreeFilterMimeType))
+      {
+         event->setDropAction(Qt::MoveAction);
+         event->accept();
+      }
+      else
+      {
+         event->ignore();
+      }
+   }
+
+   void TreeFilterPanel::mousePressEvent(QMouseEvent* event)
+   {
+      bool foundFilter = true; // TODO
+      if (!foundFilter)
+         return;
+
+      QMimeData* mimeData = new QMimeData;
+      mimeData->setData(TreeFilterMimeType, QByteArray());
+
+      QDrag* drag = new QDrag(this);
+      drag->setMimeData(mimeData);
+      drag->setHotSpot(event->pos()); // TODO
+      // drag->setPixmap(piece.pixmap); TODO
+
+      if (drag->exec(Qt::MoveAction) != Qt::MoveAction)
+      {
+      }
    }
 }
+
