@@ -11,7 +11,6 @@ namespace TreeReaderApp
 
    struct TreeFilterMimeData : public QMimeData
    {
-      TreeFilterPtr Filter;
       TreeFilterWidget* Widget = nullptr;
       QPoint HotSpot;
    };

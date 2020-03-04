@@ -66,7 +66,7 @@ namespace TreeReaderApp
          _filterList->Clear();
          TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
          {
-            self->_filterList->AddTreeFilterListWidget(filter);
+            self->_filterList->AddTreeFilter(filter);
             return true;
          });
       }
@@ -78,6 +78,7 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
+         // TODO: passs delete callback.
          _filterList = new TreeFilterListWidget;
          // TODO: drag and drop.
          _filterList->setAcceptDrops(true);

@@ -26,5 +26,13 @@ namespace TreeReaderApp
          const bool* includeSelf = nullptr,
          const size_t* count = nullptr,
          const size_t* count2 = nullptr);
+
+      // Create a filter panel UI, with an optional deletion callback.
+      static TreeFilterWidget* Create(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc);
+
+      TreeFilterWidget* Clone(DeleteCallbackFunction delFunc) const;
+
+   private:
+      TreeFilterPtr _filter;
    };
 }

@@ -28,20 +28,125 @@ namespace TreeReaderApp
             return text;
          }
       }
-   }
 
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Filter panel creation helpers.
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<AcceptTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<StopTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<UntilTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<ContainsTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, filter->Contained.c_str());
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, filter->RegexTextForm.c_str());
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<NotTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<IfSubTreeTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<IfSiblingTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<CountChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr, &filter->IncludeSelf, &filter->Count);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<CountSiblingsTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr, &filter->IncludeSelf, &filter->Count);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<OrTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<AndTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<UnderTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr, &filter->IncludeSelf);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<RemoveChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr, &filter->IncludeSelf);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<LevelRangeTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr, nullptr, &filter->MinLevel, &filter->MaxLevel);
+      }
+
+      TreeFilterWidget* CreateFilterPanel(const shared_ptr<NamedTreeFilter>& filter, DeleteCallbackFunction delFunc)
+      {
+         return new TreeFilterWidget(filter, delFunc, nullptr);
+      }
+   }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Filter panel creation helpers.
+   // Filter panel creation.
 
-   TreeFilterWidget::TreeFilterWidget(
-      const shared_ptr<TreeFilter>& filter,
-      DeleteCallbackFunction delFunc,
-      const wchar_t* textContent,
-      const bool* includeSelf,
-      const size_t* count,
-      const size_t* count2)
+   TreeFilterWidget* TreeFilterWidget::Create(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc)
+   {
+      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc); }
+
+      CALL_CONVERTER(AcceptTreeFilter)
+      CALL_CONVERTER(StopTreeFilter)
+      CALL_CONVERTER(UntilTreeFilter)
+      CALL_CONVERTER(ContainsTreeFilter)
+      CALL_CONVERTER(RegexTreeFilter)
+      CALL_CONVERTER(NotTreeFilter)
+      CALL_CONVERTER(IfSubTreeTreeFilter)
+      CALL_CONVERTER(IfSiblingTreeFilter)
+      CALL_CONVERTER(CountChildrenTreeFilter)
+      CALL_CONVERTER(CountSiblingsTreeFilter)
+      CALL_CONVERTER(OrTreeFilter)
+      CALL_CONVERTER(AndTreeFilter)
+      CALL_CONVERTER(UnderTreeFilter)
+      CALL_CONVERTER(RemoveChildrenTreeFilter)
+      CALL_CONVERTER(LevelRangeTreeFilter)
+      CALL_CONVERTER(NamedTreeFilter)
+
+      #undef CALL_CONVERTER
+
+      return nullptr;
+   }
+
+   TreeFilterWidget::TreeFilterWidget(const shared_ptr<TreeFilter>& filter, DeleteCallbackFunction delFunc,
+      const wchar_t* textContent, const bool* includeSelf, const size_t* count, const size_t* count2)
+   : _filter(filter)
    {
       setToolTip(QString::fromStdWString(filter->GetDescription()));
       setBackgroundRole(QPalette::ColorRole::Base);
@@ -103,6 +208,11 @@ namespace TreeReaderApp
          auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
          container_layout->addWidget(includeBox);
       }
+   }
+
+   TreeFilterWidget* TreeFilterWidget::Clone(DeleteCallbackFunction delFunc) const
+   {
+      return Create(_filter->Clone(), delFunc);
    }
 }
 

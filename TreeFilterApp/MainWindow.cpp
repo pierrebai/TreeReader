@@ -213,23 +213,23 @@ namespace TreeReaderApp
    void MainWindow::FillAvailableFiltersUI()
    {
       for (const auto& [name, item] : _data.KnownFilters->All())
-         _availableFiltersList->AddTreeFilterListWidget(item);
+         _availableFiltersList->AddTreeFilter(item);
 
-      _availableFiltersList->AddTreeFilterListWidget(Accept());
-      _availableFiltersList->AddTreeFilterListWidget(Stop());
-      _availableFiltersList->AddTreeFilterListWidget(Until(nullptr));
-      _availableFiltersList->AddTreeFilterListWidget(Contains(L""));
-      _availableFiltersList->AddTreeFilterListWidget(Regex(L""));
-      _availableFiltersList->AddTreeFilterListWidget(Not(nullptr));
-      _availableFiltersList->AddTreeFilterListWidget(Any(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilterListWidget(All(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilterListWidget(Under(nullptr));
-      _availableFiltersList->AddTreeFilterListWidget(CountSiblings(nullptr, 0));
-      _availableFiltersList->AddTreeFilterListWidget(CountChildren(nullptr, 0));
-      _availableFiltersList->AddTreeFilterListWidget(NoChild(nullptr));
-      _availableFiltersList->AddTreeFilterListWidget(LevelRange(0, 100));
-      _availableFiltersList->AddTreeFilterListWidget(IfSubTree(nullptr));
-      _availableFiltersList->AddTreeFilterListWidget(IfSibling(nullptr));
+      _availableFiltersList->AddTreeFilter(Accept());
+      _availableFiltersList->AddTreeFilter(Stop());
+      _availableFiltersList->AddTreeFilter(Until(nullptr));
+      _availableFiltersList->AddTreeFilter(Contains(L""));
+      _availableFiltersList->AddTreeFilter(Regex(L""));
+      _availableFiltersList->AddTreeFilter(Not(nullptr));
+      _availableFiltersList->AddTreeFilter(Any(vector<TreeFilterPtr>()));
+      _availableFiltersList->AddTreeFilter(All(vector<TreeFilterPtr>()));
+      _availableFiltersList->AddTreeFilter(Under(nullptr));
+      _availableFiltersList->AddTreeFilter(CountSiblings(nullptr, 0));
+      _availableFiltersList->AddTreeFilter(CountChildren(nullptr, 0));
+      _availableFiltersList->AddTreeFilter(NoChild(nullptr));
+      _availableFiltersList->AddTreeFilter(LevelRange(0, 100));
+      _availableFiltersList->AddTreeFilter(IfSubTree(nullptr));
+      _availableFiltersList->AddTreeFilter(IfSibling(nullptr));
    }
 
    /////////////////////////////////////////////////////////////////////////
