@@ -31,6 +31,19 @@ namespace TreeReaderApp
       return AddItem(TreeFilterWidget::Create(filter, DeleteCallback), index);
    }
 
+   vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const
+   {
+      vector<QWidgetListItem*> widgets = GetItems();
+
+      vector<TreeFilterPtr> filters;
+      for (auto& w : widgets)
+         if (auto tfw = dynamic_cast<TreeFilterWidget*>(w))
+            if (tfw->Filter)
+               filters.push_back(tfw->Filter);
+
+      return filters;
+   }
+
    QWidgetListItem* TreeFilterListWidget::CloneItem(QWidgetListItem* item) const
    {
       if (auto tfItem = dynamic_cast<TreeFilterWidget *>(item))

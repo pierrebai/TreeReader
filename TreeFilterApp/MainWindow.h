@@ -60,6 +60,9 @@ namespace TreeReaderApp
       void LoadTree();
       bool SaveFilteredTree();
 
+      // Tree filtering.
+      void FilterTree();
+
       // Data.
       CommandsContext _data;
       UndoStack _undoStack;
@@ -76,6 +79,9 @@ namespace TreeReaderApp
 
       QAction* _saveTreeAction = nullptr;
       QToolButton* _saveTreeButton = nullptr;
+
+      QAction* _filterTreeAction = nullptr;
+      QToolButton* _filterTreeButton = nullptr;
 
       // UI elements.
       QTreeView* _treeView = nullptr;

@@ -77,6 +77,32 @@ namespace QtAdditions
       _layout->update();
    }
 
+   static void GetItems_(vector<QWidgetListItem*>& filters, const QObject* widget)
+   {
+      if (!widget)
+         return;
+
+      for (auto& child : widget->children())
+         if (auto tfItem = dynamic_cast<QWidgetListItem*>(child))
+            filters.push_back(tfItem);
+         else
+            GetItems_(filters, child);
+   }
+
+   vector<QWidgetListItem*> QWidgetListWidget::GetItems() const
+   {
+      vector<QWidgetListItem*> widgets;
+
+      GetItems_(widgets, this);
+
+      sort(widgets.begin(), widgets.end(), [](QWidgetListItem* lhs, QWidgetListItem* rhs)
+      {
+         return lhs->pos().y() < rhs->pos().y();
+      });
+
+      return widgets;
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Drag and drop.

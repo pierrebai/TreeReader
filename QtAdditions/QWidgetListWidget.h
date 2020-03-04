@@ -34,6 +34,9 @@ namespace QtAdditions
       // Remove a widget item.
       void RemoveItem(QWidgetListItem* item);
 
+      // Retrieve all widget items kept in the list.
+      std::vector<QWidgetListItem*> GetItems() const;
+
    protected:
       virtual QWidgetListItem* CloneItem(QWidgetListItem*) const;
 

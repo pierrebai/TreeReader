@@ -22,6 +22,9 @@ namespace TreeReaderApp
       // Add a filter panel UI to the given list panel, with an optional deletion callback.
       QWidgetListItem* AddTreeFilter(const TreeFilterPtr& filter, int index = -1);
 
+      // Retrieve all filters kept in the list.
+      std::vector<TreeFilterPtr> GetTreeFilters() const;
+
    protected:
       QWidgetListItem* CloneItem(QWidgetListItem*) const override;
    };

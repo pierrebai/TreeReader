@@ -31,9 +31,6 @@ namespace TreeReaderApp
       void SetEdited(const TreeFilterPtr& edited);
       TreeFilterPtr GetEdited() const;
 
-      // Update the list UI to represent changes made to filters.
-      void UpdateListContent();
-
    protected:
       std::unique_ptr<FiltersEditorUI> _ui;
    };

@@ -45,8 +45,9 @@ namespace TreeReaderApp
          ConnectUI();
       }
 
-      TreeFilterPtr GetEdited() const
+      TreeFilterPtr GetEdited()
       {
+         UpdateEditedFromUI();
          return _edited;
       }
 
@@ -58,18 +59,6 @@ namespace TreeReaderApp
          _edited = ed;
 
          FillUI();
-      }
-
-      void UpdateListContent()
-      {
-         DisableFeedback df(_filterList, _disableFeedback);
-
-         _filterList->Clear();
-         TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
-         {
-            self->_filterList->AddTreeFilter(filter);
-            return true;
-         });
       }
 
    private:
@@ -98,17 +87,62 @@ namespace TreeReaderApp
       {
          DisableFeedback df(_filterList, _disableFeedback);
 
-         UpdateListContent();
+         _filterList->Clear();
+         TreeReader::VisitFilters(_edited, true, [self = this](const TreeFilterPtr& filter) -> bool
+         {
+            self->_filterList->AddTreeFilter(filter);
+            return true;
+         });
       }
 
-      void UpdateFilters()
+      void UpdateEditedFromUI()
       {
-         // Note: used to avoid re-calculating the layer when just setting its value in the UI.
-         if (_disableFeedback)
-            return;
+         TreeFilterPtr root;
+         vector<TreeFilterPtr> previous;
 
-         if (_editor.FilterChanged)
-            _editor.FilterChanged(_edited);
+         for (auto& filter : _filterList->GetTreeFilters())
+         {
+            filter = filter->Clone();
+            if (!root)
+            {
+               root = filter;
+            }
+            else
+            {
+               bool placed = false;
+               while (previous.size() > 0)
+               {
+                  if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(previous.back()))
+                  {
+                     if (!delegate->Filter)
+                     {
+                        delegate->Filter = filter;
+                        placed = true;
+                        break;
+                     }
+                  }
+                  else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(previous.back()))
+                  {
+                     combine->Filters.push_back(filter);
+                     placed = true;
+                     break;
+                  }
+
+                  previous.pop_back();
+               }
+
+               if (!placed)
+               {
+                  auto newRoot = And(root, filter);
+                  root = newRoot;
+                  previous.push_back(root);
+               }
+            }
+
+            previous.push_back(filter);
+         }
+
+         _edited = root;
       }
 
       FilterEditor& _editor;
@@ -142,14 +176,6 @@ namespace TreeReaderApp
          return {};
 
       return _ui->GetEdited();
-   }
-
-   void FilterEditor::UpdateListContent()
-   {
-      if (!_ui)
-         return;
-
-      return _ui->UpdateListContent();
    }
 }
 

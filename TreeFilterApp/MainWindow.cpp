@@ -60,6 +60,11 @@ namespace TreeReaderApp
          _saveTreeButton = CreateToolButton(_saveTreeAction);
          toolbar->addWidget(_saveTreeButton);
 
+         // TODO: new icon for filter.
+         _filterTreeAction = CreateAction(L::t(L"Filter Tree"), IDB_FILTER_MOVE_DOWN, QKeySequence(QKeySequence::StandardKey::Find));
+         _filterTreeButton = CreateToolButton(_filterTreeAction);
+         toolbar->addWidget(_filterTreeButton);
+
          toolbar->addSeparator();
 
          _undoAction = CreateAction(L::t(L"Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
@@ -71,6 +76,7 @@ namespace TreeReaderApp
          _redoButton = CreateToolButton(_redoAction);
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
+
 
       auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
          filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
@@ -141,6 +147,11 @@ namespace TreeReaderApp
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
       {
          self->SaveFilteredTree();
+      });
+
+      _filterTreeAction->connect(_filterTreeAction, &QAction::triggered, [self = this]()
+      {
+         self->FilterTree();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -301,6 +312,35 @@ namespace TreeReaderApp
       _data.SaveTree(path);
 
       return true;
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Tree filtering.
+
+   void MainWindow::FilterTree()
+   {
+      _data.Filter = _filterEditor->GetEdited();
+      _data.ApplyFilterToTree();
+
+      shared_ptr<TextTree> newTree;
+      if (_data.Filtered)
+      {
+         newTree = _data.Filtered;
+      }
+      else if (_data.Trees.size() > 0)
+      {
+         newTree = _data.Trees.back();
+      }
+
+      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
+      {
+         TextTreeModel* model = new TextTreeModel;
+         model->Tree = newTree;
+         _treeView->setModel(model);
+      }
+
+      CommitToUndo();
    }
 
 
