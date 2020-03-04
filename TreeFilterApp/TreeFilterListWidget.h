@@ -11,6 +11,7 @@
 class QDragEnterEvent;
 class QDropEvent;
 class QMouseEvent;
+class QVBoxLayout;
 
 namespace TreeReaderApp
 {
@@ -20,7 +21,7 @@ namespace TreeReaderApp
    {
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      typedef std::function<void(const TreeFilterPtr & filter, QWidget * panel)> DeleteCallbackFunction;
+      using DeleteCallbackFunction = TreeFilterWidget::DeleteCallbackFunction;
 
       DeleteCallbackFunction DeleteCallback;
 
@@ -31,8 +32,11 @@ namespace TreeReaderApp
       void Clear();
 
       // Add a filter panel UI to the given list panel, with an optional deletion callback.
-      void AddTreeFilter(const TreeFilterPtr& filter);
-      void AddTreeFilter(TreeFilterWidget* filter);
+      TreeFilterWidget* AddTreeFilter(const TreeFilterPtr& filter, int index = -1);
+      TreeFilterWidget* AddTreeFilter(TreeFilterWidget* filter, int index = -1);
+
+      // Remove a filter panel.
+      void RemoveTreeFilter(TreeFilterWidget* filter);
 
    protected:
       void dragEnterEvent(QDragEnterEvent* event) override;
@@ -42,5 +46,7 @@ namespace TreeReaderApp
       void mousePressEvent(QMouseEvent* event) override;
 
       TreeFilterWidget* FindWidgetAt(const QPoint& pt) const;
+
+      QVBoxLayout* _availLayout = nullptr;
    };
 }

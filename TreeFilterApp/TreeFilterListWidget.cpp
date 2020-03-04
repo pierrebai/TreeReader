@@ -25,13 +25,14 @@ namespace TreeReaderApp
    TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction callback, QWidget* parent)
    : QScrollArea(parent), DeleteCallback(callback)
    {
-      auto availLayout = new QVBoxLayout;
-      availLayout->setSizeConstraint(QLayout::SetMinimumSize);
-      availLayout->setMargin(2);
+      _availLayout = new QVBoxLayout;
+      _availLayout->setSizeConstraint(QLayout::SetMinimumSize);
+      _availLayout->setMargin(2);
+      _availLayout->addStretch();
 
       auto availWidget = new QWidget;
       availWidget->setBackgroundRole(QPalette::ColorRole::Base);
-      availWidget->setLayout(availLayout);
+      availWidget->setLayout(_availLayout);
 
       setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
       setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -51,28 +52,39 @@ namespace TreeReaderApp
             delete child;
    }
 
-   void TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter)
+   TreeFilterWidget* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, int index)
    {
-      AddTreeFilter(TreeFilterWidget::Create(filter, DeleteCallback));
+      return AddTreeFilter(TreeFilterWidget::Create(filter, DeleteCallback), index);
    }
 
-   void TreeFilterListWidget::AddTreeFilter(TreeFilterWidget* filter)
+   TreeFilterWidget* TreeFilterListWidget::AddTreeFilter(TreeFilterWidget* filter, int index)
    {
       if (!filter)
-         return;
+         return nullptr;
 
       auto availWidget = widget();
       if (!availWidget)
-         return;
+         return nullptr;
 
-      auto layout = availWidget->layout();
-      if (!layout)
-         return;
+      if (!_availLayout)
+         return nullptr;
 
-      layout->addWidget(filter);
+      if (index < 0 || index >= _availLayout->count())
+         index = _availLayout->count() - 1;
+
+      _availLayout->insertWidget(index, filter);
 
       availWidget->setMinimumWidth(max(availWidget->minimumWidth(), filter->sizeHint().width()));
       setMinimumWidth(max(minimumWidth(), filter->sizeHint().width()));
+
+      return filter;
+   }
+
+   void TreeFilterListWidget::RemoveTreeFilter(TreeFilterWidget* filter)
+   {
+      filter->setParent(nullptr);
+      _availLayout->removeWidget(filter);
+      _availLayout->update();
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -122,16 +134,19 @@ namespace TreeReaderApp
       const QPoint position = event->pos();
       TreeFilterWidget* dropOn = FindWidgetAt(position);
       const bool dropAbove = dropOn ? (position.y() < dropOn->pos().y() + dropOn->size().height() / 2) : false;
+      const int dropIndexOffset = dropAbove ? 0 : 1;
+      const int dropOnIndex = dropOn ? _availLayout->indexOf(dropOn) : -1000;
 
       if (event->source() == this)
       {
          // Remove panel and insert it at correct position in list.
          auto movedWidget = mime->Widget;
-         if (movedWidget)
+         if (movedWidget && movedWidget != dropOn)
          {
-            movedWidget->setParent(nullptr);
-            // TODO: find right spot to insert.
-            AddTreeFilter(movedWidget);
+            const int movedIndex = _availLayout->indexOf(movedWidget);
+            const int newIndex = dropOnIndex + dropIndexOffset - (movedIndex < dropOnIndex ? 1 : 0);
+            RemoveTreeFilter(movedWidget);
+            AddTreeFilter(movedWidget, newIndex);
          }
          event->setDropAction(Qt::MoveAction);
          event->accept();
@@ -141,8 +156,8 @@ namespace TreeReaderApp
          auto newWidget = mime->Widget->Clone(DeleteCallback);
          if (newWidget)
          {
-            // TODO: find right spot to insert.
-            AddTreeFilter(newWidget);
+            const int newIndex = dropOnIndex + dropIndexOffset;
+            AddTreeFilter(newWidget, newIndex);
          }
          event->acceptProposedAction();
       }

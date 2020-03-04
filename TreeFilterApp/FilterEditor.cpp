@@ -78,9 +78,10 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         // TODO: passs delete callback.
-         _filterList = new TreeFilterListWidget;
-         // TODO: drag and drop.
+         _filterList = new TreeFilterListWidget([self = this](const TreeFilterPtr& filter, TreeFilterWidget* panel)
+         {
+            delete panel;
+         });
          _filterList->setAcceptDrops(true);
          layout->addWidget(_filterList);
 

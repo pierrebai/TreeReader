@@ -197,7 +197,7 @@ namespace TreeReaderApp
          deleteButton->setMaximumSize(QSize(16, 16));
          name_layout->addWidget(deleteButton);
 
-         deleteButton->connect(deleteButton, &QPushButton::pressed, [filter, self=this, delFunc]()
+         deleteButton->connect(deleteButton, &QPushButton::clicked, [filter, self=this, delFunc]()
          {
             delFunc(filter, self);
          });
