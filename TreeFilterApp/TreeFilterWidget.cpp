@@ -51,12 +51,12 @@ namespace TreeReaderApp
 
       TreeFilterWidget* CreateFilterPanel(const shared_ptr<ContainsTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, filter->Contained.c_str());
+         return new TreeFilterWidget(filter, delFunc, &filter->Contained);
       }
 
       TreeFilterWidget* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, filter->RegexTextForm.c_str());
+         return new TreeFilterWidget(filter, delFunc, &filter->RegexTextForm);
       }
 
       TreeFilterWidget* CreateFilterPanel(const shared_ptr<NotTreeFilter>& filter, DeleteCallbackFunction delFunc)
@@ -146,9 +146,11 @@ namespace TreeReaderApp
    }
 
    TreeFilterWidget::TreeFilterWidget(const shared_ptr<TreeFilter>& filter, DeleteCallbackFunction delFunc,
-      const wchar_t* textContent, const bool* includeSelf, const size_t* count, const size_t* count2)
-   : _filter(filter)
+      wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
+   : Filter(filter)
    {
+      const bool active = (delFunc != nullptr);
+
       setToolTip(QString::fromStdWString(filter->GetDescription()));
       setBackgroundRole(QPalette::ColorRole::Base);
 
@@ -167,33 +169,50 @@ namespace TreeReaderApp
 
       if (textContent)
       {
-         auto textEdit = new QLineEdit(QString::fromWCharArray(textContent));
+         auto textEdit = new QLineEdit(QString::fromStdWString(*textContent));
          textEdit->setMaximumWidth(80);
+         textEdit->setEnabled(active);
          name_layout->addWidget(textEdit);
+
+         textEdit->connect(textEdit, &QLineEdit::editingFinished, [textContent, textEdit]()
+         {
+            *textContent = textEdit->text().toStdWString();
+         });
       }
 
       if (count)
       {
          auto numberEdit = new QLineEdit(QString().setNum(*count));
          numberEdit->setMaximumWidth(count2 ? 40 : 80);
-         numberEdit->setMaxLength(3);
          numberEdit->setValidator(new QIntValidator);
+         numberEdit->setEnabled(active);
          name_layout->addWidget(numberEdit);
+
+         numberEdit->connect(numberEdit, &QLineEdit::editingFinished, [count, numberEdit]()
+         {
+            *count = numberEdit->text().toUInt();
+         });
       }
 
       if (count2)
       {
          auto numberEdit = new QLineEdit(QString().setNum(*count2));
          numberEdit->setMaximumWidth(count ? 40 : 80);
-         numberEdit->setMaxLength(3);
          numberEdit->setValidator(new QIntValidator);
+         numberEdit->setEnabled(active);
          name_layout->addWidget(numberEdit);
+
+         numberEdit->connect(numberEdit, &QLineEdit::editingFinished, [count2, numberEdit]()
+         {
+            *count2 = numberEdit->text().toUInt();
+         });
       }
 
       if (delFunc)
       {
          auto deleteButton = new QPushButton;
          deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
+         deleteButton->setToolTip(QString::fromWCharArray(L::t(L"Delete this filter")));
          deleteButton->setFlat(true);
          deleteButton->setMaximumSize(QSize(16, 16));
          name_layout->addWidget(deleteButton);
@@ -207,7 +226,13 @@ namespace TreeReaderApp
       if (includeSelf)
       {
          auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
+         includeBox->setEnabled(active);
          container_layout->addWidget(includeBox);
+
+         includeBox->connect(includeBox, &QCheckBox::stateChanged, [includeSelf, includeBox](int)
+         {
+            *includeSelf = includeBox->isChecked();
+         });
       }
    }
 
@@ -218,7 +243,7 @@ namespace TreeReaderApp
 
    TreeFilterWidget* TreeFilterWidget::Clone(DeleteCallbackFunction delFunc) const
    {
-      return Create(_filter->Clone(), delFunc);
+      return Create(Filter->Clone(), delFunc);
    }
 }
 

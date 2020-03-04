@@ -5,7 +5,7 @@ Apply filter when loading a tree.
 Apply filter when modifying filter in UI.
 Add general options panel.
 Add input-line filtering options.
-Tool-tip for delete button.
 Localisation.
 Convert filter list widget to filter.
-Verify drag-and-drop keeps Ui data.
+Use saveState and restoreState on mainWindow.
+
