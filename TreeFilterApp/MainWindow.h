@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FilterEditor.h"
-#include "TreeFilterPanel.h"
+#include "TreeFilterListWidget.h"
 
 #include "TreeFilterCommands.h"
 #include "UndoStack.h"
@@ -102,7 +102,7 @@ namespace TreeReaderApp
       QTreeView* _treeView = nullptr;
       QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
-      TreeFilterPanel* _availableFiltersList = nullptr;
+      TreeFilterListWidget* _availableFiltersList = nullptr;
    };
 }
 

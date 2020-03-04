@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include "TextTreeModel.h"
-#include "TreeFilterPanel.h"
 #include "QtUtilities.h"
 
 #include "TreeFilterMaker.h"
@@ -75,7 +74,7 @@ namespace TreeReaderApp
          QWidget* filters_container = new QWidget();
          QHBoxLayout* filters_layout = new QHBoxLayout(filters_container);
 
-         _availableFiltersList = new TreeFilterPanel;
+         _availableFiltersList = new TreeFilterListWidget;
          filters_layout->addWidget(_availableFiltersList);
 
          _filterEditor = new FilterEditor(filters_container, icons.FilterCopy, icons.FilterAdd, icons.FilterDelete, icons.FilterMoveUp, icons.FilterMoveDown);
@@ -214,23 +213,23 @@ namespace TreeReaderApp
    void MainWindow::FillAvailableFiltersUI()
    {
       for (const auto& [name, item] : _data.KnownFilters->All())
-         _availableFiltersList->AddTreeFilterPanel(item);
+         _availableFiltersList->AddTreeFilterListWidget(item);
 
-      _availableFiltersList->AddTreeFilterPanel(Accept());
-      _availableFiltersList->AddTreeFilterPanel(Stop());
-      _availableFiltersList->AddTreeFilterPanel(Until(nullptr));
-      _availableFiltersList->AddTreeFilterPanel(Contains(L""));
-      _availableFiltersList->AddTreeFilterPanel(Regex(L""));
-      _availableFiltersList->AddTreeFilterPanel(Not(nullptr));
-      _availableFiltersList->AddTreeFilterPanel(Any(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilterPanel(All(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilterPanel(Under(nullptr));
-      _availableFiltersList->AddTreeFilterPanel(CountSiblings(nullptr, 0));
-      _availableFiltersList->AddTreeFilterPanel(CountChildren(nullptr, 0));
-      _availableFiltersList->AddTreeFilterPanel(NoChild(nullptr));
-      _availableFiltersList->AddTreeFilterPanel(LevelRange(0, 100));
-      _availableFiltersList->AddTreeFilterPanel(IfSubTree(nullptr));
-      _availableFiltersList->AddTreeFilterPanel(IfSibling(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(Accept());
+      _availableFiltersList->AddTreeFilterListWidget(Stop());
+      _availableFiltersList->AddTreeFilterListWidget(Until(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(Contains(L""));
+      _availableFiltersList->AddTreeFilterListWidget(Regex(L""));
+      _availableFiltersList->AddTreeFilterListWidget(Not(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(Any(vector<TreeFilterPtr>()));
+      _availableFiltersList->AddTreeFilterListWidget(All(vector<TreeFilterPtr>()));
+      _availableFiltersList->AddTreeFilterListWidget(Under(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(CountSiblings(nullptr, 0));
+      _availableFiltersList->AddTreeFilterListWidget(CountChildren(nullptr, 0));
+      _availableFiltersList->AddTreeFilterListWidget(NoChild(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(LevelRange(0, 100));
+      _availableFiltersList->AddTreeFilterListWidget(IfSubTree(nullptr));
+      _availableFiltersList->AddTreeFilterListWidget(IfSibling(nullptr));
    }
 
    /////////////////////////////////////////////////////////////////////////

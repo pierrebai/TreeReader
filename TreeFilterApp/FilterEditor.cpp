@@ -1,5 +1,5 @@
 #include "FilterEditor.h"
-#include "TreeFilterPanel.h"
+#include "TreeFilterListWidget.h"
 #include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
 
@@ -66,7 +66,7 @@ namespace TreeReaderApp
          _filterList->Clear();
          TreeReader::VisitFilters(_edited, true, [self=this](const TreeFilterPtr& filter) -> bool
          {
-            self->_filterList->AddTreeFilterPanel(filter);
+            self->_filterList->AddTreeFilterListWidget(filter);
             return true;
          });
       }
@@ -78,7 +78,7 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = new TreeFilterPanel;
+         _filterList = new TreeFilterListWidget;
          // TODO: drag and drop.
          _filterList->setAcceptDrops(true);
          layout->addWidget(_filterList);
@@ -110,7 +110,7 @@ namespace TreeReaderApp
       FilterEditor& _editor;
       TreeFilterPtr _edited;
 
-      TreeFilterPanel* _filterList;
+      TreeFilterListWidget* _filterList;
 
       int _disableFeedback = 0;
    };
