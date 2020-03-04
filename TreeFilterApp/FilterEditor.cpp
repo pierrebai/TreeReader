@@ -17,6 +17,7 @@
 namespace TreeReaderApp
 {
    using namespace TreeReader;
+   using namespace QtAdditions;
    using namespace std;
 
    namespace
@@ -78,10 +79,11 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = new TreeFilterListWidget([self = this](const TreeFilterPtr& filter, TreeFilterWidget* panel)
+         _filterList = new TreeFilterListWidget([self = this](QWidgetListItem* panel)
          {
             delete panel;
          });
+
          _filterList->setAcceptDrops(true);
          layout->addWidget(_filterList);
 

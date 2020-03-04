@@ -9,6 +9,7 @@ add_definitions(-D_UNICODE)
 
 add_subdirectory(TreeReader)
 add_subdirectory(TreeReaderTests)
+add_subdirectory(QtAdditions)
 add_subdirectory(TreeFilter)
 add_subdirectory(TreeFilterApp)
 

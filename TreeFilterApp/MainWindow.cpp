@@ -14,6 +14,7 @@
 namespace TreeReaderApp
 {
    using namespace TreeReader;
+   using namespace QtAdditions;
    using namespace std;
 
    namespace

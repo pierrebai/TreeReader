@@ -13,11 +13,9 @@ add_executable(TreeFilterApp WIN32
    TreeFilterApp.cpp
    FilterEditor.cpp           FilterEditor.h
    MainWindow.cpp             MainWindow.h
-   QtUtilities.cpp            QtUtilities.h
    TextTreeModel.cpp          TextTreeModel.h
    TreeFilterWidget.cpp       TreeFilterWidget.h
    TreeFilterListWidget.cpp   TreeFilterListWidget.h
-   TreeFilterMimeData.h
 
    Resource.rc             resource.h
 
@@ -26,12 +24,17 @@ add_executable(TreeFilterApp WIN32
    #resources.qrc
 )
 
-target_link_libraries(TreeFilterApp PUBLIC TreeReader Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras)
+target_link_libraries(TreeFilterApp PUBLIC
+   TreeReader
+   QtAdditions
+   Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
+)
 
 target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 
 target_include_directories(TreeFilterApp PUBLIC
    "${PROJECT_SOURCE_DIR}/TreeReader"
+   "${PROJECT_SOURCE_DIR}/QtAdditions"
 )
 
 add_custom_command(TARGET TreeFilterApp POST_BUILD

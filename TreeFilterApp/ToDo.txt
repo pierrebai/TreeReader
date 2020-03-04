@@ -5,3 +5,4 @@ Apply filter when loading a tree.
 Apply filter when modifying filter in UI.
 Add general options panel.
 Add input-line filtering options.
+Tool-tip for delete button.

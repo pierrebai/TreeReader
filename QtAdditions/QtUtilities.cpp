@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-namespace TreeReaderApp
+namespace QtAdditions
 {
    using namespace std;
 

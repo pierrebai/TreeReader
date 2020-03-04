@@ -11,7 +11,7 @@
 #include <QtWidgets/qaction.h>
 #include <QtWidgets/qtoolbutton.h>
 
-namespace TreeReaderApp
+namespace QtAdditions
 {
    // Create toolbar buttons.
    // Note: icon is a bitmap resource ID.

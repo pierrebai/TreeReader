@@ -16,6 +16,7 @@ namespace TreeReaderApp
 {
    using namespace TreeReader;
    using namespace std;
+   using namespace QtAdditions;
 
    namespace
    {
@@ -199,7 +200,7 @@ namespace TreeReaderApp
 
          deleteButton->connect(deleteButton, &QPushButton::clicked, [filter, self=this, delFunc]()
          {
-            delFunc(filter, self);
+            delFunc(self);
          });
       }
 
@@ -208,6 +209,11 @@ namespace TreeReaderApp
          auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
          container_layout->addWidget(includeBox);
       }
+   }
+
+   TreeFilterWidget* TreeFilterWidget::Clone() const
+   {
+      return Clone(nullptr);
    }
 
    TreeFilterWidget* TreeFilterWidget::Clone(DeleteCallbackFunction delFunc) const
