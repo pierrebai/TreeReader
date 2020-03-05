@@ -21,19 +21,19 @@ namespace TreeReaderApp
    //
    // Tree filter panel.
 
-   TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction callback, QWidget* parent)
-   : QWidgetListWidget(parent), DeleteCallback(callback)
+   TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, QWidget* parent)
+   : QWidgetListWidget(parent), DeleteCallback(delCallback), EditCallback(editCallback)
    {
    }
 
    QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, int index)
    {
-      return AddTreeFilter(filter, DeleteCallback, index);
+      return AddTreeFilter(filter, DeleteCallback, EditCallback, index);
    }
 
-   QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction callback, int index)
+   QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, int index)
    {
-      return AddItem(TreeFilterWidget::Create(filter, callback), index);
+      return AddItem(TreeFilterWidget::Create(filter, delCallback, editCallback), index);
    }
 
    vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const
@@ -52,7 +52,7 @@ namespace TreeReaderApp
    QWidgetListItem* TreeFilterListWidget::CloneItem(QWidgetListItem* item) const
    {
       if (auto tfItem = dynamic_cast<TreeFilterWidget *>(item))
-         return tfItem->Clone(DeleteCallback);
+         return tfItem->Clone(DeleteCallback, EditCallback);
       else
          return QWidgetListWidget::CloneItem(item);
    }

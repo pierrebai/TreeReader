@@ -21,20 +21,26 @@ namespace TreeReaderApp
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      typedef std::function<void(TreeFilterWidget * panel)> DeleteCallbackFunction;
+      using CallbackFunction = std::function<void(TreeFilterWidget * panel)>;
+      using DeleteCallbackFunction = CallbackFunction;
+      using EditCallbackFunction = CallbackFunction;
 
       TreeFilterWidget(
          const TreeFilterPtr& filter,
          DeleteCallbackFunction delFunc,
+         EditCallbackFunction editFunc,
          std::wstring* textContent = nullptr,
          bool* includeSelf = nullptr,
          size_t* count = nullptr,
          size_t* count2 = nullptr);
 
       // Create a filter panel UI, with an optional deletion callback.
-      static TreeFilterWidget* Create(const TreeFilterPtr& filter, DeleteCallbackFunction delFunc);
+      static TreeFilterWidget* Create(
+         const TreeFilterPtr& filter,
+         DeleteCallbackFunction delFunc,
+         EditCallbackFunction editFunc);
 
       TreeFilterWidget* Clone() const override;
-      TreeFilterWidget* Clone(DeleteCallbackFunction delFunc) const;
+      TreeFilterWidget* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
    };
 }

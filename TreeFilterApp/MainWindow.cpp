@@ -369,7 +369,7 @@ namespace TreeReaderApp
 
    void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
    {
-      _availableFiltersList->AddTreeFilter(filter, [self=this](TreeFilterWidget* panel)
+      auto delCallback = [self = this](TreeFilterWidget* panel)
       {
          if (!panel)
             return;
@@ -379,7 +379,21 @@ namespace TreeReaderApp
             self->_data.KnownFilters->Remove(named->Name);
             self->_availableFiltersList->RemoveItem(panel);
          }
-      });
+      };
+
+      auto editCallback = [self = this](TreeFilterWidget* panel)
+      {
+         if (!panel)
+            return;
+
+         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
+         {
+            self->_data.Filter = named->Filter;
+            self->_filterEditor->SetEdited(named->Filter);
+         }
+      };
+
+      _availableFiltersList->AddTreeFilter(filter, delCallback, editCallback);
    }
 
    /////////////////////////////////////////////////////////////////////////
