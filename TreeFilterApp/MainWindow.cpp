@@ -280,11 +280,11 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const wstring& action, const wstring& actioning)
    {
-      if (_undoStack.HasUndo() && _data.Trees.size() > 0 && _data.Filter)
+      if (_data.Filtered && !_data.FilteredWasSaved)
       {
          YesNoCancel answer = AskYesNoCancel(
             L::t(L"Unsaved Text Tree Warning"),
-            wstring(L::t(L"The current tree has not been saved.\nDo you want to save it before ")) + actioning + L::t(L"?"),
+            wstring(L::t(L"The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + L::t(L"?"),
             this);
          if (answer == YesNoCancel::Cancel)
             return false;
@@ -316,12 +316,9 @@ namespace TreeReaderApp
       if (!_data.Filtered)
          return true;
 
+      filesystem::path path = AskSave(L::t(L"Save Filtered Text Tree"), L::t(TreeFileTypes), this);
 
-      filesystem::path path = AskSave(L::t(L"Save Text Tree"), L::t(TreeFileTypes), this);
-
-      _data.PushFilteredAsTree();
-      _data.SaveTree(path);
-      _data.PopTree();
+      _data.SaveFilteredTree(path);
 
       return true;
    }

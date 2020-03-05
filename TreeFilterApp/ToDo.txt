@@ -7,5 +7,3 @@ Add general options panel.
 Add input-line filtering options.
 Localisation.
 Use saveState and restoreState on mainWindow.
-Save a filter to a named filter.
-Empty filter should produce do-nothing.

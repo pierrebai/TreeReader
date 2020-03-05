@@ -81,7 +81,9 @@ namespace TreeReader
       {
          if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
          {
-            namedFilter->Filter = named.Get(namedFilter->Name)->Filter;
+            auto targetFilter = named.Get(namedFilter->Name);
+            if (targetFilter)
+               namedFilter->Filter = targetFilter->Filter;
          }
          return true;
       });

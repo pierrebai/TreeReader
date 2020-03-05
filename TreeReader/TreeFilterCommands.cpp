@@ -69,11 +69,14 @@ namespace TreeReader
       }
    }
 
-   void CommandsContext::SaveTree(const filesystem::path& filename)
+   void CommandsContext::SaveFilteredTree(const filesystem::path& filename)
    {
-      TreeFileName = filename;
-      if (Trees.size() > 0 && Trees.back())
-         WriteSimpleTextTree(filesystem::path(TreeFileName), *Trees.back(), Options.OutputLineIndent);
+      FilteredFileName = filename;
+      if (Filtered)
+      {
+         WriteSimpleTextTree(filesystem::path(FilteredFileName), *Filtered, Options.OutputLineIndent);
+         FilteredWasSaved = true;
+      }
    }
 
    void CommandsContext::AppendFilterText(const std::wstring& text)
@@ -143,10 +146,20 @@ namespace TreeReader
 
    void CommandsContext::ApplyFilterToTree()
    {
-      if (Filter && Trees.size() > 0)
+      if (Trees.size() <= 0)
+         return;
+
+      if (Filter)
       {
          Filtered = make_shared<TextTree>();
          FilterTree(*Trees.back(), *Filtered, Filter);
+         FilteredWasSaved = false;
+      }
+      else
+      {
+         Filtered = make_shared<TextTree>(*Trees.back());
+         // Note: pure copy of input tree are considered to have been saved.
+         FilteredWasSaved = true;
       }
    }
 
@@ -155,7 +168,6 @@ namespace TreeReader
       if (Filtered)
       {
          Trees.emplace_back(move(Filtered));
-         Filtered = nullptr;
       }
    }
    
@@ -163,7 +175,6 @@ namespace TreeReader
    {
       if (Trees.size() > 0)
          Trees.pop_back();
-      Filtered = nullptr;
    }
 
    wstring ParseCommands(const wstring& cmdText, CommandsContext& ctx)
@@ -227,7 +238,7 @@ namespace TreeReader
          }
          else if (cmd == L"save" && i + 1 < cmds.size())
          {
-            ctx.SaveTree(cmds[++i]);
+            ctx.SaveFilteredTree(cmds[++i]);
          }
          else if (cmd == L"filter" && i + 1 < cmds.size())
          {
