@@ -5,6 +5,7 @@
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qinputdialog.h>
 
 #include <fstream>
 
@@ -94,6 +95,12 @@ namespace QtAdditions
          default:
             return YesNoCancel::Cancel;
       }
+   }
+
+   wstring AskForText(const wchar_t* title, const wchar_t* label, QWidget* parent)
+   {
+      QString text = QInputDialog::getText(parent, QString::fromWCharArray(title), QString::fromWCharArray(label));
+      return text.toStdWString();
    }
 }
 

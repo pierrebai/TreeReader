@@ -18,6 +18,7 @@ namespace TreeReader
       void Merge(const NamedFilters& other);
       void Add(const std::wstring& name, const TreeFilterPtr& filter);
       NamedFilterPtr Get(const std::wstring& name) const;
+      void Remove(const std::wstring& name);
 
    private:
       std::map<std::wstring, NamedFilterPtr> _filters;

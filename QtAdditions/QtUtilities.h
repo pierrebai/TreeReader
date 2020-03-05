@@ -30,6 +30,9 @@ namespace QtAdditions
    std::filesystem::path AskOpen(const wchar_t* title, const wchar_t* file_types, QWidget* parent);
    std::filesystem::path AskSave(const wchar_t* title, const wchar_t* file_types, QWidget* parent);
 
+   // Ask for text.
+   std::wstring AskForText(const wchar_t* title, const wchar_t* label, QWidget* parent);
+
    // Ask yes/no/cancel.
    enum class YesNoCancel
    {

@@ -22,13 +22,18 @@ namespace TreeReaderApp
    // Tree filter panel.
 
    TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction callback, QWidget* parent)
-   : QWidgetListWidget(callback, parent)
+   : QWidgetListWidget(parent), DeleteCallback(callback)
    {
    }
 
    QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, int index)
    {
-      return AddItem(TreeFilterWidget::Create(filter, DeleteCallback), index);
+      return AddTreeFilter(filter, DeleteCallback, index);
+   }
+
+   QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction callback, int index)
+   {
+      return AddItem(TreeFilterWidget::Create(filter, callback), index);
    }
 
    vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const

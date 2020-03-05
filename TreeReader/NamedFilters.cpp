@@ -15,6 +15,11 @@ namespace TreeReader
          _filters[name] = Named(name, filter);
    }
 
+   void NamedFilters::Remove(const wstring& name)
+   {
+      _filters.erase(name);
+   }
+
    void NamedFilters::Merge(const NamedFilters& other)
    {
       _filters.insert(other.All().begin(), other.All().end());

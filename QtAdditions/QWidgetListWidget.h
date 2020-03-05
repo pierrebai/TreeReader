@@ -16,14 +16,8 @@ namespace QtAdditions
 {
    struct QWidgetListWidget : public QScrollArea
    {
-      // Callback signature when the user wants to delete a filter.
-      // Deleting the panel removes it from the list panel that contains it.
-      typedef std::function<void(QWidgetListItem * panel)> DeleteCallbackFunction;
-
-      DeleteCallbackFunction DeleteCallback;
-
       // Create a widget list widget.
-      QWidgetListWidget(DeleteCallbackFunction callback = {}, QWidget* parent = nullptr);
+      QWidgetListWidget(QWidget* parent = nullptr);
 
       // Clears the list panel of all filters.
       void Clear();

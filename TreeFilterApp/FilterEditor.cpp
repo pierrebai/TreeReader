@@ -68,7 +68,7 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = new TreeFilterListWidget([self = this](QWidgetListItem* panel)
+         _filterList = new TreeFilterListWidget([self = this](TreeFilterWidget* panel)
          {
             delete panel;
          });

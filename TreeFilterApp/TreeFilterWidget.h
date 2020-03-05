@@ -21,7 +21,7 @@ namespace TreeReaderApp
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      typedef std::function<void(QWidgetListItem * panel)> DeleteCallbackFunction;
+      typedef std::function<void(TreeFilterWidget * panel)> DeleteCallbackFunction;
 
       TreeFilterWidget(
          const TreeFilterPtr& filter,

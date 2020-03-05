@@ -21,8 +21,8 @@ namespace QtAdditions
    //
    // Tree item panel.
 
-   QWidgetListWidget::QWidgetListWidget(DeleteCallbackFunction callback, QWidget* parent)
-   : QScrollArea(parent), DeleteCallback(callback)
+   QWidgetListWidget::QWidgetListWidget(QWidget* parent)
+   : QScrollArea(parent)
    {
       _layout = new QVBoxLayout;
       _layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -42,9 +42,8 @@ namespace QtAdditions
 
    void QWidgetListWidget::Clear()
    {
-      for (auto child : children())
-         if (!dynamic_cast<QLayout*>(child))
-            delete child;
+      for (auto child : GetItems())
+         delete child;
    }
 
    QWidgetListItem* QWidgetListWidget::AddItem(QWidgetListItem* item, int index)

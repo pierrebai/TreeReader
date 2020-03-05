@@ -29,7 +29,7 @@ namespace TreeReaderApp
          }
       }
 
-      static constexpr wchar_t TreeFileTypes[] = L"Text files (*.txt);;Log files (*.log)";
+      static constexpr wchar_t TreeFileTypes[] = L"Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -60,10 +60,13 @@ namespace TreeReaderApp
          _saveTreeButton = CreateToolButton(_saveTreeAction);
          toolbar->addWidget(_saveTreeButton);
 
-         // TODO: new icon for filter.
-         _filterTreeAction = CreateAction(L::t(L"Filter Tree"), IDB_FILTER_MOVE_DOWN, QKeySequence(QKeySequence::StandardKey::Find));
-         _filterTreeButton = CreateToolButton(_filterTreeAction);
-         toolbar->addWidget(_filterTreeButton);
+         _applyFilterAction = CreateAction(L::t(L"Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
+         _applyFilterButton = CreateToolButton(_applyFilterAction);
+         toolbar->addWidget(_applyFilterButton);
+
+         _nameFilterAction = CreateAction(L::t(L"Name Filter"), IDB_FILTER_NAME);
+         _nameFilterButton = CreateToolButton(_nameFilterAction);
+         toolbar->addWidget(_nameFilterButton);
 
          toolbar->addSeparator();
 
@@ -149,9 +152,14 @@ namespace TreeReaderApp
          self->SaveFilteredTree();
       });
 
-      _filterTreeAction->connect(_filterTreeAction, &QAction::triggered, [self = this]()
+      _applyFilterAction->connect(_applyFilterAction, &QAction::triggered, [self = this]()
       {
          self->FilterTree();
+      });
+
+      _nameFilterAction->connect(_nameFilterAction, &QAction::triggered, [self = this]()
+      {
+         self->NameFilter();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -226,8 +234,8 @@ namespace TreeReaderApp
 
    void MainWindow::FillAvailableFiltersUI()
    {
-      for (const auto& [name, item] : _data.KnownFilters->All())
-         _availableFiltersList->AddTreeFilter(item);
+      for (const auto& [name, filter] : _data.KnownFilters->All())
+         AddNamedFilterToAvailable(filter);
 
       _availableFiltersList->AddTreeFilter(Accept());
       _availableFiltersList->AddTreeFilter(Stop());
@@ -305,11 +313,15 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveFilteredTree()
    {
-      if (_data.Trees.size() == 0)
+      if (!_data.Filtered)
          return true;
 
+
       filesystem::path path = AskSave(L::t(L"Save Text Tree"), L::t(TreeFileTypes), this);
+
+      _data.PushFilteredAsTree();
       _data.SaveTree(path);
+      _data.PopTree();
 
       return true;
    }
@@ -343,6 +355,35 @@ namespace TreeReaderApp
       CommitToUndo();
    }
 
+   void MainWindow::NameFilter()
+   {
+      auto filter = _filterEditor->GetEdited();
+      if (!filter)
+         return;
+
+      wstring filterName = AskForText(L::t(L"Name a filter"), L::t(L"Filter Name"), this);
+      if (filterName.empty())
+         return;
+
+      auto namedFilter = Named(filterName, filter->Clone());
+      _data.NameFilter(filterName, namedFilter);
+      AddNamedFilterToAvailable(namedFilter);
+   }
+
+   void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
+   {
+      _availableFiltersList->AddTreeFilter(filter, [self=this](TreeFilterWidget* panel)
+      {
+         if (!panel)
+            return;
+
+         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
+         {
+            self->_data.KnownFilters->Remove(named->Name);
+            self->_availableFiltersList->RemoveItem(panel);
+         }
+      });
+   }
 
    /////////////////////////////////////////////////////////////////////////
    //

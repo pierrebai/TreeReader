@@ -62,6 +62,8 @@ namespace TreeReaderApp
 
       // Tree filtering.
       void FilterTree();
+      void NameFilter();
+      void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
 
       // Data.
       CommandsContext _data;
@@ -80,8 +82,11 @@ namespace TreeReaderApp
       QAction* _saveTreeAction = nullptr;
       QToolButton* _saveTreeButton = nullptr;
 
-      QAction* _filterTreeAction = nullptr;
-      QToolButton* _filterTreeButton = nullptr;
+      QAction* _applyFilterAction = nullptr;
+      QToolButton* _applyFilterButton = nullptr;
+
+      QAction* _nameFilterAction = nullptr;
+      QToolButton* _nameFilterButton = nullptr;
 
       // UI elements.
       QTreeView* _treeView = nullptr;

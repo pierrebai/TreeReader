@@ -1,11 +1,11 @@
 Move command-line and debug output to an optional panel in UI.
 Support up/down key to go back to previous text entered in input-command field.
 Add more buttons to the toolbar.
-Apply filter when loading a tree.
-Apply filter when modifying filter in UI.
+Apply filter when loading a tree. (Needed?)
+Apply filter when modifying filter in UI. (Needed?)
 Add general options panel.
 Add input-line filtering options.
 Localisation.
-Convert filter list widget to filter.
 Use saveState and restoreState on mainWindow.
-
+Save a filter to a named filter.
+Empty filter should produce do-nothing.
