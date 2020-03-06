@@ -10,7 +10,7 @@ namespace TreeReader
 
    namespace S1
    {
-      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts)
+      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts, const NamedFilters& named)
       {
          TreeFilterPtr result;
          TreeFilterPtr previous;
@@ -80,7 +80,7 @@ namespace TreeReader
                {
                   const wstring name = move(parts.back());
                   parts.pop_back();
-                  auto filter = Named(name);
+                  auto filter = named.Get(name);
                   AddFilter(filter);
                }
             }
@@ -114,7 +114,7 @@ namespace TreeReader
             }
             else if (part == L"(")
             {
-               auto filter = ConvertTextToFilters(parts);
+               auto filter = ConvertTextToFilters(parts, named);
                AddFilter(filter);
             }
             else if (part == L")")
@@ -214,7 +214,7 @@ namespace TreeReader
       {
          vector<wstring> parts = split(text);
          reverse(parts.begin(), parts.end());
-         TreeFilterPtr filter = ConvertTextToFilters(parts);
+         TreeFilterPtr filter = ConvertTextToFilters(parts, named);
          UpdateNamedFilters(filter, named);
          return filter;
       }

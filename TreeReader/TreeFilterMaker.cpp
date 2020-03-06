@@ -399,7 +399,9 @@ namespace TreeReader
 
          EatClosingBrace(sstream);
 
-         return Named(name);
+         auto named = make_shared<NamedTreeFilter>();
+         named->Name = name;
+         return named;
       }
 
       TreeFilterPtr ConvertTextToFilters(wistringstream& sstream)

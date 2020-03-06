@@ -95,6 +95,19 @@ namespace TreeReaderApp
          });
       }
 
+      TreeFilterPtr DisconnectFilter(TreeFilterPtr filter)
+      {
+         if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         {
+            delegate->Filter = nullptr;
+         }
+         else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+         {
+            combine->Filters.clear();
+         }
+         return filter;
+      }
+
       void UpdateEditedFromUI()
       {
          TreeFilterPtr root;
@@ -102,7 +115,7 @@ namespace TreeReaderApp
 
          for (auto& filter : _filterList->GetTreeFilters())
          {
-            filter = filter->Clone();
+            filter = DisconnectFilter(filter->Clone());
             if (!root)
             {
                root = filter;

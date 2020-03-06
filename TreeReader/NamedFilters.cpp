@@ -9,15 +9,24 @@ namespace TreeReader
 {
    using namespace std;
 
-   void NamedFilters::Add(const std::wstring& name, const TreeFilterPtr& filter)
+   NamedFilterPtr NamedFilters::Add(const std::wstring& name, const TreeFilterPtr& filter)
    {
-      if (filter && !name.empty())
-         _filters[name] = Named(name, filter);
+      if (name.empty())
+         return {};
+
+      NamedFilterPtr named(new NamedTreeFilter(filter, name));
+      _filters[name] = named;
+      return named;
    }
 
-   void NamedFilters::Remove(const wstring& name)
+   bool NamedFilters::Remove(const wstring& name)
    {
-      _filters.erase(name);
+      const auto pos = _filters.find(name);
+      if (pos == _filters.end())
+         return false;
+
+      _filters.erase(pos);
+      return true;
    }
 
    void NamedFilters::Merge(const NamedFilters& other)
@@ -32,6 +41,15 @@ namespace TreeReader
          return {};
 
       return pos->second;
+   }
+
+   TreeFilterPtr NamedFilters::GetDefinition(const std::wstring& name) const
+   {
+      auto named = dynamic_pointer_cast<NamedTreeFilter>(Get(name));
+      if (!named)
+         return {};
+
+      return named->Filter;
    }
 
    void WriteNamedFilters(const filesystem::path& path, const NamedFilters& filters)
@@ -77,13 +95,12 @@ namespace TreeReader
 
    void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named)
    {
-      VisitFilters(filter, [&named](const TreeFilterPtr& filter)
+      VisitFilters(filter, false, [&named](const TreeFilterPtr& filter)
       {
          if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
          {
             auto targetFilter = named.Get(namedFilter->Name);
-            if (targetFilter)
-               namedFilter->Filter = targetFilter->Filter;
+            namedFilter->Filter = targetFilter->Filter;
          }
          return true;
       });

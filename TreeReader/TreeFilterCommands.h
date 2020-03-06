@@ -68,8 +68,8 @@ namespace TreeReader
       std::wstring CreateFilter();
       std::wstring CreateFilter(const std::wstring& filterText);
 
-      void NameFilter(const std::wstring& filterName);
-      void NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
+      NamedFilterPtr NameFilter(const std::wstring& filterName);
+      NamedFilterPtr NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
 
       std::wstring ListNamedFilters();
 

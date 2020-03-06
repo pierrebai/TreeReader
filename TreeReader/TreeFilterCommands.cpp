@@ -114,14 +114,14 @@ namespace TreeReader
       return stream.str();
    }
 
-   void CommandsContext::NameFilter(const std::wstring& filterName)
+   NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName)
    {
-      NameFilter(filterName, Filter);
+      return NameFilter(filterName, Filter);
    }
 
-   void CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
+   NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
    {
-      KnownFilters->Add(filterName, filter);
+      return KnownFilters->Add(filterName, filter);
    }
 
    wstring CommandsContext::ListNamedFilters()

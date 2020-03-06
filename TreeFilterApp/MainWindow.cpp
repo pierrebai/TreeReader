@@ -362,8 +362,7 @@ namespace TreeReaderApp
       if (filterName.empty())
          return;
 
-      auto namedFilter = Named(filterName, filter->Clone());
-      _data.NameFilter(filterName, namedFilter);
+      auto namedFilter = _data.NameFilter(filterName, filter->Clone());
       AddNamedFilterToAvailable(namedFilter);
    }
 
@@ -374,9 +373,11 @@ namespace TreeReaderApp
          if (!panel)
             return;
 
-         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
+         if (!panel->Filter)
+            return;
+
+         if (self->_data.KnownFilters->Remove(panel->Filter->GetName()))
          {
-            self->_data.KnownFilters->Remove(named->Name);
             self->_availableFiltersList->RemoveItem(panel);
          }
       };
