@@ -17,6 +17,17 @@ namespace QtAdditions
 {
    using namespace std;
 
+   namespace
+   {
+      namespace L
+      {
+         inline const wchar_t* t(const wchar_t* text)
+         {
+            return text;
+         }
+      }
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Tree item panel.
@@ -34,6 +45,10 @@ namespace QtAdditions
       _layout->setMargin(2);
       _layout->addStretch(0);
       setLayout(_layout);
+
+      _dropHere = new QLabel(QString::fromWCharArray(L::t(L"Drop items here.")));
+      _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
+      _layout->addWidget(_dropHere);
    }
 
    void QWidgetDragWidget::Clear()
@@ -209,5 +224,20 @@ namespace QtAdditions
       return nullptr;
    }
 
+   void QWidgetDragWidget::childEvent(QChildEvent* event)
+   {
+      QFrame::childEvent(event);
+
+      if (event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded)
+         UpdateDropHereLabel();
+   }
+
+   void QWidgetDragWidget::UpdateDropHereLabel()
+   {
+      if (!_dropHere)
+         return;
+
+      _dropHere->setVisible(GetItems().size() <= 0);
+   }
 }
 

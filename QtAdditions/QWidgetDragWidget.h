@@ -3,6 +3,7 @@
 #include "QWidgetListItem.h"
 
 #include <QtWidgets/qframe.h>
+#include <QtWidgets/qlabel.h>
 
 #include <functional>
 
@@ -38,9 +39,13 @@ namespace QtAdditions
       void dragMoveEvent(QDragMoveEvent* event) override;
       void dropEvent(QDropEvent* event) override;
       void mousePressEvent(QMouseEvent* event) override;
+      void childEvent(QChildEvent* event) override;
 
       QWidgetListItem* FindWidgetAt(const QPoint& pt) const;
 
+      void UpdateDropHereLabel();
+
       QVBoxLayout* _layout = nullptr;
+      QLabel* _dropHere = nullptr;
    };
 }
