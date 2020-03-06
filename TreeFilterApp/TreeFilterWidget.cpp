@@ -261,9 +261,9 @@ namespace TreeReaderApp
 
       if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
       {
-         auto subFilters = new TreeFilterDragWidget(delFunc, editFunc);
-         subFilters->setAcceptDrops(true);
-         container_layout->addWidget(subFilters);
+         SubList = new TreeFilterDragWidget(delFunc, editFunc);
+         SubList->setAcceptDrops(true);
+         container_layout->addWidget(SubList);
       }
    }
 

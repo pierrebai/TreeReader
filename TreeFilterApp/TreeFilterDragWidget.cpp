@@ -42,9 +42,18 @@ namespace TreeReaderApp
 
       vector<TreeFilterPtr> filters;
       for (auto& w : widgets)
+      {
          if (auto tfw = dynamic_cast<TreeFilterWidget*>(w))
+         {
             if (tfw->Filter)
                filters.push_back(tfw->Filter);
+            if (tfw->SubList)
+            {
+               auto sublist = tfw->SubList->GetTreeFilters();
+               filters.insert(filters.end(), sublist.begin(), sublist.end());
+            }
+         }
+      }
 
       return filters;
    }

@@ -1,5 +1,6 @@
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
+#include "TreeFilterDragWidget.h"
 #include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
 
@@ -94,14 +95,59 @@ namespace TreeReaderApp
       {
       }
 
+      static bool IsUnder(const TreeFilterPtr& filter, const TreeFilterPtr& child)
+      {
+         if (filter == child)
+            return true;
+
+         if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+         {
+            for (const auto& c : combine->Filters)
+               if (IsUnder(c, child))
+                  return true;
+         }
+         else if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         {
+            return IsUnder(delegate->Filter, child);
+         }
+
+         return false;
+      }
+
       void FillUI()
       {
          DisableFeedback df(_filterList, _disableFeedback);
 
+         deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterDragWidget*>> combineFilters;
+
          _filterList->Clear();
-         TreeReader::VisitFilters(_edited, true, [self = this](const TreeFilterPtr& filter) -> bool
+         TreeReader::VisitFilters(_edited, true, [self = this, &combineFilters](const TreeFilterPtr& filter) -> bool
          {
-            self->_filterList->AddTreeFilter(filter);
+            QWidgetListItem* widget = nullptr;
+            for (auto& [combineFilter, combineWidget]: combineFilters)
+            {
+               if (IsUnder(combineFilter, filter))
+               {
+                  widget = combineWidget->AddTreeFilter(filter);
+                  break;
+               }
+            }
+
+
+            if (!widget)
+               widget = self->_filterList->AddTreeFilter(filter);
+
+            if (TreeFilterWidget* filterWidget = dynamic_cast<TreeFilterWidget*>(widget))
+            {
+               if (filterWidget->SubList)
+               {
+                  if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+                  {
+                     combineFilters.emplace_front(combine, filterWidget->SubList);
+                  }
+               }
+            }
+
             return true;
          });
       }

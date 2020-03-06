@@ -15,9 +15,12 @@ namespace TreeReaderApp
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using QWidgetListItem = QtAdditions::QWidgetListItem;
 
+   struct TreeFilterDragWidget;
+
    struct TreeFilterWidget : QWidgetListItem
    {
       TreeFilterPtr Filter;
+      TreeFilterDragWidget* SubList = nullptr;
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
