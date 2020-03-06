@@ -13,6 +13,7 @@ add_library(QtAdditions
    QtUtilities.cpp            QtUtilities.h
    QWidgetListItem.cpp        QWidgetListItem.h
    QWidgetListWidget.cpp      QWidgetListWidget.h
+   QWidgetDragWidget.cpp      QWidgetDragWidget.h
    QWidgetListMimeData.h
 )
 

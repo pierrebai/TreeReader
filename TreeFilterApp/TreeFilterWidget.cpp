@@ -1,4 +1,6 @@
 #include "TreeFilterWidget.h"
+#include "TreeFilterListWidget.h"
+#include "TreeFilterDragWidget.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -159,6 +161,7 @@ namespace TreeReaderApp
 
       setToolTip(QString::fromStdWString(filter->GetDescription()));
       setBackgroundRole(QPalette::ColorRole::Base);
+      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 
       auto container_layout = new QVBoxLayout(this);
       container_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -254,6 +257,13 @@ namespace TreeReaderApp
          {
             *includeSelf = includeBox->isChecked();
          });
+      }
+
+      if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+      {
+         auto subFilters = new TreeFilterDragWidget(delFunc, editFunc);
+         subFilters->setAcceptDrops(true);
+         container_layout->addWidget(subFilters);
       }
    }
 

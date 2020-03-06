@@ -1,4 +1,4 @@
-#include "QWidgetListWidget.h"
+#include "QWidgetDragWidget.h"
 #include "QWidgetListMimeData.h"
 #include "QtUtilities.h"
 
@@ -21,39 +21,30 @@ namespace QtAdditions
    //
    // Tree item panel.
 
-   QWidgetListWidget::QWidgetListWidget(bool stretch, QWidget* parent)
-   : QScrollArea(parent)
+   QWidgetDragWidget::QWidgetDragWidget(QWidget* parent)
+   : QFrame(parent)
    {
+      setBackgroundRole(QPalette::ColorRole::Base);
+      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+      setMinimumSize(QSize(20, 20));
+      setFrameStyle(QFrame::Box);
+
       _layout = new QVBoxLayout;
       _layout->setSizeConstraint(QLayout::SetMinimumSize);
       _layout->setMargin(2);
-      if (stretch)
-         _layout->addStretch(1);
-
-      auto container = new QWidget;
-      container->setBackgroundRole(QPalette::ColorRole::Base);
-      container->setLayout(_layout);
-
-      setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-      setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-      setWidget(container);
-      setWidgetResizable(true);
-      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, stretch ? QSizePolicy::MinimumExpanding : QSizePolicy::Minimum));
+      _layout->addStretch(0);
+      setLayout(_layout);
    }
 
-   void QWidgetListWidget::Clear()
+   void QWidgetDragWidget::Clear()
    {
       for (auto child : GetItems())
          delete child;
    }
 
-   QWidgetListItem* QWidgetListWidget::AddItem(QWidgetListItem* item, int index)
+   QWidgetListItem* QWidgetDragWidget::AddItem(QWidgetListItem* item, int index)
    {
       if (!item)
-         return nullptr;
-
-      auto container = widget();
-      if (!container)
          return nullptr;
 
       if (!_layout)
@@ -64,13 +55,13 @@ namespace QtAdditions
 
       _layout->insertWidget(index, item);
 
-      container->setMinimumWidth(max(container->minimumWidth(), item->sizeHint().width()));
+      setMinimumWidth(max(minimumWidth(), item->sizeHint().width()));
       setMinimumWidth(max(minimumWidth(), item->sizeHint().width()));
 
       return item;
    }
 
-   void QWidgetListWidget::RemoveItem(QWidgetListItem* item)
+   void QWidgetDragWidget::RemoveItem(QWidgetListItem* item)
    {
       item->setParent(nullptr);
       _layout->removeWidget(item);
@@ -89,7 +80,7 @@ namespace QtAdditions
             GetItems_(filters, child);
    }
 
-   vector<QWidgetListItem*> QWidgetListWidget::GetItems() const
+   vector<QWidgetListItem*> QWidgetDragWidget::GetItems() const
    {
       vector<QWidgetListItem*> widgets;
 
@@ -107,7 +98,7 @@ namespace QtAdditions
    //
    // Drag and drop.
 
-   QWidgetListItem* QWidgetListWidget::CloneItem(QWidgetListItem* item) const
+   QWidgetListItem* QWidgetDragWidget::CloneItem(QWidgetListItem* item) const
    {
       if (!item)
          return nullptr;
@@ -115,7 +106,7 @@ namespace QtAdditions
       return item->Clone();
    }
 
-   void QWidgetListWidget::dragEnterEvent(QDragEnterEvent* event)
+   void QWidgetDragWidget::dragEnterEvent(QDragEnterEvent* event)
    {
       const QWidgetListMimeData* mime = dynamic_cast<const QWidgetListMimeData*>(event->mimeData());
       if (!mime)
@@ -132,12 +123,12 @@ namespace QtAdditions
       }
    }
 
-   void QWidgetListWidget::dragLeaveEvent(QDragLeaveEvent* event)
+   void QWidgetDragWidget::dragLeaveEvent(QDragLeaveEvent* event)
    {
       event->accept();
    }
 
-   void QWidgetListWidget::dragMoveEvent(QDragMoveEvent* event)
+   void QWidgetDragWidget::dragMoveEvent(QDragMoveEvent* event)
    {
       const QWidgetListMimeData* mime = dynamic_cast<const QWidgetListMimeData*>(event->mimeData());
       if (!mime)
@@ -147,7 +138,7 @@ namespace QtAdditions
       event->accept();
    }
 
-   void QWidgetListWidget::dropEvent(QDropEvent* event)
+   void QWidgetDragWidget::dropEvent(QDropEvent* event)
    {
       const QWidgetListMimeData* mime = dynamic_cast<const QWidgetListMimeData*>(event->mimeData());
       if (!mime)
@@ -185,7 +176,7 @@ namespace QtAdditions
       }
    }
 
-   void QWidgetListWidget::mousePressEvent(QMouseEvent* event)
+   void QWidgetDragWidget::mousePressEvent(QMouseEvent* event)
    {
       QWidgetListItem* widget = FindWidgetAt(event->pos());
       if (!widget)
@@ -209,7 +200,7 @@ namespace QtAdditions
       Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
    }
 
-   QWidgetListItem* QWidgetListWidget::FindWidgetAt(const QPoint& pt) const
+   QWidgetListItem* QWidgetDragWidget::FindWidgetAt(const QPoint& pt) const
    {
       for (auto child = childAt(pt); child; child = child->parentWidget())
          if (auto widget = dynamic_cast<QWidgetListItem*>(child))

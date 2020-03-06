@@ -2,8 +2,7 @@
 
 #include "QWidgetListItem.h"
 
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qscrollarea.h>
+#include <QtWidgets/qframe.h>
 
 #include <functional>
 
@@ -14,10 +13,10 @@ class QVBoxLayout;
 
 namespace QtAdditions
 {
-   struct QWidgetListWidget : public QScrollArea
+   struct QWidgetDragWidget : public QFrame
    {
-      // Create a widget list widget.
-      QWidgetListWidget(bool stretch = true, QWidget* parent = nullptr);
+      // Create a widget drag widget.
+      QWidgetDragWidget(QWidget* parent = nullptr);
 
       // Clears the list panel of all filters.
       void Clear();
@@ -28,7 +27,7 @@ namespace QtAdditions
       // Remove a widget item.
       void RemoveItem(QWidgetListItem* item);
 
-      // Retrieve all widget items kept in the list.
+      // Retrieve all widget items kept in this drag widget.
       std::vector<QWidgetListItem*> GetItems() const;
 
    protected:

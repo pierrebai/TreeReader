@@ -1,4 +1,4 @@
-#include "TreeFilterListWidget.h"
+#include "TreeFilterDragWidget.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -21,22 +21,22 @@ namespace TreeReaderApp
    //
    // Tree filter panel.
 
-   TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, bool stretch, QWidget* parent)
-   : QWidgetListWidget(stretch, parent), DeleteCallback(delCallback), EditCallback(editCallback)
+   TreeFilterDragWidget::TreeFilterDragWidget(DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, QWidget* parent)
+   : QWidgetDragWidget(parent), DeleteCallback(delCallback), EditCallback(editCallback)
    {
    }
 
-   QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, int index)
+   QWidgetListItem* TreeFilterDragWidget::AddTreeFilter(const TreeFilterPtr& filter, int index)
    {
       return AddTreeFilter(filter, DeleteCallback, EditCallback, index);
    }
 
-   QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, int index)
+   QWidgetListItem* TreeFilterDragWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, int index)
    {
       return AddItem(TreeFilterWidget::Create(filter, delCallback, editCallback), index);
    }
 
-   vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const
+   vector<TreeFilterPtr> TreeFilterDragWidget::GetTreeFilters() const
    {
       vector<QWidgetListItem*> widgets = GetItems();
 
@@ -49,12 +49,12 @@ namespace TreeReaderApp
       return filters;
    }
 
-   QWidgetListItem* TreeFilterListWidget::CloneItem(QWidgetListItem* item) const
+   QWidgetListItem* TreeFilterDragWidget::CloneItem(QWidgetListItem* item) const
    {
       if (auto tfItem = dynamic_cast<TreeFilterWidget *>(item))
          return tfItem->Clone(DeleteCallback, EditCallback);
       else
-         return QWidgetListWidget::CloneItem(item);
+         return QWidgetDragWidget::CloneItem(item);
    }
 }
 
