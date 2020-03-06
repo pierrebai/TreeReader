@@ -9,3 +9,4 @@ Localisation.
 Use saveState and restoreState on mainWindow.
 Add filter to undo when deleting it or editing it.
 Merge Drag and list widgets.
+Fix minimum width of lists when sub-lists are modified.

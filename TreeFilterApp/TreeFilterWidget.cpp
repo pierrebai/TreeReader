@@ -250,7 +250,7 @@ namespace TreeReaderApp
       if (includeSelf)
       {
          auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
-         includeBox->setEnabled(active);
+         includeBox->setChecked(active);
          container_layout->addWidget(includeBox);
 
          includeBox->connect(includeBox, &QCheckBox::stateChanged, [includeSelf, includeBox](int)

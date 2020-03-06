@@ -95,12 +95,13 @@ namespace TreeReader
 
    void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named)
    {
-      VisitFilters(filter, false, [&named](const TreeFilterPtr& filter)
+      VisitFilters(filter, [&named](const TreeFilterPtr& filter)
       {
          if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
          {
-            auto targetFilter = named.Get(namedFilter->Name);
-            namedFilter->Filter = targetFilter->Filter;
+            auto targetFilter = named.GetDefinition(namedFilter->Name);
+            if (targetFilter)
+               namedFilter->Filter = targetFilter;
          }
          return true;
       });
