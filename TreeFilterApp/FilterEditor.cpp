@@ -51,12 +51,18 @@ namespace TreeReaderApp
          return _edited;
       }
 
-      void SetEdited(const TreeFilterPtr& ed)
+      wstring GetEditedName() const
       {
-         if (ed == _edited)
+         return _filterName;
+      }
+
+      void SetEdited(const TreeFilterPtr& ed, const wstring& name, bool forced)
+      {
+         if (ed == _edited && !forced)
             return;
 
          _edited = ed;
+         _filterName = name;
 
          FillUI();
       }
@@ -71,6 +77,11 @@ namespace TreeReaderApp
          _filterList = new TreeFilterListWidget([self = this](TreeFilterWidget* panel)
          {
             delete panel;
+            auto filters = self->_filterList->GetTreeFilters();
+            if (filters.size() > 0)
+               self->_edited = filters.back();
+            else
+               self->_edited = nullptr;
          });
 
          _filterList->setAcceptDrops(true);
@@ -95,7 +106,7 @@ namespace TreeReaderApp
          });
       }
 
-      TreeFilterPtr DisconnectFilter(TreeFilterPtr filter)
+      static TreeFilterPtr DisconnectFilter(TreeFilterPtr filter)
       {
          if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
          {
@@ -160,6 +171,7 @@ namespace TreeReaderApp
 
       FilterEditor& _editor;
       TreeFilterPtr _edited;
+      wstring _filterName;
 
       TreeFilterListWidget* _filterList;
 
@@ -175,12 +187,12 @@ namespace TreeReaderApp
    {
    }
 
-   void FilterEditor::SetEdited(const TreeFilterPtr& edited)
+   void FilterEditor::SetEdited(const TreeFilterPtr& edited, const wstring& name, bool forced)
    {
       if (!_ui)
          return;
 
-      _ui->SetEdited(edited);
+      _ui->SetEdited(edited, name, forced);
    }
 
    TreeFilterPtr FilterEditor::GetEdited() const
@@ -189,6 +201,14 @@ namespace TreeReaderApp
          return {};
 
       return _ui->GetEdited();
+   }
+
+   wstring FilterEditor::GetEditedName() const
+   {
+      if (!_ui)
+         return {};
+
+      return _ui->GetEditedName();
    }
 }
 

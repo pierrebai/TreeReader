@@ -9,3 +9,4 @@ Localisation.
 Use saveState and restoreState on mainWindow.
 Remember named filter name when editing.
 Add filter to undo when deleting it or editing it.
+Use recursive TreeFilterListWidget for combine filters.

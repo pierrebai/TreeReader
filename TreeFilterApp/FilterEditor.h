@@ -28,8 +28,11 @@ namespace TreeReaderApp
       FilterEditor(QWidget* parent);
 
       // Set the Filters being edited.
-      void SetEdited(const TreeFilterPtr& edited);
+      void SetEdited(const TreeFilterPtr& edited, const std::wstring& name, bool forced = false);
+
+      // Get the filter being edited.
       TreeFilterPtr GetEdited() const;
+      std::wstring GetEditedName() const;
 
    protected:
       std::unique_ptr<FiltersEditorUI> _ui;

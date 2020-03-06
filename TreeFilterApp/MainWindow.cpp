@@ -229,7 +229,7 @@ namespace TreeReaderApp
 
    void MainWindow::FillFilterEditorUI()
    {
-      _filterEditor->SetEdited(_data.Filter);
+      _filterEditor->SetEdited(_data.Filter, L"");
    }
 
    void MainWindow::FillAvailableFiltersUI()
@@ -316,7 +316,7 @@ namespace TreeReaderApp
       if (!_data.Filtered)
          return true;
 
-      filesystem::path path = AskSave(L::t(L"Save Filtered Text Tree"), L::t(TreeFileTypes), this);
+      filesystem::path path = AskSave(L::t(L"Save Filtered Text Tree"), L::t(TreeFileTypes), L"",  this);
 
       _data.SaveFilteredTree(path);
 
@@ -358,7 +358,9 @@ namespace TreeReaderApp
       if (!filter)
          return;
 
-      wstring filterName = AskForText(L::t(L"Name a filter"), L::t(L"Filter Name"), this);
+      wstring filterName = _filterEditor->GetEditedName();
+
+      filterName = AskForText(L::t(L"Name a filter"), L::t(L"Filter Name"), filterName.c_str(), this);
       if (filterName.empty())
          return;
 
@@ -390,7 +392,7 @@ namespace TreeReaderApp
          if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
          {
             self->_data.Filter = named->Filter;
-            self->_filterEditor->SetEdited(named->Filter);
+            self->_filterEditor->SetEdited(named->Filter, named->Name, true);
          }
       };
 
