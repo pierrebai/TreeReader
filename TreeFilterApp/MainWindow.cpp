@@ -359,6 +359,8 @@ namespace TreeReaderApp
          {
             self->_availableFiltersList->RemoveItem(panel);
          }
+
+         self->CommitToUndo();
       };
 
       auto editCallback = [self = this](TreeFilterListItem* panel)
@@ -371,6 +373,8 @@ namespace TreeReaderApp
             self->_data.Filter = named->Filter;
             self->_filterEditor->SetEdited(named->Filter, named->Name, true);
          }
+
+         self->CommitToUndo();
       };
 
       _availableFiltersList->AddTreeFilter(filter, delCallback, editCallback);

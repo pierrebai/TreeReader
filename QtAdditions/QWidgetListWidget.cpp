@@ -80,7 +80,8 @@ namespace QtAdditions
                });
                if (maxMinWidthPos != items.end())
                {
-                  minWidthSoFar = max(minWidthSoFar, (*maxMinWidthPos)->sizeHint().width());
+                  const int newWidth = (*maxMinWidthPos)->sizeHint().width() + scroll->contentsMargins().left() + scroll->contentsMargins().right();
+                  minWidthSoFar = max(minWidthSoFar, newWidth);
                   scroll->setMinimumWidth(minWidthSoFar);
                }
             }
