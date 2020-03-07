@@ -92,7 +92,6 @@ namespace TreeReaderApp
 
       // UI elements.
       QTreeView* _treeView = nullptr;
-      QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
       TreeFilterListWidget* _availableFiltersList = nullptr;
       QWidgetScrollListWidget* _scrollFiltersList = nullptr;

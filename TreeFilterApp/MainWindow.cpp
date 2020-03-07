@@ -100,20 +100,9 @@ namespace TreeReaderApp
       _treeView->setHeaderHidden(true);
       _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-      auto cmdDock = new QDockWidget(QString::fromWCharArray(L::t(L"Commands")));
-         cmdDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
-         QWidget* cmd_container = new QWidget();
-         QVBoxLayout* cmd_layout = new QVBoxLayout(cmd_container);
-
-         _cmdLine = new QLineEdit(cmd_container);
-         cmd_layout->addWidget(_cmdLine);
-
-         cmdDock->setWidget(cmd_container);
-
       setCentralWidget(_treeView);
       addToolBar(toolbar);
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
-      addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, cmdDock);
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
    }
 
@@ -172,19 +161,6 @@ namespace TreeReaderApp
          self->CommitToUndo();
          self->_data.Filter = self->_filterEditor->GetEdited();
       };
-
-      /////////////////////////////////////////////////////////////////////////
-      //
-      // Command line-edit.
-
-      _cmdLine->connect(_cmdLine, &QLineEdit::editingFinished, [self=this]()
-      {
-         QString text = self->_cmdLine->text();
-         wstring result = ParseCommands(text.toStdWString(), self->_data);
-
-         self->FillTextTreeUI();
-         self->FillFilterEditorUI();
-      });
    }
 
    /////////////////////////////////////////////////////////////////////////
