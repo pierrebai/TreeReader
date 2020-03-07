@@ -78,6 +78,9 @@ namespace TreeReader
       // Verify if there is anything to redo.
       bool HasRedo() const { return _top != _undos.end() && _top != _undos.end() - 1; }
 
+      // Verify if an commit/undo/redo operation is underway.
+      bool IsUndoing() const { return _isUndoing; }
+
       // Return the current full contents of the undo stack.
       const Transactions& Contents() const { return _undos; }
 
@@ -90,6 +93,7 @@ namespace TreeReader
 
       Transactions _undos;
       Transactions::iterator _top;
+      bool _isUndoing = false;
    };
 }
 

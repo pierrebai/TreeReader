@@ -2,6 +2,25 @@
 
 namespace TreeReader
 {
+   namespace
+   {
+      struct Undoing
+      {
+         Undoing(bool& f) : _f(f)
+         {
+            _f = true;
+         }
+
+         ~Undoing()
+         {
+            _f = false;
+         }
+
+      private:
+         bool& _f;
+      };
+   }
+
    // Create an empty undo stack.
    UndoStack::UndoStack()
    : _top(_undos.end())
@@ -36,9 +55,15 @@ namespace TreeReader
    // Deaden the Transaction data.
    void UndoStack::Commit(const Transaction& tr)
    {
+      // Refuse to commit during undo/redo/commit.
+      if (_isUndoing)
+         return;
+
       // If there were undone Transactions, erase them now that we're commiting a new timeline.
       if (HasRedo())
          _undos.erase(_top + 1, _undos.end());
+
+      Undoing undoing(_isUndoing);
 
       _undos.emplace_back(tr);
       _top = _undos.end() - 1;
@@ -55,6 +80,8 @@ namespace TreeReader
       if (!HasUndo())
          return;
 
+      Undoing undoing(_isUndoing);
+
       --_top;
       AwakenTop();
 
@@ -68,6 +95,8 @@ namespace TreeReader
    {
       if (!HasRedo())
          return;
+
+      Undoing undoing(_isUndoing);
 
       ++_top;
       AwakenTop();

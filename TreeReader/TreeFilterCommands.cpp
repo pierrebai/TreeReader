@@ -169,17 +169,9 @@ namespace TreeReader
       _filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
    }
 
-   void CommandsContext::AwakenToEmptyFilters()
-   {
-      // Note: do not call SetFilter as it would put it in undo/redo...
-      _filter = nullptr;
-   }
-
    void CommandsContext::ClearUndoStack()
    {
       _undoRedo.Clear();
-      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-      _undoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
    }
 
    void CommandsContext::CommitFilterToUndo()

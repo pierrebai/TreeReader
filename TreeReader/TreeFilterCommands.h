@@ -72,7 +72,6 @@ namespace TreeReader
    protected:
       void DeadedFilters(std::any& data);
       void AwakenFilters(const std::any& data);
-      void AwakenToEmptyFilters();
       void CommitFilterToUndo();
 
       std::wstring _treeFileName;

@@ -116,6 +116,8 @@ namespace QtAdditions
 
       setMinimumWidth(max(minimumWidth(), item->sizeHint().width() + contentsMargins().left() + contentsMargins().right()));
 
+      PropagateMinimumWidth();
+
       if (_modifCallback)
          _modifCallback(this);
 
@@ -132,28 +134,14 @@ namespace QtAdditions
          _modifCallback(this);
    }
 
-   static void GetItems_(vector<QWidgetListItem*>& filters, const QObject* widget)
-   {
-      if (!widget)
-         return;
-
-      for (auto& child : widget->children())
-         if (auto tfItem = dynamic_cast<QWidgetListItem*>(child))
-            filters.push_back(tfItem);
-         else
-            GetItems_(filters, child);
-   }
-
    vector<QWidgetListItem*> QWidgetListWidget::GetItems() const
    {
       vector<QWidgetListItem*> widgets;
 
-      GetItems_(widgets, this);
-
-      sort(widgets.begin(), widgets.end(), [](QWidgetListItem* lhs, QWidgetListItem* rhs)
-      {
-         return lhs->pos().y() < rhs->pos().y();
-      });
+      const int c = _layout->count();
+      for (int i = 0; i < c; ++i)
+         if (auto w = dynamic_cast<QWidgetListItem*>(_layout->itemAt(i)->widget()))
+            widgets.push_back(w);
 
       return widgets;
    }

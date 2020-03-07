@@ -109,6 +109,9 @@ namespace TreeReaderApp
 
          _scrollFilterList = new QWidgetScrollListWidget(_filterList);
          layout->addWidget(_scrollFilterList);
+
+         // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
+         _undoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
       }
 
       void ConnectUI()
@@ -285,6 +288,7 @@ namespace TreeReaderApp
 
       void DeadedFilters(any& data)
       {
+         UpdateEditedFromUI();
          data = ConvertFiltersToText(_edited);
       }
 
@@ -292,6 +296,12 @@ namespace TreeReaderApp
       {
          auto _knownFilters = make_shared<NamedFilters>(); // TODO REMOVE: pass real known filters to constructor.
          _edited = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);
+         FillUI();
+      }
+
+      void AwakenToEmptyFilters()
+      {
+         _edited = nullptr;
          FillUI();
       }
 

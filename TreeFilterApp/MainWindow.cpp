@@ -124,13 +124,11 @@ namespace TreeReaderApp
       _undoAction->connect(_undoAction, &QAction::triggered, [self=this]()
       {
          self->_data.UndoRedo().Undo();
-         self->FillFilterEditorUI();
       });
 
       _redoAction->connect(_redoAction, &QAction::triggered, [self = this]()
       {
          self->_data.UndoRedo().Redo();
-         self->FillFilterEditorUI();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -182,7 +180,6 @@ namespace TreeReaderApp
          // Ignore.
       }
 
-      _data.ClearUndoStack();
       FillAvailableFiltersUI();
    }
 
