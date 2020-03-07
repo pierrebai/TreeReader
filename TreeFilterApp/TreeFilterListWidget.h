@@ -32,7 +32,7 @@ namespace TreeReaderApp
       QWidgetListItem* AddTreeFilter(const TreeFilterPtr& filter, int index = -1);
       QWidgetListItem* AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, int index = -1);
 
-      // Retrieve all filters kept in the list.
+      // Retrieve all filters kept directly in the list.
       std::vector<TreeFilterPtr> GetTreeFilters() const;
 
    protected:

@@ -38,20 +38,15 @@ namespace TreeReaderApp
 
    vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const
    {
-      vector<QWidgetListItem*> widgets = GetItems();
-
       vector<TreeFilterPtr> filters;
+
+      vector<QWidgetListItem*> widgets = GetItems();
       for (auto& w : widgets)
       {
          if (auto tfw = dynamic_cast<TreeFilterListItem*>(w))
          {
             if (tfw->Filter)
-               filters.push_back(tfw->Filter);
-            if (tfw->SubList)
-            {
-               auto sublist = tfw->SubList->GetTreeFilters();
-               filters.insert(filters.end(), sublist.begin(), sublist.end());
-            }
+               filters.emplace_back(tfw->Filter);
          }
       }
 

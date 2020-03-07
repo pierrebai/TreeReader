@@ -77,6 +77,8 @@ namespace TreeReaderApp
 
          _filterList = new TreeFilterListWidget([self = this](TreeFilterListItem* panel)
          {
+            // When a filter gets deleted, update the edited filter if it is no
+            // longer the root.
             delete panel;
             auto filters = self->_filterList->GetTreeFilters();
             if (filters.size() > 0)
@@ -166,14 +168,18 @@ namespace TreeReaderApp
          return filter;
       }
 
-      void UpdateEditedFromUI()
+      static void FillFiltersFromUI(const std::vector<QWidgetListItem*>& widgets, TreeFilterPtr& root, vector<TreeFilterPtr>& previous)
       {
-         TreeFilterPtr root;
-         vector<TreeFilterPtr> previous;
-
-         for (auto& filter : _filterList->GetTreeFilters())
+         for (auto& widget : widgets)
          {
-            filter = DisconnectFilter(filter->Clone());
+            auto tfw = dynamic_cast<TreeFilterListItem*>(widget);
+            if (!tfw)
+               continue;
+            if (!tfw->Filter)
+               continue;
+
+            auto filter = DisconnectFilter(tfw->Filter->Clone());
+
             if (!root)
             {
                root = filter;
@@ -210,9 +216,31 @@ namespace TreeReaderApp
                }
             }
 
-            previous.push_back(filter);
-         }
+            if (tfw->SubList)
+            {
+               vector<TreeFilterPtr> subPrevious;
+               subPrevious.push_back(filter);
+               FillFiltersFromUI(tfw->SubList->GetItems(), filter, subPrevious);
 
+               // Note: when we have an explicit sub-list, we don't use it as
+               //       the previous implicit combine to put other filters not
+               //       under it in.
+               //
+               //       So we don't put it in the previous stack in this
+               //       level.
+            }
+            else
+            {
+               previous.push_back(filter);
+            }
+         }
+      }
+
+      void UpdateEditedFromUI()
+      {
+         vector<TreeFilterPtr> previous;
+         TreeFilterPtr root;
+         FillFiltersFromUI(_filterList->GetItems(), root, previous);
          _edited = root;
       }
 

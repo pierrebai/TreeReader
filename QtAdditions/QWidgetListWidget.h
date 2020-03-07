@@ -28,7 +28,7 @@ namespace QtAdditions
       // Remove a widget item.
       void RemoveItem(QWidgetListItem* item);
 
-      // Retrieve all widget items kept in this drag widget.
+      // Retrieve all widget items kept directly in this drag widget.
       std::vector<QWidgetListItem*> GetItems() const;
 
    protected:
