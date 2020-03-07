@@ -10,10 +10,10 @@ find_package(Qt5 COMPONENTS Gui REQUIRED)
 find_package(Qt5 COMPONENTS WinExtras REQUIRED)
 
 add_library(QtAdditions
-   QtUtilities.cpp            QtUtilities.h
-   QWidgetListItem.cpp        QWidgetListItem.h
-   QWidgetListWidget.cpp      QWidgetListWidget.h
-   QWidgetDragWidget.cpp      QWidgetDragWidget.h
+   QtUtilities.cpp               QtUtilities.h
+   QWidgetListItem.cpp           QWidgetListItem.h
+   QWidgetScrollListWidget.cpp   QWidgetScrollListWidget.h
+   QWidgetListWidget.cpp         QWidgetListWidget.h
    QWidgetListMimeData.h
 )
 

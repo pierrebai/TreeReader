@@ -1,7 +1,7 @@
 #pragma once
 
 #include "TreeFilter.h"
-#include "TreeFilterWidget.h"
+#include "TreeFilterListItem.h"
 #include "QWidgetListWidget.h"
 
 class QDragEnterEvent;
@@ -18,14 +18,14 @@ namespace TreeReaderApp
    {
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      using CallbackFunction = std::function<void(TreeFilterWidget * panel)> ;
+      using CallbackFunction = std::function<void(TreeFilterListItem * panel)> ;
       using DeleteCallbackFunction = CallbackFunction;
       using EditCallbackFunction = CallbackFunction;
 
       DeleteCallbackFunction DeleteCallback;
       EditCallbackFunction EditCallback;
 
-      // Create a tree filter list widget.
+      // Create a tree filter drag widget.
       TreeFilterListWidget(DeleteCallbackFunction delCallback = {}, EditCallbackFunction editCallback = {}, bool stretch = true, QWidget* parent = nullptr);
 
       // Add a filter panel UI to the given list panel, with an optional deletion callback.

@@ -1,8 +1,8 @@
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
-#include "TreeFilterDragWidget.h"
 #include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
+#include "QWidgetScrollListWidget.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qgridlayout.h>
@@ -75,7 +75,7 @@ namespace TreeReaderApp
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = new TreeFilterListWidget([self = this](TreeFilterWidget* panel)
+         _filterList = new TreeFilterListWidget([self = this](TreeFilterListItem* panel)
          {
             delete panel;
             auto filters = self->_filterList->GetTreeFilters();
@@ -86,9 +86,10 @@ namespace TreeReaderApp
          });
 
          _filterList->setAcceptDrops(true);
-         layout->addWidget(_filterList);
-
          _filterList->setEnabled(true);
+
+         _scrollFilterList = new QWidgetScrollListWidget(_filterList);
+         layout->addWidget(_scrollFilterList);
       }
 
       void ConnectUI()
@@ -118,7 +119,7 @@ namespace TreeReaderApp
       {
          DisableFeedback df(_filterList, _disableFeedback);
 
-         deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterDragWidget*>> combineFilters;
+         deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterListWidget*>> combineFilters;
 
          _filterList->Clear();
          TreeReader::VisitFilters(_edited, true, [self = this, &combineFilters](const TreeFilterPtr& filter) -> bool
@@ -137,7 +138,7 @@ namespace TreeReaderApp
             if (!widget)
                widget = self->_filterList->AddTreeFilter(filter);
 
-            if (TreeFilterWidget* filterWidget = dynamic_cast<TreeFilterWidget*>(widget))
+            if (TreeFilterListItem* filterWidget = dynamic_cast<TreeFilterListItem*>(widget))
             {
                if (filterWidget->SubList)
                {
@@ -220,6 +221,7 @@ namespace TreeReaderApp
       wstring _filterName;
 
       TreeFilterListWidget* _filterList;
+      QWidgetScrollListWidget* _scrollFilterList;
 
       int _disableFeedback = 0;
    };

@@ -15,20 +15,20 @@ namespace TreeReaderApp
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using QWidgetListItem = QtAdditions::QWidgetListItem;
 
-   struct TreeFilterDragWidget;
+   struct TreeFilterListWidget;
 
-   struct TreeFilterWidget : QWidgetListItem
+   struct TreeFilterListItem : QWidgetListItem
    {
       TreeFilterPtr Filter;
-      TreeFilterDragWidget* SubList = nullptr;
+      TreeFilterListWidget* SubList = nullptr;
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      using CallbackFunction = std::function<void(TreeFilterWidget * panel)>;
+      using CallbackFunction = std::function<void(TreeFilterListItem * panel)>;
       using DeleteCallbackFunction = CallbackFunction;
       using EditCallbackFunction = CallbackFunction;
 
-      TreeFilterWidget(
+      TreeFilterListItem(
          const TreeFilterPtr& filter,
          DeleteCallbackFunction delFunc,
          EditCallbackFunction editFunc,
@@ -38,12 +38,12 @@ namespace TreeReaderApp
          size_t* count2 = nullptr);
 
       // Create a filter panel UI, with an optional deletion callback.
-      static TreeFilterWidget* Create(
+      static TreeFilterListItem* Create(
          const TreeFilterPtr& filter,
          DeleteCallbackFunction delFunc,
          EditCallbackFunction editFunc);
 
-      TreeFilterWidget* Clone() const override;
-      TreeFilterWidget* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
+      TreeFilterListItem* Clone() const override;
+      TreeFilterListItem* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
    };
 }

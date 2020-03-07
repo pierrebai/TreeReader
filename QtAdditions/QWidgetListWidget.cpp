@@ -17,28 +17,41 @@ namespace QtAdditions
 {
    using namespace std;
 
+   namespace
+   {
+      namespace L
+      {
+         inline const wchar_t* t(const wchar_t* text)
+         {
+            return text;
+         }
+      }
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Tree item panel.
 
    QWidgetListWidget::QWidgetListWidget(bool stretch, QWidget* parent)
-   : QScrollArea(parent)
+   : QFrame(parent)
    {
+      setBackgroundRole(QPalette::ColorRole::Base);
+      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+      setMinimumSize(QSize(20, 20));
+      if (!stretch)
+         setFrameStyle(QFrame::Box);
+
       _layout = new QVBoxLayout;
       _layout->setSizeConstraint(QLayout::SetMinimumSize);
       _layout->setMargin(2);
+      setLayout(_layout);
+
+      _dropHere = new QLabel(QString::fromWCharArray(L::t(L"Drop items here.")));
+      _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
+      _layout->addWidget(_dropHere);
+
       if (stretch)
-         _layout->addStretch(1);
-
-      auto container = new QWidget;
-      container->setBackgroundRole(QPalette::ColorRole::Base);
-      container->setLayout(_layout);
-
-      setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-      setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-      setWidget(container);
-      setWidgetResizable(true);
-      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, stretch ? QSizePolicy::MinimumExpanding : QSizePolicy::Minimum));
+         _layout->addStretch(0);
    }
 
    void QWidgetListWidget::Clear()
@@ -52,10 +65,6 @@ namespace QtAdditions
       if (!item)
          return nullptr;
 
-      auto container = widget();
-      if (!container)
-         return nullptr;
-
       if (!_layout)
          return nullptr;
 
@@ -64,7 +73,6 @@ namespace QtAdditions
 
       _layout->insertWidget(index, item);
 
-      container->setMinimumWidth(max(container->minimumWidth(), item->sizeHint().width()));
       setMinimumWidth(max(minimumWidth(), item->sizeHint().width()));
 
       return item;
@@ -218,5 +226,20 @@ namespace QtAdditions
       return nullptr;
    }
 
+   void QWidgetListWidget::childEvent(QChildEvent* event)
+   {
+      QFrame::childEvent(event);
+
+      if (event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded)
+         UpdateDropHereLabel();
+   }
+
+   void QWidgetListWidget::UpdateDropHereLabel()
+   {
+      if (!_dropHere)
+         return;
+
+      _dropHere->setVisible(GetItems().size() <= 0);
+   }
 }
 

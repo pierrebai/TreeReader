@@ -1,5 +1,4 @@
 #include "TreeFilterListWidget.h"
-#include "TreeFilterDragWidget.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -34,7 +33,7 @@ namespace TreeReaderApp
 
    QWidgetListItem* TreeFilterListWidget::AddTreeFilter(const TreeFilterPtr& filter, DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, int index)
    {
-      return AddItem(TreeFilterWidget::Create(filter, delCallback, editCallback), index);
+      return AddItem(TreeFilterListItem::Create(filter, delCallback, editCallback), index);
    }
 
    vector<TreeFilterPtr> TreeFilterListWidget::GetTreeFilters() const
@@ -44,7 +43,7 @@ namespace TreeReaderApp
       vector<TreeFilterPtr> filters;
       for (auto& w : widgets)
       {
-         if (auto tfw = dynamic_cast<TreeFilterWidget*>(w))
+         if (auto tfw = dynamic_cast<TreeFilterListItem*>(w))
          {
             if (tfw->Filter)
                filters.push_back(tfw->Filter);
@@ -61,7 +60,7 @@ namespace TreeReaderApp
 
    QWidgetListItem* TreeFilterListWidget::CloneItem(QWidgetListItem* item) const
    {
-      if (auto tfItem = dynamic_cast<TreeFilterWidget *>(item))
+      if (auto tfItem = dynamic_cast<TreeFilterListItem *>(item))
          return tfItem->Clone(DeleteCallback, EditCallback);
       else
          return QWidgetListWidget::CloneItem(item);

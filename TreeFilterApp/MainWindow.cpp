@@ -87,7 +87,8 @@ namespace TreeReaderApp
          QHBoxLayout* filters_layout = new QHBoxLayout(filters_container);
 
          _availableFiltersList = new TreeFilterListWidget;
-         filters_layout->addWidget(_availableFiltersList);
+         _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
+         filters_layout->addWidget(_scrollFiltersList);
 
          _filterEditor = new FilterEditor(filters_container);
          filters_layout->addWidget(_filterEditor);
@@ -370,7 +371,7 @@ namespace TreeReaderApp
 
    void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
    {
-      auto delCallback = [self = this](TreeFilterWidget* panel)
+      auto delCallback = [self = this](TreeFilterListItem* panel)
       {
          if (!panel)
             return;
@@ -384,7 +385,7 @@ namespace TreeReaderApp
          }
       };
 
-      auto editCallback = [self = this](TreeFilterWidget* panel)
+      auto editCallback = [self = this](TreeFilterListItem* panel)
       {
          if (!panel)
             return;

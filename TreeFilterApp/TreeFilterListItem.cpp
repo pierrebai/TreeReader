@@ -1,6 +1,5 @@
-#include "TreeFilterWidget.h"
+#include "TreeFilterListItem.h"
 #include "TreeFilterListWidget.h"
-#include "TreeFilterDragWidget.h"
 #include "QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
@@ -22,8 +21,8 @@ namespace TreeReaderApp
 
    namespace
    {
-      using DeleteCallbackFunction = TreeFilterWidget::DeleteCallbackFunction;
-      using EditCallbackFunction = TreeFilterWidget::EditCallbackFunction;
+      using DeleteCallbackFunction = TreeFilterListItem::DeleteCallbackFunction;
+      using EditCallbackFunction = TreeFilterListItem::EditCallbackFunction;
 
       namespace L
       {
@@ -37,84 +36,84 @@ namespace TreeReaderApp
       //
       // Filter panel creation helpers.
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<AcceptTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<AcceptTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<StopTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<StopTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<UntilTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<UntilTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<ContainsTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<ContainsTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, &filter->Contained);
+         return new TreeFilterListItem(filter, delFunc, editFunc, &filter->Contained);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, &filter->RegexTextForm);
+         return new TreeFilterListItem(filter, delFunc, editFunc, &filter->RegexTextForm);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<NotTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<NotTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<IfSubTreeTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<IfSubTreeTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<IfSiblingTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<IfSiblingTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<CountChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<CountChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<CountSiblingsTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<CountSiblingsTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<OrTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<OrTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<AndTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<AndTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<UnderTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<UnderTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<RemoveChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<RemoveChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<LevelRangeTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<LevelRangeTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr, nullptr, &filter->MinLevel, &filter->MaxLevel);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, nullptr, &filter->MinLevel, &filter->MaxLevel);
       }
 
-      TreeFilterWidget* CreateFilterPanel(const shared_ptr<NamedTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<NamedTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
-         return new TreeFilterWidget(filter, delFunc, editFunc, nullptr);
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
    }
 
@@ -122,7 +121,7 @@ namespace TreeReaderApp
    //
    // Filter panel creation.
 
-   TreeFilterWidget* TreeFilterWidget::Create(
+   TreeFilterListItem* TreeFilterListItem::Create(
       const TreeFilterPtr& filter,
       DeleteCallbackFunction delFunc,
       EditCallbackFunction editFunc)
@@ -151,7 +150,7 @@ namespace TreeReaderApp
       return nullptr;
    }
 
-   TreeFilterWidget::TreeFilterWidget(
+   TreeFilterListItem::TreeFilterListItem(
       const shared_ptr<TreeFilter>& filter,
       DeleteCallbackFunction delFunc, EditCallbackFunction editFunc,
       wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
@@ -261,18 +260,18 @@ namespace TreeReaderApp
 
       if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
       {
-         SubList = new TreeFilterDragWidget(delFunc, editFunc);
+         SubList = new TreeFilterListWidget(delFunc, editFunc, false);
          SubList->setAcceptDrops(true);
          container_layout->addWidget(SubList);
       }
    }
 
-   TreeFilterWidget* TreeFilterWidget::Clone() const
+   TreeFilterListItem* TreeFilterListItem::Clone() const
    {
       return Clone(nullptr, nullptr);
    }
 
-   TreeFilterWidget* TreeFilterWidget::Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const
+   TreeFilterListItem* TreeFilterListItem::Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const
    {
       return Create(Filter->Clone(), delFunc, editFunc);
    }

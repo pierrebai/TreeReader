@@ -2,8 +2,8 @@
 
 #include "QWidgetListItem.h"
 
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qscrollarea.h>
+#include <QtWidgets/qframe.h>
+#include <QtWidgets/qlabel.h>
 
 #include <functional>
 
@@ -14,9 +14,9 @@ class QVBoxLayout;
 
 namespace QtAdditions
 {
-   struct QWidgetListWidget : public QScrollArea
+   struct QWidgetListWidget : public QFrame
    {
-      // Create a widget list widget.
+      // Create a widget drag widget.
       QWidgetListWidget(bool stretch = true, QWidget* parent = nullptr);
 
       // Clears the list panel of all filters.
@@ -28,7 +28,7 @@ namespace QtAdditions
       // Remove a widget item.
       void RemoveItem(QWidgetListItem* item);
 
-      // Retrieve all widget items kept in the list.
+      // Retrieve all widget items kept in this drag widget.
       std::vector<QWidgetListItem*> GetItems() const;
 
    protected:
@@ -39,9 +39,13 @@ namespace QtAdditions
       void dragMoveEvent(QDragMoveEvent* event) override;
       void dropEvent(QDropEvent* event) override;
       void mousePressEvent(QMouseEvent* event) override;
+      void childEvent(QChildEvent* event) override;
 
       QWidgetListItem* FindWidgetAt(const QPoint& pt) const;
 
+      void UpdateDropHereLabel();
+
       QVBoxLayout* _layout = nullptr;
+      QLabel* _dropHere = nullptr;
    };
 }

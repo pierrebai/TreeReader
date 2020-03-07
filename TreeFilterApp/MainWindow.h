@@ -2,6 +2,7 @@
 
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
+#include "QWidgetScrollListWidget.h"
 
 #include "TreeFilterCommands.h"
 #include "UndoStack.h"
@@ -22,6 +23,7 @@ namespace TreeReaderApp
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using CommandsContext = TreeReader::CommandsContext;
    using UndoStack = TreeReader::UndoStack;
+   using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -93,6 +95,7 @@ namespace TreeReaderApp
       QLineEdit* _cmdLine = nullptr;
       FilterEditor* _filterEditor = nullptr;
       TreeFilterListWidget* _availableFiltersList = nullptr;
+      QWidgetScrollListWidget* _scrollFiltersList = nullptr;
    };
 }
 

@@ -8,5 +8,5 @@ Add input-line filtering options.
 Localisation.
 Use saveState and restoreState on mainWindow.
 Add filter to undo when deleting it or editing it.
-Merge Drag and list widgets.
 Fix minimum width of lists when sub-lists are modified.
+Make drag and drop not copy between lists of the same tree.
