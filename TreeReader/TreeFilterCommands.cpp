@@ -9,6 +9,10 @@ namespace TreeReader
 {
    using namespace std;
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Tree loading and saving.
+
    void CommandsContext::SetInputFilter(const std::wstring& filterRegex)
    {
       Options.ReadOptions.InputFilter = filterRegex;
@@ -49,11 +53,38 @@ namespace TreeReader
       }
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Current filter.
+
    void CommandsContext::SetFilter(const TreeFilterPtr& filter)
    {
       Filter = filter;
-      CommitToUndo();
+      CommitFilterToUndo();
    }
+
+   void CommandsContext::ApplyFilterToTree()
+   {
+      if (Trees.size() <= 0)
+         return;
+
+      if (Filter)
+      {
+         Filtered = make_shared<TextTree>();
+         FilterTree(*Trees.back(), *Filtered, Filter);
+         FilteredWasSaved = false;
+      }
+      else
+      {
+         Filtered = make_shared<TextTree>(*Trees.back());
+         // Note: pure copy of input tree are considered to have been saved.
+         FilteredWasSaved = true;
+      }
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Named filters management.
 
    NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName)
    {
@@ -92,24 +123,9 @@ namespace TreeReader
       KnownFilters->Merge(filters);
    }
 
-   void CommandsContext::ApplyFilterToTree()
-   {
-      if (Trees.size() <= 0)
-         return;
-
-      if (Filter)
-      {
-         Filtered = make_shared<TextTree>();
-         FilterTree(*Trees.back(), *Filtered, Filter);
-         FilteredWasSaved = false;
-      }
-      else
-      {
-         Filtered = make_shared<TextTree>(*Trees.back());
-         // Note: pure copy of input tree are considered to have been saved.
-         FilteredWasSaved = true;
-      }
-   }
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Current text tree and filtered tree.
 
    std::shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
    {
@@ -138,16 +154,9 @@ namespace TreeReader
          Trees.pop_back();
    }
    
-   void CommandsContext::ClearUndoStack()
-   {
-      UndoRedo.Clear();
-      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-      UndoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
-   }
-
    /////////////////////////////////////////////////////////////////////////
    //
-   // Undo / redo tool-bar buttons.
+   // Undo / redo.
 
    void CommandsContext::DeadedFilters(any& data)
    {
@@ -166,7 +175,14 @@ namespace TreeReader
       Filter = nullptr;
    }
 
-   void CommandsContext::CommitToUndo()
+   void CommandsContext::ClearUndoStack()
+   {
+      UndoRedo.Clear();
+      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
+      UndoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
+   }
+
+   void CommandsContext::CommitFilterToUndo()
    {
       UndoRedo.Commit(
          {

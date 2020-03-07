@@ -27,13 +27,11 @@ namespace TreeReader
 
    struct CommandsContext
    {
+      // Options.
+
       CommandsOptions Options;
 
-      bool operator!=(const CommandsContext& other) const
-      {
-         return Options       != other.Options
-             || TreeFileName  != other.TreeFileName;
-      }
+      // Tree loading and saving.
 
       void SetInputFilter(const std::wstring& filterRegex);
       void SetInputIndent(const std::wstring& indentText);
@@ -43,8 +41,13 @@ namespace TreeReader
       void CommandsContext::SaveFilteredTree(const std::filesystem::path& filename);
       bool IsFilteredTreeSaved() const { return FilteredWasSaved; }
 
+      // Current filter.
+
       void SetFilter(const TreeFilterPtr& filter);
       const TreeFilterPtr& GetFilter() const { return Filter; }
+      void ApplyFilterToTree();
+
+      // Named filters management.
 
       NamedFilterPtr NameFilter(const std::wstring& filterName);
       NamedFilterPtr NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
@@ -54,15 +57,16 @@ namespace TreeReader
       void SaveNamedFilters(const std::filesystem::path& filename);
       void LoadNamedFilters(const std::filesystem::path& filename);
 
-      void ApplyFilterToTree();
+      // Current text tree and filtered tree.
 
       std::shared_ptr<TextTree> GetCurrentTree() const;
       std::shared_ptr<TextTree> GetFilteredTree() const;
       void PushFilteredAsTree();
       void PopTree();
 
+      // Undo / redo.
+
       void ClearUndoStack();
-      void CommitToUndo();
       void Undo();
       void Redo();
       bool HasUndo() const;
@@ -72,6 +76,7 @@ namespace TreeReader
       void DeadedFilters(std::any& data);
       void AwakenFilters(const std::any& data);
       void AwakenToEmptyFilters();
+      void CommitFilterToUndo();
 
       std::wstring TreeFileName;
       std::vector<std::shared_ptr<TextTree>> Trees;

@@ -48,12 +48,7 @@ namespace TreeReaderApp
       void FillAvailableFiltersUI();
 
       // Undo / redo tool-bar buttons.
-      void DeadedFilters(std::any& data);
       void UpdateUndoRedoActions();
-      void AwakenFilters(const std::any& data);
-      void AwakenToEmptyFilters();
-      void ClearUndoStack();
-      void CommitToUndo();
 
       // Closing and saving.
       void closeEvent(QCloseEvent* ev);
