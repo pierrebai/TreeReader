@@ -30,11 +30,11 @@ namespace TreeReader
 
    wstring CommandsContext::LoadTree(const filesystem::path& filename)
    {
-      TreeFileName = filename;
-      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(TreeFileName), Options.ReadOptions));
+      _treeFileName = filename;
+      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(_treeFileName), Options.ReadOptions));
       if (newTree && newTree->Roots.size() > 0)
       {
-         Trees.emplace_back(move(newTree));
+         _trees.emplace_back(move(newTree));
          return {};
       }
       else
@@ -45,11 +45,11 @@ namespace TreeReader
 
    void CommandsContext::SaveFilteredTree(const filesystem::path& filename)
    {
-      FilteredFileName = filename;
-      if (Filtered)
+      _filteredFileName = filename;
+      if (_filtered)
       {
-         WriteSimpleTextTree(filesystem::path(FilteredFileName), *Filtered, Options.OutputLineIndent);
-         FilteredWasSaved = true;
+         WriteSimpleTextTree(filesystem::path(_filteredFileName), *_filtered, Options.OutputLineIndent);
+         _filteredWasSaved = true;
       }
    }
 
@@ -59,26 +59,26 @@ namespace TreeReader
 
    void CommandsContext::SetFilter(const TreeFilterPtr& filter)
    {
-      Filter = filter;
+      _filter = filter;
       CommitFilterToUndo();
    }
 
    void CommandsContext::ApplyFilterToTree()
    {
-      if (Trees.size() <= 0)
+      if (_trees.size() <= 0)
          return;
 
-      if (Filter)
+      if (_filter)
       {
-         Filtered = make_shared<TextTree>();
-         FilterTree(*Trees.back(), *Filtered, Filter);
-         FilteredWasSaved = false;
+         _filtered = make_shared<TextTree>();
+         FilterTree(*_trees.back(), *_filtered, _filter);
+         _filteredWasSaved = false;
       }
       else
       {
-         Filtered = make_shared<TextTree>(*Trees.back());
+         _filtered = make_shared<TextTree>(*_trees.back());
          // Note: pure copy of input tree are considered to have been saved.
-         FilteredWasSaved = true;
+         _filteredWasSaved = true;
       }
    }
 
@@ -88,24 +88,24 @@ namespace TreeReader
 
    NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName)
    {
-      return NameFilter(filterName, Filter);
+      return NameFilter(filterName, _filter);
    }
 
    NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
    {
-      return KnownFilters->Add(filterName, filter);
+      return _knownFilters->Add(filterName, filter);
    }
 
    bool CommandsContext::RemoveNamedFilter(const std::wstring& filterName)
    {
-      return KnownFilters->Remove(filterName);
+      return _knownFilters->Remove(filterName);
    }
 
    vector<NamedFilterPtr> CommandsContext::GetNamedFilters() const
    {
       vector<NamedFilterPtr> filters;
 
-      for (const auto& [name, filter] : KnownFilters->All())
+      for (const auto& [name, filter] : _knownFilters->All())
          filters.push_back(filter);
 
       return filters;
@@ -113,14 +113,14 @@ namespace TreeReader
 
    void CommandsContext::SaveNamedFilters(const std::filesystem::path& filename)
    {
-      if (KnownFilters->All().size() > 0)
-         WriteNamedFilters(filename, *KnownFilters);
+      if (_knownFilters->All().size() > 0)
+         WriteNamedFilters(filename, *_knownFilters);
    }
 
    void CommandsContext::LoadNamedFilters(const std::filesystem::path& filename)
    {
       auto filters = ReadNamedFilters(filename);
-      KnownFilters->Merge(filters);
+      _knownFilters->Merge(filters);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -129,29 +129,29 @@ namespace TreeReader
 
    std::shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
    {
-      if (Trees.size() <= 0)
+      if (_trees.size() <= 0)
          return {};
 
-      return Trees.back();
+      return _trees.back();
    }
 
    std::shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
    {
-      return Filtered;
+      return _filtered;
    }
 
    void CommandsContext::PushFilteredAsTree()
    {
-      if (Filtered)
+      if (_filtered)
       {
-         Trees.emplace_back(move(Filtered));
+         _trees.emplace_back(move(_filtered));
       }
    }
    
    void CommandsContext::PopTree()
    {
-      if (Trees.size() > 0)
-         Trees.pop_back();
+      if (_trees.size() > 0)
+         _trees.pop_back();
    }
    
    /////////////////////////////////////////////////////////////////////////
@@ -160,56 +160,36 @@ namespace TreeReader
 
    void CommandsContext::DeadedFilters(any& data)
    {
-      data = ConvertFiltersToText(Filter);
+      data = ConvertFiltersToText(_filter);
    }
 
    void CommandsContext::AwakenFilters(const any& data)
    {
       // Note: do not call SetFilter as it would put it in undo/redo...
-      Filter = ConvertTextToFilters(any_cast<wstring>(data), *KnownFilters);;
+      _filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
    }
 
    void CommandsContext::AwakenToEmptyFilters()
    {
       // Note: do not call SetFilter as it would put it in undo/redo...
-      Filter = nullptr;
+      _filter = nullptr;
    }
 
    void CommandsContext::ClearUndoStack()
    {
-      UndoRedo.Clear();
+      _undoRedo.Clear();
       // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-      UndoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
+      _undoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
    }
 
    void CommandsContext::CommitFilterToUndo()
    {
-      UndoRedo.Commit(
+      _undoRedo.Commit(
          {
-            ConvertFiltersToText(Filter),
+            ConvertFiltersToText(_filter),
             [self = this](any& data) { self->DeadedFilters(data); },
             [self = this](const any& data) { self->AwakenFilters(data); }
          });
    }
-     
-   void CommandsContext::Undo()
-   {
-      UndoRedo.Undo();
-   }
-
-   void CommandsContext::Redo()
-   {
-      UndoRedo.Redo();
-   }
-
-   bool CommandsContext::HasUndo() const
-   {
-      return UndoRedo.HasUndo();
-   }
-
-
-   bool CommandsContext::HasRedo() const
-   {
-      return UndoRedo.HasRedo();
-   }
+    
 }

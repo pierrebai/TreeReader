@@ -118,14 +118,14 @@ namespace TreeReaderApp
 
       _undoAction->connect(_undoAction, &QAction::triggered, [self=this]()
       {
-         self->_data.Undo();
+         self->_data.UndoRedo().Undo();
          self->FillFilterEditorUI();
          self->UpdateUndoRedoActions();
       });
 
       _redoAction->connect(_redoAction, &QAction::triggered, [self = this]()
       {
-         self->_data.Redo();
+         self->_data.UndoRedo().Redo();
          self->FillFilterEditorUI();
          self->UpdateUndoRedoActions();
       });
@@ -366,8 +366,8 @@ namespace TreeReaderApp
 
    void MainWindow::UpdateUndoRedoActions()
    {
-      _undoAction->setEnabled(_data.HasUndo());
-      _redoAction->setEnabled(_data.HasRedo());
+      _undoAction->setEnabled(_data.UndoRedo().HasUndo());
+      _redoAction->setEnabled(_data.UndoRedo().HasRedo());
    }
 
 }

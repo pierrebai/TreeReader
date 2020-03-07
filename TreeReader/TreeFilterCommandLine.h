@@ -38,7 +38,7 @@ namespace TreeReader
       bool operator!=(const CommandLine& other) const
       {
          return Options       != other.Options
-             || TreeFileName  != other.TreeFileName
+             || _treeFileName  != other._treeFileName
              || UseV1         != other.UseV1
              || IsInteractive != other.IsInteractive
              || Debug         != other.Debug;

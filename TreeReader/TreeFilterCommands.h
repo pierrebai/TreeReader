@@ -39,12 +39,12 @@ namespace TreeReader
 
       std::wstring LoadTree(const std::filesystem::path& filename);
       void CommandsContext::SaveFilteredTree(const std::filesystem::path& filename);
-      bool IsFilteredTreeSaved() const { return FilteredWasSaved; }
+      bool IsFilteredTreeSaved() const { return _filteredWasSaved; }
 
       // Current filter.
 
       void SetFilter(const TreeFilterPtr& filter);
-      const TreeFilterPtr& GetFilter() const { return Filter; }
+      const TreeFilterPtr& GetFilter() const { return _filter; }
       void ApplyFilterToTree();
 
       // Named filters management.
@@ -67,10 +67,7 @@ namespace TreeReader
       // Undo / redo.
 
       void ClearUndoStack();
-      void Undo();
-      void Redo();
-      bool HasUndo() const;
-      bool HasRedo() const;
+      UndoStack& UndoRedo() { return _undoRedo; }
 
    protected:
       void DeadedFilters(std::any& data);
@@ -78,18 +75,18 @@ namespace TreeReader
       void AwakenToEmptyFilters();
       void CommitFilterToUndo();
 
-      std::wstring TreeFileName;
-      std::vector<std::shared_ptr<TextTree>> Trees;
+      std::wstring _treeFileName;
+      std::vector<std::shared_ptr<TextTree>> _trees;
 
-      TreeFilterPtr Filter;
+      TreeFilterPtr _filter;
 
-      std::wstring FilteredFileName;
-      std::shared_ptr<TextTree> Filtered;
-      bool FilteredWasSaved = false;
+      std::wstring _filteredFileName;
+      std::shared_ptr<TextTree> _filtered;
+      bool _filteredWasSaved = false;
 
-      std::shared_ptr<NamedFilters> KnownFilters = std::make_shared<NamedFilters>();
+      std::shared_ptr<NamedFilters> _knownFilters = std::make_shared<NamedFilters>();
 
-      UndoStack UndoRedo;
+      UndoStack _undoRedo;
 
    };
 

@@ -60,13 +60,13 @@ namespace TreeReader
       wostringstream stream;
 
       SetFilter(UseV1
-               ? ConvertTextToFilters(filterText, *KnownFilters)
-               : ConvertSimpleTextToFilters(filterText, *KnownFilters));
+               ? ConvertTextToFilters(filterText, *_knownFilters)
+               : ConvertSimpleTextToFilters(filterText, *_knownFilters));
 
       if (Debug)
       {
-         if (Filter)
-            stream << L"Filters: " << ConvertFiltersToText(Filter) << endl;
+         if (_filter)
+            stream << L"Filters: " << ConvertFiltersToText(_filter) << endl;
          else
             stream << L"Invalid filter: " << filterText << endl;
       }
@@ -76,7 +76,7 @@ namespace TreeReader
    wstring CommandLine::ListNamedFilters()
    {
       wostringstream sstream;
-      for (const auto& [name, filter] : KnownFilters->All())
+      for (const auto& [name, filter] : _knownFilters->All())
          sstream << name << endl;
       return sstream.str();
    }
@@ -192,10 +192,10 @@ namespace TreeReader
 
       const bool optionsChanged = (previousCtx.Options != Options);
       const bool readOptionsChanged = (previousCtx.Options.ReadOptions != Options.ReadOptions);
-      const bool fileChanged = (previousCtx.TreeFileName != TreeFileName);
+      const bool fileChanged = (previousCtx._treeFileName != _treeFileName);
       const bool filterTextChanged = (previousCtx.FilterText != FilterText || previousCtx.UseV1 != UseV1);
-      const bool filterChanged = (filterTextChanged || previousCtx.Filter != Filter);
-      const bool treeChanged = (previousCtx.Trees.size() != Trees.size() || (previousCtx.Trees.size() > 0 && previousCtx.Trees.back() != Trees.back()));
+      const bool filterChanged = (filterTextChanged || previousCtx._filter != _filter);
+      const bool treeChanged = (previousCtx._trees.size() != _trees.size() || (previousCtx._trees.size() > 0 && previousCtx._trees.back() != _trees.back()));
 
       if (filterTextChanged)
          result += CreateFilter();
