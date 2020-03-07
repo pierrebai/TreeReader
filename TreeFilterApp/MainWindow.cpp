@@ -116,16 +116,18 @@ namespace TreeReaderApp
       //
       // Undo / redo actions.
 
-      _undoAction->connect(_undoAction, &QAction::triggered, [&]()
+      _undoAction->connect(_undoAction, &QAction::triggered, [self=this]()
       {
-         _undoStack.Undo();
-         UpdateUndoRedoActions();
+         self->_data.Undo();
+         self->FillFilterEditorUI();
+         self->UpdateUndoRedoActions();
       });
 
-      _redoAction->connect(_redoAction, &QAction::triggered, [&]()
+      _redoAction->connect(_redoAction, &QAction::triggered, [self = this]()
       {
-         _undoStack.Redo();
-         UpdateUndoRedoActions();
+         self->_data.Redo();
+         self->FillFilterEditorUI();
+         self->UpdateUndoRedoActions();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -158,8 +160,7 @@ namespace TreeReaderApp
 
       _filterEditor->FilterChanged = [self=this](const TreeFilterPtr& filter)
       {
-         self->CommitToUndo();
-         self->_data.Filter = self->_filterEditor->GetEdited();
+         self->_data.SetFilter(self->_filterEditor->GetEdited());
       };
    }
 
@@ -171,27 +172,27 @@ namespace TreeReaderApp
    {
       try
       {
-         *_data.KnownFilters = ReadNamedFilters(L"filters.txt");
+         _data.LoadNamedFilters(L"filters.txt");
       }
       catch (const exception &)
       {
          // Ignore.
       }
 
-      ClearUndoStack();
+      _data.ClearUndoStack();
       FillAvailableFiltersUI();
    }
 
    void MainWindow::FillTextTreeUI()
    {
       shared_ptr<TextTree> newTree;
-      if (_data.Filtered)
+      if (_data.GetFilteredTree())
       {
-         newTree = _data.Filtered;
+         newTree = _data.GetFilteredTree();
       }
-      else if (_data.Trees.size() > 0)
+      else
       {
-         newTree = _data.Trees.back();
+         newTree = _data.GetCurrentTree();
       }
 
       if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
@@ -200,18 +201,16 @@ namespace TreeReaderApp
          model->Tree = newTree;
          _treeView->setModel(model);
       }
-
-      CommitToUndo();
    }
 
    void MainWindow::FillFilterEditorUI()
    {
-      _filterEditor->SetEdited(_data.Filter, L"");
+      _filterEditor->SetEdited(_data.GetFilter(), L"");
    }
 
    void MainWindow::FillAvailableFiltersUI()
    {
-      for (const auto& [name, filter] : _data.KnownFilters->All())
+      for (const auto& filter : _data.GetNamedFilters())
          AddNamedFilterToAvailable(filter);
 
       _availableFiltersList->AddTreeFilter(Accept());
@@ -231,6 +230,39 @@ namespace TreeReaderApp
       _availableFiltersList->AddTreeFilter(IfSibling(nullptr));
    }
 
+   void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
+   {
+      auto delCallback = [self = this](TreeFilterListItem* panel)
+      {
+         if (!panel)
+            return;
+
+         if (!panel->Filter)
+            return;
+
+         if (self->_data.RemoveNamedFilter(panel->Filter->GetName()))
+         {
+            self->_availableFiltersList->RemoveItem(panel);
+         }
+         self->UpdateUndoRedoActions();
+      };
+
+      auto editCallback = [self = this](TreeFilterListItem* panel)
+      {
+         if (!panel)
+            return;
+
+         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
+         {
+            self->_data.SetFilter(named->Filter);
+            self->_filterEditor->SetEdited(named->Filter, named->Name, true);
+            self->UpdateUndoRedoActions();
+         }
+      };
+
+      _availableFiltersList->AddTreeFilter(filter, delCallback, editCallback);
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Closing and saving.
@@ -242,7 +274,7 @@ namespace TreeReaderApp
          QWidget::closeEvent(ev);
          try
          {
-            WriteNamedFilters(L"filters.txt", *_data.KnownFilters);
+            _data.SaveNamedFilters(L"filters.txt");
          }
          catch (const exception&)
          {
@@ -257,7 +289,7 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const wstring& action, const wstring& actioning)
    {
-      if (_data.Filtered && !_data.FilteredWasSaved)
+      if (_data.GetFilteredTree() && !_data.IsFilteredTreeSaved())
       {
          YesNoCancel answer = AskYesNoCancel(
             L::t(L"Unsaved Text Tree Warning"),
@@ -282,15 +314,16 @@ namespace TreeReaderApp
       _data.LoadTree(path);
       _data.ApplyFilterToTree();
 
-      if (_data.Trees.size() == 0)
+      if (_data.GetCurrentTree() ==  nullptr)
          return;
 
       FillTextTreeUI();
+      UpdateUndoRedoActions();
    }
 
    bool MainWindow::SaveFilteredTree()
    {
-      if (!_data.Filtered)
+      if (!_data.GetFilteredTree())
          return true;
 
       filesystem::path path = AskSave(L::t(L"Save Filtered Text Tree"), L::t(TreeFileTypes), L"",  this);
@@ -306,27 +339,10 @@ namespace TreeReaderApp
 
    void MainWindow::FilterTree()
    {
-      _data.Filter = _filterEditor->GetEdited();
+      _data.SetFilter(_filterEditor->GetEdited());
       _data.ApplyFilterToTree();
-
-      shared_ptr<TextTree> newTree;
-      if (_data.Filtered)
-      {
-         newTree = _data.Filtered;
-      }
-      else if (_data.Trees.size() > 0)
-      {
-         newTree = _data.Trees.back();
-      }
-
-      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
-      {
-         TextTreeModel* model = new TextTreeModel;
-         model->Tree = newTree;
-         _treeView->setModel(model);
-      }
-
-      CommitToUndo();
+      FillTextTreeUI();
+      UpdateUndoRedoActions();
    }
 
    void MainWindow::NameFilter()
@@ -343,88 +359,13 @@ namespace TreeReaderApp
 
       auto namedFilter = _data.NameFilter(filterName, filter->Clone());
       AddNamedFilterToAvailable(namedFilter);
-   }
-
-   void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
-   {
-      auto delCallback = [self = this](TreeFilterListItem* panel)
-      {
-         if (!panel)
-            return;
-
-         if (!panel->Filter)
-            return;
-
-         if (self->_data.KnownFilters->Remove(panel->Filter->GetName()))
-         {
-            self->_availableFiltersList->RemoveItem(panel);
-         }
-
-         self->CommitToUndo();
-      };
-
-      auto editCallback = [self = this](TreeFilterListItem* panel)
-      {
-         if (!panel)
-            return;
-
-         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
-         {
-            self->_data.Filter = named->Filter;
-            self->_filterEditor->SetEdited(named->Filter, named->Name, true);
-         }
-
-         self->CommitToUndo();
-      };
-
-      _availableFiltersList->AddTreeFilter(filter, delCallback, editCallback);
-   }
-
-   /////////////////////////////////////////////////////////////////////////
-   //
-   // Undo / redo tool-bar buttons.
-
-   void MainWindow::DeadedFilters(any& data)
-   {
-      data = ConvertFiltersToText(_data.Filter);
-   }
-
-   void MainWindow::AwakenFilters(const any& data)
-   {
-      _data.Filter = ConvertTextToFilters(any_cast<wstring>(data), *_data.KnownFilters);;
-
-      FillFilterEditorUI();
-   }
-
-   void MainWindow::AwakenToEmptyFilters()
-   {
-      _data.Filter = nullptr;
-
-      FillFilterEditorUI();
-   }
-
-   void MainWindow::ClearUndoStack()
-   {
-      _undoStack.Clear();
-      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-      _undoStack.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
-   }
-
-   void MainWindow::CommitToUndo()
-   {
-      _undoStack.Commit(
-      {
-         ConvertFiltersToText(_data.Filter),
-         [self=this](any& data) { self->DeadedFilters(data); },
-         [self=this](const any& data) { self->AwakenFilters(data); }
-      });
       UpdateUndoRedoActions();
    }
 
    void MainWindow::UpdateUndoRedoActions()
    {
-      _undoAction->setEnabled(_undoStack.HasUndo());
-      _redoAction->setEnabled(_undoStack.HasRedo());
+      _undoAction->setEnabled(_data.HasUndo());
+      _redoAction->setEnabled(_data.HasRedo());
    }
 
 }

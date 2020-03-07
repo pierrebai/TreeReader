@@ -100,9 +100,9 @@ namespace TreeReader
    {
       wostringstream stream;
 
-      Filter = Options.UseV1
+      SetFilter(Options.UseV1
              ? ConvertTextToFilters(filterText, *KnownFilters)
-             : ConvertSimpleTextToFilters(filterText, *KnownFilters);
+             : ConvertSimpleTextToFilters(filterText, *KnownFilters));
 
       if (Options.Debug)
       {
@@ -114,6 +114,12 @@ namespace TreeReader
       return stream.str();
    }
 
+   void CommandsContext::SetFilter(const TreeFilterPtr& filter)
+   {
+      Filter = filter;
+      CommitToUndo();
+   }
+
    NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName)
    {
       return NameFilter(filterName, Filter);
@@ -122,6 +128,21 @@ namespace TreeReader
    NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
    {
       return KnownFilters->Add(filterName, filter);
+   }
+
+   bool CommandsContext::RemoveNamedFilter(const std::wstring& filterName)
+   {
+      return KnownFilters->Remove(filterName);
+   }
+
+   vector<NamedFilterPtr> CommandsContext::GetNamedFilters() const
+   {
+      vector<NamedFilterPtr> filters;
+
+      for (const auto& [name, filter] : KnownFilters->All())
+         filters.push_back(filter);
+
+      return filters;
    }
 
    wstring CommandsContext::ListNamedFilters()
@@ -163,6 +184,19 @@ namespace TreeReader
       }
    }
 
+   std::shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
+   {
+      if (Trees.size() <= 0)
+         return {};
+
+      return Trees.back();
+   }
+
+   std::shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
+   {
+      return Filtered;
+   }
+
    void CommandsContext::PushFilteredAsTree()
    {
       if (Filtered)
@@ -176,129 +210,188 @@ namespace TreeReader
       if (Trees.size() > 0)
          Trees.pop_back();
    }
-
-   wstring ParseCommands(const wstring& cmdText, CommandsContext& ctx)
+   
+   void CommandsContext::ClearUndoStack()
    {
-      return ParseCommands(split(cmdText), ctx);
+      UndoRedo.Clear();
+      // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
+      UndoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
    }
 
-   wstring ParseCommands(const vector<wstring>& cmds, CommandsContext& ctx)
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Undo / redo tool-bar buttons.
+
+   void CommandsContext::DeadedFilters(any& data)
+   {
+      data = ConvertFiltersToText(Filter);
+   }
+
+   void CommandsContext::AwakenFilters(const any& data)
+   {
+      // Note: do not call SetFilter as it would put it in undo/redo...
+      Filter = ConvertTextToFilters(any_cast<wstring>(data), *KnownFilters);;
+   }
+
+   void CommandsContext::AwakenToEmptyFilters()
+   {
+      // Note: do not call SetFilter as it would put it in undo/redo...
+      Filter = nullptr;
+   }
+
+   void CommandsContext::CommitToUndo()
+   {
+      UndoRedo.Commit(
+         {
+            ConvertFiltersToText(Filter),
+            [self = this](any& data) { self->DeadedFilters(data); },
+            [self = this](const any& data) { self->AwakenFilters(data); }
+         });
+   }
+     
+   void CommandsContext::Undo()
+   {
+      UndoRedo.Undo();
+   }
+
+   void CommandsContext::Redo()
+   {
+      UndoRedo.Redo();
+   }
+
+   bool CommandsContext::HasUndo() const
+   {
+      return UndoRedo.HasUndo();
+   }
+
+
+   bool CommandsContext::HasRedo() const
+   {
+      return UndoRedo.HasRedo();
+   }
+
+   wstring CommandsContext::ParseCommands(const wstring& cmdText)
+   {
+      return ParseCommands(split(cmdText));
+   }
+
+   wstring CommandsContext::ParseCommands(const vector<wstring>& cmds)
    {
       wstring result;
 
-      CommandsContext previousCtx = ctx;
-      ctx.FilterText = L"";
+      CommandsContext previousCtx = *this;
+      FilterText = L"";
 
       for (size_t i = 0; i < cmds.size(); ++i)
       {
          const wstring& cmd = cmds[i];
          if (cmd == L"v1")
          {
-            ctx.Options.UseV1 = true;
+            Options.UseV1 = true;
          }
          if (cmd == L"no-v1")
          {
-            ctx.Options.UseV1 = false;
+            Options.UseV1 = false;
          }
          else if (cmd == L"interactive")
          {
-            ctx.Options.IsInteractive = true;
+            Options.IsInteractive = true;
          }
          else if (cmd == L"no-interactive")
          {
-            ctx.Options.IsInteractive = false;
+            Options.IsInteractive = false;
          }
          else if (cmd == L"help")
          {
-            result += ctx.GetHelp();
+            result += GetHelp();
          }
          else if (cmd == L"-d" || cmd == L"debug")
          {
-            ctx.Options.Debug = true;
+            Options.Debug = true;
          }
          else if (cmd == L"no-debug")
          {
-            ctx.Options.Debug = false;
+            Options.Debug = false;
          }
          else if (cmd == L"input-filter" && i + 1 < cmds.size())
          {
-            ctx.SetInputFilter(cmds[++i]);
+            SetInputFilter(cmds[++i]);
          }
          else if (cmd == L"input-indent" && i + 1 < cmds.size())
          {
-            ctx.SetInputIndent(cmds[++i]);
+            SetInputIndent(cmds[++i]);
          }
          else if (cmd == L"output-indent" && i + 1 < cmds.size())
          {
-            ctx.SetOutputIndent(cmds[++i]);
+            SetOutputIndent(cmds[++i]);
          }
          else if (cmd == L"load" && i + 1 < cmds.size())
          {
-            result += ctx.LoadTree(cmds[++i]);
+            result += LoadTree(cmds[++i]);
          }
          else if (cmd == L"save" && i + 1 < cmds.size())
          {
-            ctx.SaveFilteredTree(cmds[++i]);
+            SaveFilteredTree(cmds[++i]);
          }
          else if (cmd == L"filter" && i + 1 < cmds.size())
          {
-            ctx.AppendFilterText(cmds[++i]);
+            AppendFilterText(cmds[++i]);
          }
          else if (cmd == L"push-filtered")
          {
-            ctx.PushFilteredAsTree();
+            PushFilteredAsTree();
          }
          else if (cmd == L"pop-tree")
          {
-            ctx.PopTree();
+            PopTree();
          }
          else if (cmd == L"then")
          {
-            result += ctx.CreateFilter();
-            ctx.ApplyFilterToTree();
-            ctx.PushFilteredAsTree();
-            ctx.ClearFilterText();
+            result += CreateFilter();
+            ApplyFilterToTree();
+            PushFilteredAsTree();
+            ClearFilterText();
             previousCtx.FilterText = L"";
          }
          else if (cmd == L"name" && i + 1 < cmds.size())
          {
-            result += ctx.CreateFilter();
-            ctx.NameFilter(cmds[++i]);
+            result += CreateFilter();
+            NameFilter(cmds[++i]);
          }
          else if (cmd == L"save-filters" && i + 1 < cmds.size())
          {
-            ctx.SaveNamedFilters(cmds[++i]);
+            SaveNamedFilters(cmds[++i]);
          }
          else if (cmd == L"load-filters" && i + 1 < cmds.size())
          {
-            ctx.LoadNamedFilters(cmds[++i]);
+            LoadNamedFilters(cmds[++i]);
          }
          else if (cmd == L"list-filters")
          {
-            result += ctx.ListNamedFilters();
+            result += ListNamedFilters();
          }
          else
          {
-            ctx.AppendFilterText(cmd);
+            AppendFilterText(cmd);
          }
       }
 
-      if (ctx.FilterText.empty())
-         ctx.FilterText = previousCtx.FilterText;
+      if (FilterText.empty())
+         FilterText = previousCtx.FilterText;
 
-      const bool optionsChanged = (previousCtx.Options != ctx.Options);
-      const bool readOptionsChanged = (previousCtx.Options.ReadOptions != ctx.Options.ReadOptions);
-      const bool fileChanged = (previousCtx.TreeFileName != ctx.TreeFileName);
-      const bool filterTextChanged = (previousCtx.FilterText != ctx.FilterText || previousCtx.Options.UseV1 != ctx.Options.UseV1);
-      const bool filterChanged = (filterTextChanged || previousCtx.Filter != ctx.Filter);
-      const bool treeChanged = (previousCtx.Trees.size() != ctx.Trees.size() || (previousCtx.Trees.size() > 0 && previousCtx.Trees.back() != ctx.Trees.back()));
+      const bool optionsChanged = (previousCtx.Options != Options);
+      const bool readOptionsChanged = (previousCtx.Options.ReadOptions != Options.ReadOptions);
+      const bool fileChanged = (previousCtx.TreeFileName != TreeFileName);
+      const bool filterTextChanged = (previousCtx.FilterText != FilterText || previousCtx.Options.UseV1 != Options.UseV1);
+      const bool filterChanged = (filterTextChanged || previousCtx.Filter != Filter);
+      const bool treeChanged = (previousCtx.Trees.size() != Trees.size() || (previousCtx.Trees.size() > 0 && previousCtx.Trees.back() != Trees.back()));
 
       if (filterTextChanged)
-         result += ctx.CreateFilter();
+         result += CreateFilter();
 
       if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
       {
-         ctx.ApplyFilterToTree();
+         ApplyFilterToTree();
       }
 
       return result;

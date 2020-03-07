@@ -4,4 +4,4 @@ Add input-line filtering options.
 Localisation.
 Use saveState and restoreState on mainWindow.
 Add filter to undo when deleting it or editing it.
-Probably move undo to CommandContext.
+Add filter to undo after each action?

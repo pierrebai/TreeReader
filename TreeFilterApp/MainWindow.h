@@ -5,7 +5,6 @@
 #include "QWidgetScrollListWidget.h"
 
 #include "TreeFilterCommands.h"
-#include "UndoStack.h"
 
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qdockwidget.h>
@@ -69,7 +68,6 @@ namespace TreeReaderApp
 
       // Data.
       CommandsContext _data;
-      UndoStack _undoStack;
 
       // Toolbar buttons.
       QAction* _undoAction = nullptr;

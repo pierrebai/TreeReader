@@ -14,12 +14,12 @@ int wmain(int argc, wchar_t** argv)
 
    while (true)
    {
-      wstring result = ParseCommands(args, ctx);
+      wstring result = ctx.ParseCommands(args);
       if (!result.empty())
          wcout << result << endl;
 
-      if (ctx.Filtered)
-         PrintTree(wcout, *ctx.Filtered, ctx.Options.OutputLineIndent) << endl;
+      if (ctx.GetFilteredTree())
+         PrintTree(wcout, *ctx.GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
 
       if (!ctx.Options.IsInteractive)
          break;
