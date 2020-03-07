@@ -9,6 +9,10 @@ class QMouseEvent;
 
 namespace QtAdditions
 {
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Complex widget kept in a list widget.
+
    struct QWidgetListItem : QWidget
    {
       QWidgetListItem(QWidget* parent = nullptr) : QWidget(parent) {}

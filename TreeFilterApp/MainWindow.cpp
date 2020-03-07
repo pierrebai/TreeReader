@@ -90,7 +90,7 @@ namespace TreeReaderApp
          _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
          filters_layout->addWidget(_scrollFiltersList);
 
-         _filterEditor = new FilterEditor(filters_container);
+         _filterEditor = new FilterEditor(_data.UndoRedo(), filters_container);
          filters_layout->addWidget(_filterEditor);
 
          filtersDock->setWidget(filters_container);
@@ -112,6 +112,11 @@ namespace TreeReaderApp
 
    void MainWindow::ConnectUI()
    {
+      _data.UndoRedo().Changed = [self = this](UndoStack&)
+      {
+         self->UpdateUndoRedoActions();
+      };
+
       /////////////////////////////////////////////////////////////////////////
       //
       // Undo / redo actions.
@@ -120,14 +125,12 @@ namespace TreeReaderApp
       {
          self->_data.UndoRedo().Undo();
          self->FillFilterEditorUI();
-         self->UpdateUndoRedoActions();
       });
 
       _redoAction->connect(_redoAction, &QAction::triggered, [self = this]()
       {
          self->_data.UndoRedo().Redo();
          self->FillFilterEditorUI();
-         self->UpdateUndoRedoActions();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -244,7 +247,6 @@ namespace TreeReaderApp
          {
             self->_availableFiltersList->RemoveItem(panel);
          }
-         self->UpdateUndoRedoActions();
       };
 
       auto editCallback = [self = this](TreeFilterListItem* panel)
@@ -256,7 +258,6 @@ namespace TreeReaderApp
          {
             self->_data.SetFilter(named->Filter);
             self->_filterEditor->SetEdited(named->Filter, named->Name, true);
-            self->UpdateUndoRedoActions();
          }
       };
 
@@ -338,7 +339,6 @@ namespace TreeReaderApp
    void MainWindow::FilterTree()
    {
       _data.SetFilter(_filterEditor->GetEdited());
-      UpdateUndoRedoActions();
 
       if (_data.GetCurrentTree() == nullptr)
          return;
@@ -361,7 +361,6 @@ namespace TreeReaderApp
 
       auto namedFilter = _data.NameFilter(filterName, filter->Clone());
       AddNamedFilterToAvailable(namedFilter);
-      UpdateUndoRedoActions();
    }
 
    void MainWindow::UpdateUndoRedoActions()

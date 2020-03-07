@@ -13,6 +13,7 @@ namespace TreeReader
    class UndoData
    {
    public:
+      // The data.
       std::any Data;
 
       // Remove non-essential data that can be recreated.
@@ -46,9 +47,12 @@ namespace TreeReader
    class UndoStack
    {
    public:
-      //
+      // The undo/redo transactions kept in the stack.
       typedef UndoData Transaction;
       typedef std::vector<Transaction> Transactions;
+
+      // The function called when teh undo stack changed (clear, undo or redo called).
+      std::function<void(UndoStack &)> Changed;
 
       // Create an empty undo stack.
       UndoStack();

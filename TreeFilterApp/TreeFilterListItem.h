@@ -17,6 +17,10 @@ namespace TreeReaderApp
 
    struct TreeFilterListWidget;
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Item in the tree filter list widget. Contains a tree filter.
+
    struct TreeFilterListItem : QWidgetListItem
    {
       TreeFilterPtr Filter;
@@ -24,7 +28,7 @@ namespace TreeReaderApp
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      using CallbackFunction = std::function<void(TreeFilterListItem * panel)>;
+      using CallbackFunction = std::function<void(TreeFilterListItem * item)>;
       using DeleteCallbackFunction = CallbackFunction;
       using EditCallbackFunction = CallbackFunction;
 

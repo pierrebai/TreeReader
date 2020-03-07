@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TreeFilter.h"
+#include "UndoStack.h"
 
 #include <QtWidgets/qwidget>
 
@@ -12,6 +13,7 @@ namespace TreeReaderApp
    class FiltersEditorUI;
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
+   using UndoStack = TreeReader::UndoStack;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -25,7 +27,7 @@ namespace TreeReaderApp
       FilterChangedCallback FilterChanged;
 
       // Create a filter editor with the given parent widget.
-      FilterEditor(QWidget* parent);
+      FilterEditor(UndoStack& undoRedo, QWidget* parent);
 
       // Set the Filters being edited.
       void SetEdited(const TreeFilterPtr& edited, const std::wstring& name, bool forced = false);

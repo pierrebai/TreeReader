@@ -21,8 +21,14 @@ namespace TreeReaderApp
    //
    // Tree filter panel.
 
-   TreeFilterListWidget::TreeFilterListWidget(DeleteCallbackFunction delCallback, EditCallbackFunction editCallback, bool stretch, QWidget* parent)
-   : QWidgetListWidget(stretch, parent), DeleteCallback(delCallback), EditCallback(editCallback)
+   TreeFilterListWidget::TreeFilterListWidget(
+      DeleteCallbackFunction delCallback,
+      EditCallbackFunction editCallback,
+      ListModifiedCallbackFunction modifCallback,
+      bool stretch, QWidget* parent)
+   : QWidgetListWidget(modifCallback, stretch, parent),
+     DeleteCallback(delCallback),
+     EditCallback(editCallback)
    {
    }
 

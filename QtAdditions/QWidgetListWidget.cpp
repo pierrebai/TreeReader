@@ -33,10 +33,10 @@ namespace QtAdditions
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Tree item panel.
+   // Widget list panel.
 
-   QWidgetListWidget::QWidgetListWidget(bool stretch, QWidget* parent)
-   : QFrame(parent)
+   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackFunction modifCallback, bool stretch, QWidget* parent)
+   : QFrame(parent), _modifCallback(modifCallback)
    {
       setBackgroundRole(QPalette::ColorRole::Base);
       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
@@ -57,11 +57,9 @@ namespace QtAdditions
          _layout->addStretch(0);
    }
 
-   void QWidgetListWidget::Clear()
-   {
-      for (auto child : GetItems())
-         delete child;
-   }
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Minimum size propagation.
 
    void QWidgetListWidget::PropagateMinimumWidth()
    {
@@ -90,6 +88,19 @@ namespace QtAdditions
       }
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Items management.
+
+   void QWidgetListWidget::Clear()
+   {
+      for (auto child : GetItems())
+         delete child;
+
+      if (_modifCallback)
+         _modifCallback(this);
+   }
+
    QWidgetListItem* QWidgetListWidget::AddItem(QWidgetListItem* item, int index)
    {
       if (!item)
@@ -105,6 +116,9 @@ namespace QtAdditions
 
       setMinimumWidth(max(minimumWidth(), item->sizeHint().width() + contentsMargins().left() + contentsMargins().right()));
 
+      if (_modifCallback)
+         _modifCallback(this);
+
       return item;
    }
 
@@ -113,6 +127,9 @@ namespace QtAdditions
       item->setParent(nullptr);
       _layout->removeWidget(item);
       _layout->update();
+
+      if (_modifCallback)
+         _modifCallback(this);
    }
 
    static void GetItems_(vector<QWidgetListItem*>& filters, const QObject* widget)
@@ -208,7 +225,8 @@ namespace QtAdditions
             const int movedIndex = _layout->indexOf(movedWidget);
             const int dropAdjust = sameSource ? (movedIndex < dropOnIndex ? 1 : 0) : 0;
             const int newIndex = dropOnIndex + dropIndexOffset - dropAdjust;
-            RemoveItem(movedWidget);
+            movedWidget->setParent(nullptr);
+            _layout->removeWidget(movedWidget);
             AddItem(movedWidget, newIndex);
          }
          event->setDropAction(Qt::MoveAction);

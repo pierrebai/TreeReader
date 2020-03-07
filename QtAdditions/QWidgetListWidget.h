@@ -14,21 +14,28 @@ class QVBoxLayout;
 
 namespace QtAdditions
 {
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // List widget that contains complex widgets.
+
    struct QWidgetListWidget : public QFrame
    {
-      // Create a widget drag widget.
-      QWidgetListWidget(bool stretch = true, QWidget* parent = nullptr);
+      // Callback signature when the list was modified: added or remove an item.
+      using ListModifiedCallbackFunction = std::function<void(QWidgetListWidget * list)>;;
 
-      // Clears the list panel of all filters.
+      // Create a widget list widget.
+      QWidgetListWidget(ListModifiedCallbackFunction modifCallback = {}, bool stretch = true, QWidget * parent = nullptr);
+
+      // Clears the list panel of all items.
       void Clear();
 
-      // Add a widget item, with an optional deletion callback.
+      // Add a widget item.
       QWidgetListItem* AddItem(QWidgetListItem* item, int index = -1);
 
       // Remove a widget item.
       void RemoveItem(QWidgetListItem* item);
 
-      // Retrieve all widget items kept directly in this drag widget.
+      // Retrieve all widget items kept directly in this list widget.
       std::vector<QWidgetListItem*> GetItems() const;
 
    protected:
@@ -46,6 +53,7 @@ namespace QtAdditions
       void PropagateMinimumWidth();
       void UpdateDropHereLabel();
 
+      ListModifiedCallbackFunction _modifCallback;
       QVBoxLayout* _layout = nullptr;
       QLabel* _dropHere = nullptr;
    };

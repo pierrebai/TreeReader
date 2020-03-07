@@ -13,6 +13,9 @@ namespace TreeReader
    {
       _undos.clear();
       _top = _undos.end();
+
+      if (Changed)
+         Changed(*this);
    }
 
    // Deaden the current top Transaction data.
@@ -40,6 +43,9 @@ namespace TreeReader
       _undos.emplace_back(tr);
       _top = _undos.end() - 1;
       DeadenTop();
+
+      if (Changed)
+         Changed(*this);
    }
 
    // Undo awakens the previous Transaction data. (The one before the last commit.)
@@ -48,8 +54,12 @@ namespace TreeReader
    {
       if (!HasUndo())
          return;
+
       --_top;
       AwakenTop();
+
+      if (Changed)
+         Changed(*this);
    }
 
    // Redo awakens the next Transaction data that was commited.
@@ -58,8 +68,12 @@ namespace TreeReader
    {
       if (!HasRedo())
          return;
+
       ++_top;
       AwakenTop();
+
+      if (Changed)
+         Changed(*this);
    }
 }
 

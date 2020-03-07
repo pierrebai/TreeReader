@@ -1,8 +1,10 @@
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
-#include "TreeFilterHelpers.h"
 #include "QtUtilities.h"
 #include "QWidgetScrollListWidget.h"
+
+#include "TreeFilterHelpers.h"
+#include "TreeFilterMaker.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qgridlayout.h>
@@ -39,8 +41,8 @@ namespace TreeReaderApp
    class FiltersEditorUI
    {
    public:
-      FiltersEditorUI(FilterEditor& parent)
-      : _editor(parent)
+      FiltersEditorUI(UndoStack& undoRedo, FilterEditor& parent)
+      : _undoRedo(undoRedo), _editor(parent)
       {
          BuildUI(parent);
          ConnectUI();
@@ -66,16 +68,22 @@ namespace TreeReaderApp
          _filterName = name;
 
          FillUI();
+
+         CommitFilterChangeToUndo();
       }
 
    private:
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // UI setup.
 
       void BuildUI(FilterEditor& parent)
       {
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         _filterList = new TreeFilterListWidget([self = this](TreeFilterListItem* panel)
+         auto delCallback = [self = this](TreeFilterListItem* panel)
          {
             // When a filter gets deleted, update the edited filter if it is no
             // longer the root.
@@ -85,7 +93,16 @@ namespace TreeReaderApp
                self->_edited = filters.back();
             else
                self->_edited = nullptr;
-         });
+
+            self->CommitFilterChangeToUndo();
+         };
+
+         auto listChangedCallback = [self = this](QWidgetListWidget* list)
+         {
+            self->CommitFilterChangeToUndo();
+         };
+
+         _filterList = new TreeFilterListWidget(delCallback, {}, listChangedCallback);
 
          _filterList->setAcceptDrops(true);
          _filterList->setEnabled(true);
@@ -154,6 +171,10 @@ namespace TreeReaderApp
             return true;
          });
       }
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Transfer from UI to data.
 
       static TreeFilterPtr DisconnectFilter(TreeFilterPtr filter)
       {
@@ -244,6 +265,42 @@ namespace TreeReaderApp
          _edited = root;
       }
 
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Undo/redo.
+
+      void CommitFilterChangeToUndo()
+      {
+         if (_disableFeedback > 0)
+            return;
+
+         UpdateEditedFromUI();
+         _undoRedo.Commit(
+            {
+               ConvertFiltersToText(_edited),
+               [self = this](any& data) { self->DeadedFilters(data); },
+               [self = this](const any& data) { self->AwakenFilters(data); }
+            });
+      }
+
+      void DeadedFilters(any& data)
+      {
+         data = ConvertFiltersToText(_edited);
+      }
+
+      void AwakenFilters(const any& data)
+      {
+         auto _knownFilters = make_shared<NamedFilters>(); // TODO REMOVE: pass real known filters to constructor.
+         _edited = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);
+         FillUI();
+      }
+
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Data.
+
+      UndoStack& _undoRedo;
       FilterEditor& _editor;
       TreeFilterPtr _edited;
       wstring _filterName;
@@ -258,8 +315,8 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   FilterEditor::FilterEditor(QWidget* parent)
-   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(*this))
+   FilterEditor::FilterEditor(UndoStack& undoRedo, QWidget* parent)
+   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(undoRedo, *this))
    {
    }
 
