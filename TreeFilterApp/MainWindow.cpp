@@ -312,13 +312,11 @@ namespace TreeReaderApp
 
       filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(TreeFileTypes), this);
       _data.LoadTree(path);
-      _data.ApplyFilterToTree();
 
-      if (_data.GetCurrentTree() ==  nullptr)
+      if (_data.GetCurrentTree() == nullptr)
          return;
 
       FillTextTreeUI();
-      UpdateUndoRedoActions();
    }
 
    bool MainWindow::SaveFilteredTree()
@@ -340,9 +338,13 @@ namespace TreeReaderApp
    void MainWindow::FilterTree()
    {
       _data.SetFilter(_filterEditor->GetEdited());
+      UpdateUndoRedoActions();
+
+      if (_data.GetCurrentTree() == nullptr)
+         return;
+
       _data.ApplyFilterToTree();
       FillTextTreeUI();
-      UpdateUndoRedoActions();
    }
 
    void MainWindow::NameFilter()
