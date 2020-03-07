@@ -43,6 +43,7 @@ namespace QtAdditions
 
       QWidgetListItem* FindWidgetAt(const QPoint& pt) const;
 
+      void PropagateMinimumWidth();
       void UpdateDropHereLabel();
 
       QVBoxLayout* _layout = nullptr;

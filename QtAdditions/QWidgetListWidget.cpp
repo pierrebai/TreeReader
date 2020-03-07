@@ -1,4 +1,5 @@
 #include "QWidgetListWidget.h"
+#include "QWidgetScrollListWidget.h"
 #include "QWidgetListMimeData.h"
 #include "QtUtilities.h"
 
@@ -12,6 +13,8 @@
 #include <QtGui/qvalidator.h>
 
 #include <QtGui/qevent.h>
+
+#include <algorithm>
 
 namespace QtAdditions
 {
@@ -60,6 +63,32 @@ namespace QtAdditions
          delete child;
    }
 
+   void QWidgetListWidget::PropagateMinimumWidth()
+   {
+      int minWidthSoFar = 0;
+      QWidget* widget = this;
+      while (widget)
+      {
+         if (auto scroll = dynamic_cast<QWidgetScrollListWidget*>(widget))
+         {
+            if (auto list = dynamic_cast<QWidgetListWidget*>(scroll->widget()))
+            {
+               auto items = list->GetItems();
+               auto maxMinWidthPos = max_element(items.begin(), items.end(), [](const QWidgetListItem* lhs, const QWidgetListItem* rhs)
+               {
+                  return lhs->sizeHint().width() < rhs->sizeHint().width();
+               });
+               if (maxMinWidthPos != items.end())
+               {
+                  minWidthSoFar = max(minWidthSoFar, (*maxMinWidthPos)->sizeHint().width());
+                  scroll->setMinimumWidth(minWidthSoFar);
+               }
+            }
+         }
+         widget = widget->parentWidget();
+      }
+   }
+
    QWidgetListItem* QWidgetListWidget::AddItem(QWidgetListItem* item, int index)
    {
       if (!item)
@@ -73,7 +102,7 @@ namespace QtAdditions
 
       _layout->insertWidget(index, item);
 
-      setMinimumWidth(max(minimumWidth(), item->sizeHint().width()));
+      setMinimumWidth(max(minimumWidth(), item->sizeHint().width() + contentsMargins().left() + contentsMargins().right()));
 
       return item;
    }
@@ -167,14 +196,17 @@ namespace QtAdditions
       const int dropIndexOffset = dropAbove ? 0 : 1;
       const int dropOnIndex = dropOn ? _layout->indexOf(dropOn) : -1000;
 
-      if (event->source() == this)
+      const bool sameSource = event->source() == this;
+
+      if (sameSource || event->proposedAction() == Qt::MoveAction)
       {
          // Remove panel and insert it at correct position in list.
          auto movedWidget = mime->Widget;
          if (movedWidget && movedWidget != dropOn)
          {
             const int movedIndex = _layout->indexOf(movedWidget);
-            const int newIndex = dropOnIndex + dropIndexOffset - (movedIndex < dropOnIndex ? 1 : 0);
+            const int dropAdjust = sameSource ? (movedIndex < dropOnIndex ? 1 : 0) : 0;
+            const int newIndex = dropOnIndex + dropIndexOffset - dropAdjust;
             RemoveItem(movedWidget);
             AddItem(movedWidget, newIndex);
          }
@@ -214,7 +246,10 @@ namespace QtAdditions
       drag->setPixmap(pixmap);
       drag->setHotSpot(mimeData->HotSpot);
 
-      Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
+      if (acceptDrops())
+         Qt::DropAction dropAction = drag->exec(Qt::MoveAction, Qt::MoveAction);
+      else
+         Qt::DropAction dropAction = drag->exec(Qt::CopyAction, Qt::CopyAction);
    }
 
    QWidgetListItem* QWidgetListWidget::FindWidgetAt(const QPoint& pt) const
@@ -231,7 +266,11 @@ namespace QtAdditions
       QFrame::childEvent(event);
 
       if (event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded)
+      {
          UpdateDropHereLabel();
+
+         PropagateMinimumWidth();
+      }
    }
 
    void QWidgetListWidget::UpdateDropHereLabel()
