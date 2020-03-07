@@ -1,4 +1,5 @@
-#include "TreeReader.h"
+#include "TreeFilterCommandLine.h"
+#include "TreeReaderHelpers.h"
 
 #include <iostream>
 
@@ -7,7 +8,7 @@ using namespace TreeReader;
 
 int wmain(int argc, wchar_t** argv)
 {
-   CommandsContext ctx;
+   CommandLine ctx;
 
    wstring programName = argc > 0 ? argv[0] : L"TreeFilter";
    vector<wstring> args(argv + min(1, argc), argv + argc);
@@ -21,7 +22,7 @@ int wmain(int argc, wchar_t** argv)
       if (ctx.GetFilteredTree())
          PrintTree(wcout, *ctx.GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
 
-      if (!ctx.Options.IsInteractive)
+      if (!ctx.IsInteractive)
          break;
 
       wcout << L"New arguments: "; 
