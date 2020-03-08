@@ -4,6 +4,8 @@
 #include "SimpleTreeWriter.h"
 
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 
 namespace TreeReader
 {
@@ -13,17 +15,17 @@ namespace TreeReader
    //
    // Tree loading and saving.
 
-   void CommandsContext::SetInputFilter(const std::wstring& filterRegex)
+   void CommandsContext::SetInputFilter(const wstring& filterRegex)
    {
       Options.ReadOptions.InputFilter = filterRegex;
    }
 
-   void CommandsContext::SetInputIndent(const std::wstring& indentText)
+   void CommandsContext::SetInputIndent(const wstring& indentText)
    {
       Options.ReadOptions.InputIndent = indentText;
    }
 
-   void CommandsContext::SetOutputIndent(const std::wstring& indentText)
+   void CommandsContext::SetOutputIndent(const wstring& indentText)
    {
       Options.OutputLineIndent = indentText;
    }
@@ -86,17 +88,17 @@ namespace TreeReader
    //
    // Named filters management.
 
-   NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName)
+   NamedFilterPtr CommandsContext::NameFilter(const wstring& filterName)
    {
       return NameFilter(filterName, _filter);
    }
 
-   NamedFilterPtr CommandsContext::NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter)
+   NamedFilterPtr CommandsContext::NameFilter(const wstring& filterName, const TreeFilterPtr& filter)
    {
       return _knownFilters->Add(filterName, filter);
    }
 
-   bool CommandsContext::RemoveNamedFilter(const std::wstring& filterName)
+   bool CommandsContext::RemoveNamedFilter(const wstring& filterName)
    {
       return _knownFilters->Remove(filterName);
    }
@@ -111,13 +113,13 @@ namespace TreeReader
       return filters;
    }
 
-   void CommandsContext::SaveNamedFilters(const std::filesystem::path& filename)
+   void CommandsContext::SaveNamedFilters(const filesystem::path& filename)
    {
       if (_knownFilters->All().size() > 0)
          WriteNamedFilters(filename, *_knownFilters);
    }
 
-   void CommandsContext::LoadNamedFilters(const std::filesystem::path& filename)
+   void CommandsContext::LoadNamedFilters(const filesystem::path& filename)
    {
       auto filters = ReadNamedFilters(filename);
       _knownFilters->Merge(filters);
@@ -125,9 +127,68 @@ namespace TreeReader
 
    /////////////////////////////////////////////////////////////////////////
    //
+   // Options.
+
+   void CommandsContext::SaveOptions(const filesystem::path& filename)
+   {
+      wofstream stream(filename);
+      SaveOptions(stream);
+   }
+
+   void CommandsContext::SaveOptions(std::wostream& stream)
+   {
+      stream << L"V1: " << L"\n"
+      << L"output-indent: "   << quoted(Options.OutputLineIndent) << L"\n"
+      << L"input-filter: "    << quoted(Options.ReadOptions.InputFilter) << L"\n"
+      << L"input-indent: "    << quoted(Options.ReadOptions.InputIndent) << L"\n"
+      << L"tab-size: "        << Options.ReadOptions.TabSize << L"\n";
+   }
+
+   void CommandsContext::LoadOptions(const filesystem::path& filename)
+   {
+      wifstream stream(filename);
+      LoadOptions(stream);
+   }
+
+   void CommandsContext::LoadOptions(std::wistream& stream)
+   {
+      wstring v1;
+      stream >> v1;
+      if (v1 != L"V1:")
+         return;
+
+      while (stream)
+      {
+         wstring item;
+         stream >> skipws >> item >> skipws;
+         if (item == L"output-indent:")
+         {
+            stream >> quoted(Options.OutputLineIndent);
+
+         }
+         else if (item == L"input-filter:")
+         {
+            stream >> quoted(Options.ReadOptions.InputFilter);
+
+         }
+         else if (item == L"input-indent:")
+         {
+            stream >> quoted(Options.ReadOptions.InputIndent);
+
+         }
+         else if (item == L"tab-size:")
+         {
+            stream >> Options.ReadOptions.TabSize;
+
+         }
+      }
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Current text tree and filtered tree.
 
-   std::shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
+   shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
    {
       if (_trees.size() <= 0)
          return {};
@@ -135,7 +196,7 @@ namespace TreeReader
       return _trees.back();
    }
 
-   std::shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
+   shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
    {
       return _filtered;
    }

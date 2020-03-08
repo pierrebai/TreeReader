@@ -31,6 +31,11 @@ namespace TreeReader
 
       CommandsOptions Options;
 
+      void SaveOptions(const std::filesystem::path& filename);
+      void SaveOptions(std::wostream& stream);
+      void LoadOptions(const std::filesystem::path& filename);
+      void LoadOptions(std::wistream& stream);
+
       // Tree loading and saving.
 
       void SetInputFilter(const std::wstring& filterRegex);

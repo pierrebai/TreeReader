@@ -35,10 +35,8 @@ namespace TreeReaderApp
 
       static constexpr wchar_t TreeFileTypes[] = L"Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
 
-      static filesystem::path GetNamedFiltersFileName()
+      static filesystem::path GetLocalDataFileName(const wchar_t filename[])
       {
-         static constexpr wchar_t filename[] = L"tree-reader-named-filters.txt";
-
          auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, QString::fromWCharArray(filename), QStandardPaths::LocateFile);
          if (!path.isEmpty())
             return path.toStdWString();
@@ -54,6 +52,15 @@ namespace TreeReaderApp
          return dir / filesystem::path(filename);
       }
 
+      static filesystem::path GetNamedFiltersFileName()
+      {
+         return GetLocalDataFileName(L"tree-reader-named-filters.txt");
+      }
+
+      static filesystem::path GetOptionsFileName()
+      {
+         return GetLocalDataFileName(L"tree-reader-options.txt");
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -204,6 +211,16 @@ namespace TreeReaderApp
          // Ignore.
       }
 
+      try
+      {
+         _data.LoadOptions(GetOptionsFileName());
+      }
+      catch (const exception&)
+      {
+         // Ignore.
+      
+      }
+
       FillAvailableFiltersUI();
    }
 
@@ -292,7 +309,6 @@ namespace TreeReaderApp
    {
       if (SaveIfRequired(L::t(L"close the window"), L::t(L"closing the window")))
       {
-         QWidget::closeEvent(ev);
          try
          {
             _data.SaveNamedFilters(GetNamedFiltersFileName());
@@ -301,6 +317,18 @@ namespace TreeReaderApp
          {
             // Ignore.
          }
+
+         try
+         {
+            _data.SaveOptions(GetOptionsFileName());
+         }
+         catch (const exception&)
+         {
+            // Ignore.
+
+         }
+
+         QWidget::closeEvent(ev);
       }
       else
       {
