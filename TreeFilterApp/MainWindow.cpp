@@ -4,12 +4,16 @@
 
 #include "TreeFilterMaker.h"
 
-#include <QtGui/qpainter.h>
-#include <QtGui/qevent.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qtoolbar.h>
+
+#include <QtGui/qpainter.h>
+#include <QtGui/qevent.h>
+
 #include <QtWinExtras/qwinfunctions.h>
+
+#include <QtCore/qstandardpaths.h>
 
 #include "resource.h"
 
@@ -30,6 +34,26 @@ namespace TreeReaderApp
       }
 
       static constexpr wchar_t TreeFileTypes[] = L"Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
+
+      static filesystem::path GetNamedFiltersFileName()
+      {
+         static constexpr wchar_t filename[] = L"tree-reader-named-filters.txt";
+
+         auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, QString::fromWCharArray(filename), QStandardPaths::LocateFile);
+         if (!path.isEmpty())
+            return path.toStdWString();
+
+         auto location = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+         if (location.size() <= 0)
+            return filename;
+
+         filesystem::path dir(location.toStdWString());
+         error_code error;
+         filesystem::create_directories(dir, error);
+
+         return dir / filesystem::path(filename);
+      }
+
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -173,7 +197,7 @@ namespace TreeReaderApp
    {
       try
       {
-         _data.LoadNamedFilters(L"filters.txt");
+         _data.LoadNamedFilters(GetNamedFiltersFileName());
       }
       catch (const exception &)
       {
@@ -271,7 +295,7 @@ namespace TreeReaderApp
          QWidget::closeEvent(ev);
          try
          {
-            _data.SaveNamedFilters(L"filters.txt");
+            _data.SaveNamedFilters(GetNamedFiltersFileName());
          }
          catch (const exception&)
          {
