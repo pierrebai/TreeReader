@@ -48,6 +48,7 @@ namespace QtAdditions
       _layout = new QVBoxLayout;
       _layout->setSizeConstraint(QLayout::SetMinimumSize);
       _layout->setMargin(2);
+      _layout->setSpacing(0);
       setLayout(_layout);
 
       _dropHere = new QLabel(QString::fromWCharArray(L::t(L"Drop items here.")));

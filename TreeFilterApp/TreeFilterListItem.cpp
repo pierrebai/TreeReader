@@ -161,14 +161,7 @@ namespace TreeReaderApp
       const bool active = (delFunc != nullptr);
 
       setToolTip(QString::fromStdWString(filter->GetDescription()));
-      setBackgroundRole(QPalette::ColorRole::Base);
-      setAutoFillBackground(true);
-      setMouseTracking(true);
       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-
-      _defaultBackground = palette();
-      _highBackground = palette();
-      _highBackground.setColor(QPalette::ColorRole::Base, _highBackground.color(QPalette::Highlight).lighter(210));
 
       auto container_layout = new QVBoxLayout(this);
       container_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -282,47 +275,6 @@ namespace TreeReaderApp
    TreeFilterListItem* TreeFilterListItem::Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const
    {
       return Create(Filter->Clone(), delFunc, editFunc);
-   }
-
-   void TreeFilterListItem::enterEvent(QEvent* event)
-   {
-      QWidgetListItem::enterEvent(event);
-      HighlightBackground(true);
-   }
-
-   void TreeFilterListItem::leaveEvent(QEvent* event)
-   {
-      QWidgetListItem::leaveEvent(event);
-      HighlightBackground(false);
-   }
-
-   void TreeFilterListItem::mouseMoveEvent(QMouseEvent* event)
-   {
-      QWidgetListItem::mouseMoveEvent(event);
-   }
-
-   static vector<TreeFilterListItem*> items;
-
-   void TreeFilterListItem::HighlightBackground(bool high)
-   {
-      if (high)
-      {
-         if (items.size() > 0)
-         {
-            items.back()->setPalette(_defaultBackground);
-            items.back()->update();
-         }
-         items.push_back(this);
-         setPalette(_highBackground);
-      }
-      else
-      {
-         setPalette(_defaultBackground);
-         auto pos = std::find(items.begin(), items.end(), this);
-         if (pos != items.end())
-            items.erase(pos);
-      }
-      update();
    }
 
 }
