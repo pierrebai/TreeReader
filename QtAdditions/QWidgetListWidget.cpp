@@ -11,8 +11,9 @@
 #include <QtGui/qpainter.h>
 #include <QtGui/qwindow.h>
 #include <QtGui/qvalidator.h>
-
 #include <QtGui/qevent.h>
+
+#include <QtCore/qtimer.h>
 
 #include <algorithm>
 
@@ -274,9 +275,11 @@ namespace QtAdditions
 
       if (event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded)
       {
-         UpdateDropHereLabel();
-
-         PropagateMinimumWidth();
+         QTimer::singleShot(1, [self = this]()
+         {
+            self->UpdateDropHereLabel();
+            self->PropagateMinimumWidth();
+         });
       }
    }
 

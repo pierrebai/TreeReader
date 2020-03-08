@@ -3,3 +3,4 @@ Add general options panel.
 Add input-line filtering options.
 Localisation.
 Use saveState and restoreState on mainWindow.
+Highlighth on mouse-over.
