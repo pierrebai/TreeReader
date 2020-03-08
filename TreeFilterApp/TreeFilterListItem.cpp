@@ -260,7 +260,7 @@ namespace TreeReaderApp
 
       if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
       {
-         SubList = new TreeFilterListWidget(delFunc, editFunc, false);
+         SubList = new TreeFilterListWidget(delFunc, editFunc, {}, false);
          SubList->setAcceptDrops(true);
          container_layout->addWidget(SubList);
       }

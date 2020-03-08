@@ -14,6 +14,8 @@
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qscrollarea.h>
 
+#include <QtCore/qtimer.h>
+
 #include <algorithm>
 #include <typeindex>
 
@@ -139,39 +141,46 @@ namespace TreeReaderApp
 
       void FillUI()
       {
-         DisableFeedback df(_filterList, _disableFeedback);
-
-         deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterListWidget*>> combineFilters;
-
-         _filterList->Clear();
-         TreeReader::VisitFilters(_edited, true, [self = this, &combineFilters](const TreeFilterPtr& filter) -> bool
          {
-            QWidgetListItem* widget = nullptr;
-            for (auto& [combineFilter, combineWidget]: combineFilters)
+            DisableFeedback df(_filterList, _disableFeedback);
+
+            deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterListWidget*>> combineFilters;
+
+            _filterList->Clear();
+            TreeReader::VisitFilters(_edited, true, [self = this, &combineFilters](const TreeFilterPtr& filter) -> bool
             {
-               if (IsUnder(combineFilter, filter))
+               QWidgetListItem* widget = nullptr;
+               for (auto& [combineFilter, combineWidget] : combineFilters)
                {
-                  widget = combineWidget->AddTreeFilter(filter);
-                  break;
-               }
-            }
-
-
-            if (!widget)
-               widget = self->_filterList->AddTreeFilter(filter);
-
-            if (TreeFilterListItem* filterWidget = dynamic_cast<TreeFilterListItem*>(widget))
-            {
-               if (filterWidget->SubList)
-               {
-                  if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+                  if (IsUnder(combineFilter, filter))
                   {
-                     combineFilters.emplace_front(combine, filterWidget->SubList);
+                     widget = combineWidget->AddTreeFilter(filter);
+                     break;
                   }
                }
-            }
 
-            return true;
+
+               if (!widget)
+                  widget = self->_filterList->AddTreeFilter(filter);
+
+               if (TreeFilterListItem* filterWidget = dynamic_cast<TreeFilterListItem*>(widget))
+               {
+                  if (filterWidget->SubList)
+                  {
+                     if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+                     {
+                        combineFilters.emplace_front(combine, filterWidget->SubList);
+                     }
+                  }
+               }
+
+               return true;
+            });
+         }
+
+         QTimer::singleShot(1, [list = _filterList]()
+         {
+            list->PropagateMinimumWidth();
          });
       }
 

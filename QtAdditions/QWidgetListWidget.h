@@ -38,6 +38,8 @@ namespace QtAdditions
       // Retrieve all widget items kept directly in this list widget.
       std::vector<QWidgetListItem*> GetItems() const;
 
+      void PropagateMinimumWidth();
+
    protected:
       virtual QWidgetListItem* CloneItem(QWidgetListItem*) const;
 
@@ -50,7 +52,6 @@ namespace QtAdditions
 
       QWidgetListItem* FindWidgetAt(const QPoint& pt) const;
 
-      void PropagateMinimumWidth();
       void UpdateDropHereLabel();
 
       ListModifiedCallbackFunction _modifCallback;

@@ -253,7 +253,6 @@ namespace TreeReaderApp
 
          if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
          {
-            self->_data.SetFilter(named->Filter);
             self->_filterEditor->SetEdited(named->Filter, named->Name, true);
          }
       };
