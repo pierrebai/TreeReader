@@ -8,8 +8,10 @@
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qapplication.h>
 
 #include <QtGui/qvalidator.h>
+#include <QtGui/qevent.h>
 
 #include "resource.h"
 
@@ -129,38 +131,44 @@ namespace TreeReaderApp
       #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc, editFunc); }
 
       CALL_CONVERTER(AcceptTreeFilter)
-      CALL_CONVERTER(StopTreeFilter)
-      CALL_CONVERTER(UntilTreeFilter)
-      CALL_CONVERTER(ContainsTreeFilter)
-      CALL_CONVERTER(RegexTreeFilter)
-      CALL_CONVERTER(NotTreeFilter)
-      CALL_CONVERTER(IfSubTreeTreeFilter)
-      CALL_CONVERTER(IfSiblingTreeFilter)
-      CALL_CONVERTER(CountChildrenTreeFilter)
-      CALL_CONVERTER(CountSiblingsTreeFilter)
-      CALL_CONVERTER(OrTreeFilter)
-      CALL_CONVERTER(AndTreeFilter)
-      CALL_CONVERTER(UnderTreeFilter)
-      CALL_CONVERTER(RemoveChildrenTreeFilter)
-      CALL_CONVERTER(LevelRangeTreeFilter)
-      CALL_CONVERTER(NamedTreeFilter)
+         CALL_CONVERTER(StopTreeFilter)
+         CALL_CONVERTER(UntilTreeFilter)
+         CALL_CONVERTER(ContainsTreeFilter)
+         CALL_CONVERTER(RegexTreeFilter)
+         CALL_CONVERTER(NotTreeFilter)
+         CALL_CONVERTER(IfSubTreeTreeFilter)
+         CALL_CONVERTER(IfSiblingTreeFilter)
+         CALL_CONVERTER(CountChildrenTreeFilter)
+         CALL_CONVERTER(CountSiblingsTreeFilter)
+         CALL_CONVERTER(OrTreeFilter)
+         CALL_CONVERTER(AndTreeFilter)
+         CALL_CONVERTER(UnderTreeFilter)
+         CALL_CONVERTER(RemoveChildrenTreeFilter)
+         CALL_CONVERTER(LevelRangeTreeFilter)
+         CALL_CONVERTER(NamedTreeFilter)
 
-      #undef CALL_CONVERTER
+         #undef CALL_CONVERTER
 
-      return nullptr;
+         return nullptr;
    }
 
    TreeFilterListItem::TreeFilterListItem(
       const shared_ptr<TreeFilter>& filter,
       DeleteCallbackFunction delFunc, EditCallbackFunction editFunc,
       wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
-   : Filter(filter)
+      : Filter(filter)
    {
       const bool active = (delFunc != nullptr);
 
       setToolTip(QString::fromStdWString(filter->GetDescription()));
       setBackgroundRole(QPalette::ColorRole::Base);
+      setAutoFillBackground(true);
+      setMouseTracking(true);
       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+
+      _defaultBackground = palette();
+      _highBackground = palette();
+      _highBackground.setColor(QPalette::ColorRole::Base, _highBackground.color(QPalette::Highlight).lighter(210));
 
       auto container_layout = new QVBoxLayout(this);
       container_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -240,7 +248,7 @@ namespace TreeReaderApp
          deleteButton->setMaximumSize(QSize(16, 16));
          name_layout->addWidget(deleteButton);
 
-         deleteButton->connect(deleteButton, &QPushButton::clicked, [filter, self=this, delFunc]()
+         deleteButton->connect(deleteButton, &QPushButton::clicked, [filter, self = this, delFunc]()
          {
             delFunc(self);
          });
@@ -275,5 +283,47 @@ namespace TreeReaderApp
    {
       return Create(Filter->Clone(), delFunc, editFunc);
    }
+
+   void TreeFilterListItem::enterEvent(QEvent* event)
+   {
+      QWidgetListItem::enterEvent(event);
+      HighlightBackground(true);
+   }
+
+   void TreeFilterListItem::leaveEvent(QEvent* event)
+   {
+      QWidgetListItem::leaveEvent(event);
+      HighlightBackground(false);
+   }
+
+   void TreeFilterListItem::mouseMoveEvent(QMouseEvent* event)
+   {
+      QWidgetListItem::mouseMoveEvent(event);
+   }
+
+   static vector<TreeFilterListItem*> items;
+
+   void TreeFilterListItem::HighlightBackground(bool high)
+   {
+      if (high)
+      {
+         if (items.size() > 0)
+         {
+            items.back()->setPalette(_defaultBackground);
+            items.back()->update();
+         }
+         items.push_back(this);
+         setPalette(_highBackground);
+      }
+      else
+      {
+         setPalette(_defaultBackground);
+         auto pos = std::find(items.begin(), items.end(), this);
+         if (pos != items.end())
+            items.erase(pos);
+      }
+      update();
+   }
+
 }
 

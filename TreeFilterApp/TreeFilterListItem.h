@@ -49,5 +49,15 @@ namespace TreeReaderApp
 
       TreeFilterListItem* Clone() const override;
       TreeFilterListItem* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
+
+   protected:
+      void enterEvent(QEvent* event) override;
+      void leaveEvent(QEvent* event) override;
+      void mouseMoveEvent(QMouseEvent* event) override;
+
+      void HighlightBackground(bool high);
+
+      QPalette _defaultBackground;
+      QPalette _highBackground;
    };
 }
