@@ -11,6 +11,7 @@ namespace QtAdditions
    struct QWidgetListItem : QWidget
    {
       QWidgetListItem(QWidget* parent = nullptr);
+      virtual ~QWidgetListItem();
 
       virtual QWidgetListItem* Clone() const;
 
