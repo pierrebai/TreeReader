@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 #include "TextTreeModel.h"
+#include "OptionsDialog.h"
+
 #include "QtUtilities.h"
 
 #include "TreeFilterMaker.h"
@@ -111,6 +113,11 @@ namespace TreeReaderApp
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
 
+         toolbar->addSeparator();
+
+         _optionsAction = CreateAction(L::t(L"Options"), IDB_OPTIONS);
+         _optionsButton = CreateToolButton(_optionsAction);
+         toolbar->addWidget(_optionsButton);
 
       auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
          filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
@@ -184,6 +191,11 @@ namespace TreeReaderApp
       _nameFilterAction->connect(_nameFilterAction, &QAction::triggered, [self = this]()
       {
          self->NameFilter();
+      });
+
+      _optionsAction->connect(_optionsAction, &QAction::triggered, [self = this]()
+      {
+         self->OpenOptions();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -411,6 +423,19 @@ namespace TreeReaderApp
       AddNamedFilterToAvailable(namedFilter);
    }
 
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Options.
+
+   void MainWindow::OpenOptions()
+   {
+      auto dialog = new OptionsDialog(_data.Options, this);
+      dialog->exec();
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Undo/redo.
    void MainWindow::UpdateUndoRedoActions()
    {
       _undoAction->setEnabled(_data.UndoRedo().HasUndo());

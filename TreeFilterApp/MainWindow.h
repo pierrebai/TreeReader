@@ -26,7 +26,7 @@ namespace TreeReaderApp
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // The main window of Alhambra.
+   // The main window of the tree filter app.
 
    class MainWindow : public QMainWindow
    {
@@ -50,7 +50,7 @@ namespace TreeReaderApp
       // Undo / redo tool-bar buttons.
       void UpdateUndoRedoActions();
 
-      // Closing and saving.
+      // Closing, loading and saving.
       void closeEvent(QCloseEvent* ev);
       bool SaveIfRequired(const std::wstring& action, const std::wstring& actioning);
       void LoadTree();
@@ -60,6 +60,9 @@ namespace TreeReaderApp
       void FilterTree();
       void NameFilter();
       void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
+
+      // Options.
+      void OpenOptions();
 
       // Data.
       CommandsContext _data;
@@ -82,6 +85,9 @@ namespace TreeReaderApp
 
       QAction* _nameFilterAction = nullptr;
       QToolButton* _nameFilterButton = nullptr;
+
+      QAction* _optionsAction = nullptr;
+      QToolButton* _optionsButton = nullptr;
 
       // UI elements.
       QTreeView* _treeView = nullptr;

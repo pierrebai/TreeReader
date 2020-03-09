@@ -1,5 +1,2 @@
-Add more buttons to the toolbar.
-Add general options panel.
-Add input-line filtering options.
 Localisation.
 Use saveState and restoreState on mainWindow.

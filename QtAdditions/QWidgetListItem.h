@@ -1,11 +1,6 @@
 #pragma once
 
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/qscrollarea.h>
-
-class QDragEnterEvent;
-class QDropEvent;
-class QMouseEvent;
 
 namespace QtAdditions
 {

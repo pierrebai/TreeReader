@@ -2,18 +2,17 @@
 
 #include <QtWidgets/qscrollarea.h>
 
-class QVBoxLayout;
 class QWidget;
 
 namespace QtAdditions
 {
    /////////////////////////////////////////////////////////////////////////
    //
-   // Scrollable list of widgets.
+   // Scrollable widget.
 
    struct QWidgetScrollListWidget : public QScrollArea
    {
-      // Create a scrollable widget list widget.
+      // Create a scrollable widget.
       QWidgetScrollListWidget(QWidget * widget, QWidget* parent = nullptr);
    };
 }

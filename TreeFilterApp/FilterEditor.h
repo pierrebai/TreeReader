@@ -17,7 +17,7 @@ namespace TreeReaderApp
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // A QWidget to select and order Filters.
+   // A QWidget to select and order filters.
 
    class FilterEditor : public QWidget
    {

@@ -6,6 +6,10 @@
 
 namespace TreeReaderApp
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Tree model containing all lines of a text tree.
+
    struct TextTreeModel : QAbstractItemModel
    {
       std::shared_ptr<TreeReader::TextTree> Tree;

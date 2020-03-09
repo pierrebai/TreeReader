@@ -13,27 +13,45 @@
 
 namespace QtAdditions
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Create toolbar buttons.
    // Note: icon is a bitmap resource ID.
+
    QToolButton* CreateToolButton(const wchar_t* text, int icon = 0, QKeySequence key = QKeySequence(), const wchar_t* tooltip = nullptr, std::function<void()> = nullptr);
    QToolButton* CreateToolButton(QAction* action);
    QToolButton* CreateToolButton();
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Create action.
    // Note: icon is a bitmap resource ID.
+
    QAction* CreateAction(const wchar_t* text, int icon = 0, QKeySequence key = QKeySequence(), const wchar_t* tooltip = nullptr, std::function<void()> = nullptr);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Create pixmap from a bitmap resource. A mask will automatically be created.
+
    QPixmap CreatePixmapFromResource(int res);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Show a dialog to open or save something.
+
    std::filesystem::path AskOpen(const wchar_t* title, const wchar_t* file_types, QWidget* parent);
    std::filesystem::path AskSave(const wchar_t* title, const wchar_t* file_types, const wchar_t* initialContent, QWidget* parent);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Ask for text.
+
    std::wstring AskForText(const wchar_t* title, const wchar_t* label, const wchar_t* initialContent, QWidget* parent);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Ask yes/no/cancel.
+
    enum class YesNoCancel
    {
       No = 0,
@@ -44,6 +62,8 @@ namespace QtAdditions
    YesNoCancel AskYesNoCancel(const std::wstring& title, const std::wstring& text, QWidget* parent);
    YesNoCancel AskYesNoCancel(const wchar_t* title, const wchar_t* text, QWidget* parent);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Disable feedback in a widget.
 
    struct DisableFeedback
