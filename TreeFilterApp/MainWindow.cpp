@@ -88,6 +88,11 @@ namespace TreeReaderApp
 
    void MainWindow::BuildUI()
    {
+      setCorner(Qt::Corner::TopLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+      setCorner(Qt::Corner::BottomLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+      setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+      setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+
       _filteringTimer = new QTimer(this);
       _filteringTimer->setSingleShot(true);
 

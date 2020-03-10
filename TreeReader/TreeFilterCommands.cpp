@@ -145,8 +145,9 @@ namespace TreeReader
       if (!applyTo)
          return;
 
+      auto filter = ConvertSimpleTextToFilters(_searchedText, *_knownFilters);
       _searched = make_shared<TextTree>();
-      FilterTree(*applyTo, *_searched, Contains(_searchedText));
+      FilterTree(*applyTo, *_searched, filter);
    }
 
    /////////////////////////////////////////////////////////////////////////
