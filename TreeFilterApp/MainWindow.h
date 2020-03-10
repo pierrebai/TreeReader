@@ -13,6 +13,7 @@ class QAction;
 class QTreeView;
 class QDockWidget;
 class QTimer;
+class QLineEdit;
 
 namespace TreeReaderApp
 {
@@ -57,6 +58,7 @@ namespace TreeReaderApp
       // Tree filtering.
       void FilterTree();
       void verifyAsyncFiltering();
+      void SearchInTree(const QString& text);
       void NameFilter();
       void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
 
@@ -90,6 +92,7 @@ namespace TreeReaderApp
 
       // UI elements.
       QTreeView* _treeView = nullptr;
+      QLineEdit* _simpleSearch = nullptr;
       FilterEditor* _filterEditor = nullptr;
       TreeFilterListWidget* _availableFiltersList = nullptr;
       QWidgetScrollListWidget* _scrollFiltersList = nullptr;

@@ -37,6 +37,7 @@ namespace TreeReader
       if (newTree && newTree->Roots.size() > 0)
       {
          _trees.emplace_back(move(newTree));
+         ApplySearchInTree();
          return {};
       }
       else
@@ -82,6 +83,8 @@ namespace TreeReader
          // Note: pure copy of input tree are considered to have been saved.
          _filteredWasSaved = true;
       }
+
+      ApplySearchInTree();
    }
 
    void CommandsContext::ApplyFilterToTreeAsync()
@@ -114,7 +117,36 @@ namespace TreeReader
       _filtered = make_shared<TextTree>(_asyncFiltering.first.get());
       _asyncFiltering = AsyncFilterTreeResult();
 
+      ApplySearchInTree();
+
       return true;
+   }
+
+   void CommandsContext::SearchInTree(const std::wstring& text)
+   {
+      if (_searchedText == text)
+         return;
+
+      _searchedText = text;
+
+      ApplySearchInTree();
+   }
+
+   void CommandsContext::ApplySearchInTree()
+   {
+      if (_searchedText.empty())
+      {
+         _searched = nullptr;
+         return;
+      }
+
+      shared_ptr<TextTree> applyTo = _filtered ? _filtered : _trees.size() > 0 ? _trees.back() : shared_ptr<TextTree>();
+
+      if (!applyTo)
+         return;
+
+      _searched = make_shared<TextTree>();
+      FilterTree(*applyTo, *_searched, Contains(_searchedText));
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -221,7 +253,7 @@ namespace TreeReader
 
    shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
    {
-      return _filtered;
+      return _searched ? _searched : _filtered;
    }
 
    void CommandsContext::PushFilteredAsTree()
@@ -236,6 +268,8 @@ namespace TreeReader
    {
       if (_trees.size() > 0)
          _trees.pop_back();
+
+      ApplySearchInTree();
    }
    
    /////////////////////////////////////////////////////////////////////////

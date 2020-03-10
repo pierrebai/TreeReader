@@ -13,6 +13,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qtreeview.h>
+#include <QtWidgets/qlineedit.h>
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -90,7 +91,6 @@ namespace TreeReaderApp
       _filteringTimer = new QTimer(this);
       _filteringTimer->setSingleShot(true);
 
-
       QToolBar* toolbar = new QToolBar();
          toolbar->setIconSize(QSize(32, 32));
 
@@ -142,6 +142,11 @@ namespace TreeReaderApp
 
          filtersDock->setWidget(filters_container);
 
+      auto simpleSearchDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Text Search")));
+         simpleSearchDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+         _simpleSearch = new QLineEdit;
+         simpleSearchDock->setWidget(_simpleSearch);
+
       _treeView = new QTreeView;
       _treeView->setUniformRowHeights(true);
       _treeView->setHeaderHidden(true);
@@ -150,6 +155,7 @@ namespace TreeReaderApp
       setCentralWidget(_treeView);
       addToolBar(toolbar);
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
+      addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, simpleSearchDock);
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
    }
 
@@ -168,6 +174,11 @@ namespace TreeReaderApp
       {
          self->UpdateUndoRedoActions();
       };
+
+      _simpleSearch->connect(_simpleSearch, &QLineEdit::textChanged, [self = this](const QString& text)
+      {
+         self->SearchInTree(text);
+      });
 
       /////////////////////////////////////////////////////////////////////////
       //
@@ -266,7 +277,9 @@ namespace TreeReaderApp
       {
          TextTreeModel* model = new TextTreeModel;
          model->Tree = newTree;
+         auto oldModel = _treeView->model();
          _treeView->setModel(model);
+         delete oldModel;
       }
    }
 
@@ -443,6 +456,12 @@ namespace TreeReaderApp
       {
          _filteringTimer->start(10);
       }
+   }
+
+   void MainWindow::SearchInTree(const QString& text)
+   {
+      _data.SearchInTree(text.toStdWString());
+      FillTextTreeUI();
    }
 
    void MainWindow::NameFilter()
