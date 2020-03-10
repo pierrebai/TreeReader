@@ -136,16 +136,6 @@ namespace TreeReader
       return _knownFilters->Remove(filterName);
    }
 
-   vector<NamedFilterPtr> CommandsContext::GetNamedFilters() const
-   {
-      vector<NamedFilterPtr> filters;
-
-      for (const auto& [name, filter] : _knownFilters->All())
-         filters.push_back(filter);
-
-      return filters;
-   }
-
    void CommandsContext::SaveNamedFilters(const filesystem::path& filename)
    {
       if (_knownFilters->All().size() > 0)

@@ -14,6 +14,7 @@ namespace TreeReaderApp
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using UndoStack = TreeReader::UndoStack;
+   using NamedFilters = TreeReader::NamedFilters;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -27,7 +28,7 @@ namespace TreeReaderApp
       FilterChangedCallback FilterChanged;
 
       // Create a filter editor with the given parent widget.
-      FilterEditor(UndoStack& undoRedo, QWidget* parent);
+      FilterEditor(const NamedFilters& known, UndoStack& undoRedo, QWidget* parent);
 
       // Set the Filters being edited.
       void SetEdited(const TreeFilterPtr& edited, const std::wstring& name, bool forced = false);

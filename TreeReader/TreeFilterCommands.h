@@ -64,7 +64,7 @@ namespace TreeReader
       NamedFilterPtr NameFilter(const std::wstring& filterName);
       NamedFilterPtr NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
       bool RemoveNamedFilter(const std::wstring& filterName);
-      std::vector<NamedFilterPtr> GetNamedFilters() const;
+      const NamedFilters& GetNamedFilters() const { return *_knownFilters; }
 
       void SaveNamedFilters(const std::filesystem::path& filename);
       void LoadNamedFilters(const std::filesystem::path& filename);

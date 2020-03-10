@@ -137,7 +137,7 @@ namespace TreeReaderApp
          _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
          filters_layout->addWidget(_scrollFiltersList);
 
-         _filterEditor = new FilterEditor(_data.UndoRedo(), filters_container);
+         _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filters_container);
          filters_layout->addWidget(_filterEditor);
 
          filtersDock->setWidget(filters_container);
@@ -277,7 +277,7 @@ namespace TreeReaderApp
 
    void MainWindow::FillAvailableFiltersUI()
    {
-      for (const auto& filter : _data.GetNamedFilters())
+      for (const auto& [name, filter] : _data.GetNamedFilters().All())
          AddNamedFilterToAvailable(filter);
 
       _availableFiltersList->AddTreeFilter(Accept());

@@ -90,7 +90,16 @@ namespace TreeReader
    {
       wstring result;
 
-      CommandLine previousCtx; // TODO = *this;
+      // Backup current settings to detect changes.
+      CommandLine previousCtx;
+      previousCtx.FilterText = FilterText;
+      previousCtx.Options = Options;
+      previousCtx.Options.ReadOptions = Options.ReadOptions;
+      previousCtx._treeFileName = _treeFileName;
+      previousCtx.UseV1 = UseV1;
+      previousCtx._filter = _filter;
+      previousCtx._trees = _trees;
+
       FilterText = L"";
 
       for (size_t i = 0; i < cmds.size(); ++i)

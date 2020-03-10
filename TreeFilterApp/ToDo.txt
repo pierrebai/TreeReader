@@ -1,4 +1,3 @@
 Localisation.
 Use saveState and restoreState on mainWindow.
-Make filtering async.
 Allow multi-filtering. (filter, then filter again)

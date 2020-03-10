@@ -41,8 +41,8 @@ namespace TreeReaderApp
    class FiltersEditorUI
    {
    public:
-      FiltersEditorUI(UndoStack& undoRedo, FilterEditor& parent)
-      : _undoRedo(undoRedo), _editor(parent)
+      FiltersEditorUI(const NamedFilters& known, UndoStack& undoRedo, FilterEditor& parent)
+      : _knownFilters(known), _undoRedo(undoRedo), _editor(parent)
       {
          BuildUI(parent);
          ConnectUI();
@@ -294,8 +294,7 @@ namespace TreeReaderApp
 
       void AwakenFilters(const any& data)
       {
-         auto _knownFilters = make_shared<NamedFilters>(); // TODO REMOVE: pass real known filters to constructor.
-         _edited = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);
+         _edited = ConvertTextToFilters(any_cast<wstring>(data), _knownFilters);
          FillUI();
       }
 
@@ -310,6 +309,7 @@ namespace TreeReaderApp
       //
       // Data.
 
+      const NamedFilters& _knownFilters;
       UndoStack& _undoRedo;
       FilterEditor& _editor;
       TreeFilterPtr _edited;
@@ -325,8 +325,8 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   FilterEditor::FilterEditor(UndoStack& undoRedo, QWidget* parent)
-   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(undoRedo, *this))
+   FilterEditor::FilterEditor(const NamedFilters& known, UndoStack& undoRedo, QWidget* parent)
+   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(known, undoRedo, *this))
    {
    }
 
