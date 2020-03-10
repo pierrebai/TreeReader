@@ -30,6 +30,13 @@ namespace TreeReader
       return GetShortName();
    }
 
+   DelegateTreeFilter::DelegateTreeFilter(const DelegateTreeFilter& other)
+   : Filter(other.Filter)
+   {
+      if (Filter)
+         Filter = Filter->Clone();
+   }
+
    Result DelegateTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
    {
       if (!Filter)
@@ -66,6 +73,14 @@ namespace TreeReader
    Result RegexTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       return regex_search(node.TextPtr, Regex) ? Keep : Drop;
+   }
+
+   CombineTreeFilter::CombineTreeFilter(const CombineTreeFilter& other)
+   : Filters(other.Filters)
+   {
+      for (auto& filter : Filters)
+         if (filter)
+            filter = filter->Clone();
    }
 
    Result NotTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
@@ -336,8 +351,7 @@ namespace TreeReader
       VisitInOrder(sourceTree, visitor);
    }
 
-   pair<future<TextTree>, shared_ptr<CanAbortTreeVisitor>> FilterTreeAsync(
-      const shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter)
+   AsyncFilterTreeResult FilterTreeAsync(const shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter)
    {
       if (!filter)
          return {};

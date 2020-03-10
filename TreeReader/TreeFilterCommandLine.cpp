@@ -90,7 +90,7 @@ namespace TreeReader
    {
       wstring result;
 
-      CommandLine previousCtx = *this;
+      CommandLine previousCtx; // TODO = *this;
       FilterText = L"";
 
       for (size_t i = 0; i < cmds.size(); ++i)

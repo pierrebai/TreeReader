@@ -65,6 +65,7 @@ namespace TreeReader
 
       DelegateTreeFilter() = default;
       DelegateTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
+      DelegateTreeFilter(const DelegateTreeFilter& other);
 
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
@@ -171,6 +172,7 @@ namespace TreeReader
 
       CombineTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { Filters.push_back(lhs); Filters.push_back(rhs); }
       CombineTreeFilter(const std::vector<TreeFilterPtr>& filters) : Filters(filters) {}
+      CombineTreeFilter(const CombineTreeFilter& other);
    };
 
    // Filter that inverts the keep decision of another filter.
@@ -419,7 +421,8 @@ namespace TreeReader
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
 
-   std::pair<std::future<TextTree>, std::shared_ptr<CanAbortTreeVisitor>> FilterTreeAsync(
-      const std::shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter);
+   using AsyncFilterTreeResult = std::pair<std::future<TextTree>, std::shared_ptr<CanAbortTreeVisitor>>;
+
+   AsyncFilterTreeResult FilterTreeAsync(const std::shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter);
 }
 

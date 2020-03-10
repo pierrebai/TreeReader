@@ -7,14 +7,12 @@
 #include "TreeFilterCommands.h"
 
 #include <QtWidgets/qmainwindow.h>
-#include <QtWidgets/qdockwidget.h>
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/qtreeview.h>
-#include <QtWidgets/qlineedit.h>
 
-#include <vector>
-#include <map>
+class QToolButton;
+class QAction;
+class QTreeView;
+class QDockWidget;
+class QTimer;
 
 namespace TreeReaderApp
 {
@@ -58,6 +56,7 @@ namespace TreeReaderApp
 
       // Tree filtering.
       void FilterTree();
+      void verifyAsyncFiltering();
       void NameFilter();
       void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
 
@@ -94,6 +93,7 @@ namespace TreeReaderApp
       FilterEditor* _filterEditor = nullptr;
       TreeFilterListWidget* _availableFiltersList = nullptr;
       QWidgetScrollListWidget* _scrollFiltersList = nullptr;
+      QTimer* _filteringTimer = nullptr;
    };
 }
 

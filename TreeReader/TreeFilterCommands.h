@@ -43,14 +43,21 @@ namespace TreeReader
       void SetOutputIndent(const std::wstring& indentText);
 
       std::wstring LoadTree(const std::filesystem::path& filename);
-      void CommandsContext::SaveFilteredTree(const std::filesystem::path& filename);
+      void SaveFilteredTree(const std::filesystem::path& filename);
       bool IsFilteredTreeSaved() const { return _filteredWasSaved; }
 
       // Current filter.
 
       void SetFilter(const TreeFilterPtr& filter);
       const TreeFilterPtr& GetFilter() const { return _filter; }
+
+      // Filtering.
+
       void ApplyFilterToTree();
+      void ApplyFilterToTreeAsync();
+      void AbortAsyncFilter();
+      bool IsAsyncFilterReady();
+
 
       // Named filters management.
 
@@ -87,6 +94,7 @@ namespace TreeReader
       std::wstring _filteredFileName;
       std::shared_ptr<TextTree> _filtered;
       bool _filteredWasSaved = false;
+      AsyncFilterTreeResult _asyncFiltering;
 
       std::shared_ptr<NamedFilters> _knownFilters = std::make_shared<NamedFilters>();
 

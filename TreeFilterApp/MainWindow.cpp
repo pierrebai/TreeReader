@@ -9,6 +9,10 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qtoolbar.h>
+#include <QtWidgets/qdockwidget.h>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qtoolbutton.h>
+#include <QtWidgets/qtreeview.h>
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -16,6 +20,7 @@
 #include <QtWinExtras/qwinfunctions.h>
 
 #include <QtCore/qstandardpaths.h>
+#include <QtCore/qtimer.h>
 
 #include "resource.h"
 
@@ -82,6 +87,10 @@ namespace TreeReaderApp
 
    void MainWindow::BuildUI()
    {
+      _filteringTimer = new QTimer(this);
+      _filteringTimer->setSingleShot(true);
+
+
       QToolBar* toolbar = new QToolBar();
          toolbar->setIconSize(QSize(32, 32));
 
@@ -150,6 +159,11 @@ namespace TreeReaderApp
 
    void MainWindow::ConnectUI()
    {
+      _filteringTimer->connect(_filteringTimer, &QTimer::timeout, [self = this]()
+      {
+         self->verifyAsyncFiltering();
+      });
+
       _data.UndoRedo().Changed = [self = this](UndoStack&)
       {
          self->UpdateUndoRedoActions();
@@ -306,7 +320,10 @@ namespace TreeReaderApp
 
          if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
          {
-            self->_filterEditor->SetEdited(named->Filter, named->Name, true);
+            if (named->Filter)
+            {
+               self->_filterEditor->SetEdited(named->Filter->Clone(), named->Name, true);
+            }
          }
       };
 
@@ -337,7 +354,15 @@ namespace TreeReaderApp
          catch (const exception&)
          {
             // Ignore.
+         }
 
+         try
+         {
+            _data.AbortAsyncFilter();
+         }
+         catch (const exception&)
+         {
+            // Ignore.
          }
 
          QWidget::closeEvent(ev);
@@ -403,8 +428,21 @@ namespace TreeReaderApp
       if (_data.GetCurrentTree() == nullptr)
          return;
 
-      _data.ApplyFilterToTree();
-      FillTextTreeUI();
+      _data.ApplyFilterToTreeAsync();
+      _filteringTimer->start(10);
+
+   }
+
+   void MainWindow::verifyAsyncFiltering()
+   {
+      if (_data.IsAsyncFilterReady())
+      {
+         FillTextTreeUI();
+      }
+      else
+      {
+         _filteringTimer->start(10);
+      }
    }
 
    void MainWindow::NameFilter()

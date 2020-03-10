@@ -84,6 +84,39 @@ namespace TreeReader
       }
    }
 
+   void CommandsContext::ApplyFilterToTreeAsync()
+   {
+      if (_trees.size() <= 0)
+         return;
+
+      AbortAsyncFilter();
+
+      _asyncFiltering = move(FilterTreeAsync(_trees.back(), _filter));
+   }
+
+   void CommandsContext::AbortAsyncFilter()
+   {
+      if (_asyncFiltering.second)
+         _asyncFiltering.second->Abort = true;
+   }
+
+   bool CommandsContext::IsAsyncFilterReady()
+   {
+      if (!_asyncFiltering.first.valid())
+         return false;
+
+      if (!_asyncFiltering.second)
+         return true;
+
+      if (_asyncFiltering.first.wait_for(1us) != future_status::ready)
+         return false;
+
+      _filtered = make_shared<TextTree>(_asyncFiltering.first.get());
+      _asyncFiltering = AsyncFilterTreeResult();
+
+      return true;
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Named filters management.
