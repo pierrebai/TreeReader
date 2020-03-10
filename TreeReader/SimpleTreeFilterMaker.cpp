@@ -10,7 +10,42 @@ namespace TreeReader
 
    namespace S1
    {
-      TreeFilterPtr ConvertTextToFilters(vector<wstring>& parts, const NamedFilters& named)
+      pair<wstring, bool> GetNextPart(wistream& stream)
+      {
+         wchar_t firstLetter = 0;
+         do
+         {
+            stream.get(firstLetter);
+         } while (stream && firstLetter == L' ');
+         stream.unget();
+
+         wstring part;
+         bool wasQuoted = false;
+         if (firstLetter == L'"')
+         {
+            wasQuoted = true;
+            stream >> quoted(part);
+         }
+         else
+         {
+            stream >> part;
+         }
+
+         return make_pair(part, wasQuoted);
+      }
+
+      size_t GetNextCount(wistream& stream)
+      {
+         const auto [countText, countQuoted] = GetNextPart(stream);
+
+         wistringstream sstream(countText);
+         size_t count;
+         sstream >> count;
+
+         return count;
+      }
+
+      TreeFilterPtr ConvertTextToFilters(wistream& stream, const NamedFilters& named)
       {
          TreeFilterPtr result;
          TreeFilterPtr previous;
@@ -63,26 +98,28 @@ namespace TreeReader
             }
          };
 
-         while (parts.size() > 0)
+         while (stream)
          {
-            const wstring part = move(parts.back());
-            parts.pop_back();
+            auto [part, wasQuoted] = GetNextPart(stream);
+            if (part.empty())
+               continue;
 
-            if (part == L"!" || part == L"not")
+            if (wasQuoted)
+            {
+               auto filter = Contains(part);
+               AddFilter(filter);
+            }
+            else if (part == L"!" || part == L"not")
             {
                auto filter = make_shared<NotTreeFilter>();
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"@")
+            else if (part[0] == L'@')
             {
-               if (parts.size() > 0)
-               {
-                  const wstring name = move(parts.back());
-                  parts.pop_back();
-                  auto filter = named.Get(name);
-                  AddFilter(filter);
-               }
+               const wstring name = part.substr(1);
+               auto filter = named.Get(name);
+               AddFilter(filter);
             }
             else if (part == L"?=" || part == L"sibling")
             {
@@ -114,7 +151,7 @@ namespace TreeReader
             }
             else if (part == L"(")
             {
-               auto filter = ConvertTextToFilters(parts, named);
+               auto filter = ConvertTextToFilters(stream, named);
                AddFilter(filter);
             }
             else if (part == L")")
@@ -122,29 +159,10 @@ namespace TreeReader
                // Assume we were recursed into.
                break;
             }
-            else if (part.front() == L'\"')
-            {
-               if (part.back() == L'\"')
-               {
-                  wstring text = part.substr(1, part.size() - 2);
-                  auto filter = Contains(text);
-                  AddFilter(filter);
-               }
-            }
             else if (part == L"<=" || part == L"max")
             {
-               if (parts.size() > 0)
-               {
-                  const wstring countText = move(parts.back());
-                  parts.pop_back();
-
-                  wistringstream sstream(countText);
-                  size_t count;
-                  sstream >> count;
-
-                  auto filter = MaxLevel(count);
-                  AddFilter(filter);
-               }
+               auto filter = MaxLevel(GetNextCount(stream));
+               AddFilter(filter);
             }
             else if (part == L">" || part == L"under")
             {
@@ -154,37 +172,17 @@ namespace TreeReader
             }
             else if (part == L"#>" || part == L"count-children")
             {
-               if (parts.size() > 0)
-               {
-                  const wstring countText = move(parts.back());
-                  parts.pop_back();
-
-                  wistringstream sstream(countText);
-                  size_t count;
-                  sstream >> count;
-
-                  auto filter = make_shared<CountChildrenTreeFilter>();
-                  filter->Count = count;
-                  AddFilter(filter);
-                  neededFilter = &filter->Filter;
-               }
+               auto filter = make_shared<CountChildrenTreeFilter>();
+               filter->Count = GetNextCount(stream);
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
             }
             else if (part == L"#=" || part == L"count-siblings")
             {
-               if (parts.size() > 0)
-               {
-                  const wstring countText = move(parts.back());
-                  parts.pop_back();
-
-                  wistringstream sstream(countText);
-                  size_t count;
-                  sstream >> count;
-
-                  auto filter = make_shared<CountSiblingsTreeFilter>();
-                  filter->Count = count;
-                  AddFilter(filter);
-                  neededFilter = &filter->Filter;
-               }
+               auto filter = make_shared<CountSiblingsTreeFilter>();
+               filter->Count = GetNextCount(stream);
+               AddFilter(filter);
+               neededFilter = &filter->Filter;
             }
             else if (part == L"." || part == L"stop")
             {
@@ -212,9 +210,8 @@ namespace TreeReader
 
       TreeFilterPtr ConvertTextToFilters(const wstring& text, const NamedFilters& named)
       {
-         vector<wstring> parts = split(text);
-         reverse(parts.begin(), parts.end());
-         TreeFilterPtr filter = ConvertTextToFilters(parts, named);
+         wistringstream stream(text);
+         TreeFilterPtr filter = ConvertTextToFilters(stream, named);
          UpdateNamedFilters(filter, named);
          return filter;
       }
