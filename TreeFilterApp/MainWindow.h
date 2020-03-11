@@ -55,6 +55,10 @@ namespace TreeReaderApp
       void LoadTree();
       bool SaveFilteredTree();
 
+      // Main window state.
+      void SaveState();
+      void LoadState();
+
       // Tree filtering.
       void FilterTree();
       void verifyAsyncFiltering();

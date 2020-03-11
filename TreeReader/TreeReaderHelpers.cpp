@@ -6,7 +6,7 @@ namespace TreeReader
 {
    using namespace std;
 
-   vector<wstring> split(const wstring& text, wchar_t delimiter, SplitOptions options)
+   vector<wstring> Split(const wstring& text, wchar_t delimiter, SplitOptions options)
    {
       vector<wstring> result;
       wistringstream sstream(text);
@@ -17,7 +17,7 @@ namespace TreeReader
       return result;
    }
 
-   wstring join(const vector<wstring>& parts, wchar_t delimiter)
+   wstring Join(const vector<wstring>& parts, wchar_t delimiter)
    {
       wstring result;
 
@@ -35,5 +35,17 @@ namespace TreeReader
       }
 
       return result;
+   }
+
+   void WithNoExceptions(const std::function<void()>& func)
+   {
+      try
+      {
+         func();
+      }
+      catch (const exception&)
+      {
+         // Do nothing.
+      }
    }
 }

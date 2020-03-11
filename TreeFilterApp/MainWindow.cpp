@@ -5,6 +5,7 @@
 #include "QtUtilities.h"
 
 #include "TreeFilterMaker.h"
+#include "TreeReaderHelpers.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
@@ -22,6 +23,9 @@
 
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qtimer.h>
+
+#include <fstream>
+#include <iomanip>
 
 #include "resource.h"
 
@@ -69,6 +73,11 @@ namespace TreeReaderApp
       {
          return GetLocalDataFileName(L"tree-reader-options.txt");
       }
+
+      static filesystem::path GetMainWindowStateFileName()
+      {
+         return GetLocalDataFileName(L"main-window-state.txt");
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -96,7 +105,8 @@ namespace TreeReaderApp
       _filteringTimer = new QTimer(this);
       _filteringTimer->setSingleShot(true);
 
-      QToolBar* toolbar = new QToolBar();
+      auto toolbar = new QToolBar();
+         toolbar->setObjectName("Main Toolbar");
          toolbar->setIconSize(QSize(32, 32));
 
          _loadTreeAction = CreateAction(L::t(L"Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
@@ -134,30 +144,42 @@ namespace TreeReaderApp
          toolbar->addWidget(_optionsButton);
 
       auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
+         filtersDock->setObjectName("Tree Filter");
          filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
-         QWidget* filters_container = new QWidget();
-         QHBoxLayout* filters_layout = new QHBoxLayout(filters_container);
+         auto filtersContainer = new QWidget();
+         auto filtersLayout = new QHBoxLayout(filtersContainer);
 
          _availableFiltersList = new TreeFilterListWidget;
          _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
-         filters_layout->addWidget(_scrollFiltersList);
+         filtersLayout->addWidget(_scrollFiltersList);
 
-         _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filters_container);
-         filters_layout->addWidget(_filterEditor);
+         _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filtersContainer);
+         filtersLayout->addWidget(_filterEditor);
 
-         filtersDock->setWidget(filters_container);
+         filtersDock->setWidget(filtersContainer);
 
       auto simpleSearchDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Text Search")));
+         simpleSearchDock->setObjectName("Tree Text Search");
          simpleSearchDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+         auto searchContainer = new QWidget();
+         auto searchLayout = new QHBoxLayout(searchContainer);
+
          _simpleSearch = new QLineEdit;
-         simpleSearchDock->setWidget(_simpleSearch);
+         searchLayout->addWidget(_simpleSearch);
 
-      _treeView = new QTreeView;
-      _treeView->setUniformRowHeights(true);
-      _treeView->setHeaderHidden(true);
-      _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+         simpleSearchDock->setWidget(searchContainer);
 
-      setCentralWidget(_treeView);
+      auto mainContainer = new QWidget;
+         auto mainLayout = new QVBoxLayout(mainContainer);
+
+         _treeView = new QTreeView;
+         _treeView->setUniformRowHeights(true);
+         _treeView->setHeaderHidden(true);
+         _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+         mainLayout->addWidget(_treeView);
+
+      setCentralWidget(mainContainer);
       addToolBar(toolbar);
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
       addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, simpleSearchDock);
@@ -244,24 +266,9 @@ namespace TreeReaderApp
 
    void MainWindow::FillUI()
    {
-      try
-      {
-         _data.LoadNamedFilters(GetNamedFiltersFileName());
-      }
-      catch (const exception &)
-      {
-         // Ignore.
-      }
-
-      try
-      {
-         _data.LoadOptions(GetOptionsFileName());
-      }
-      catch (const exception&)
-      {
-         // Ignore.
-      
-      }
+      WithNoExceptions([self = this]() { self->_data.LoadNamedFilters(GetNamedFiltersFileName()); });
+      WithNoExceptions([self = this]() { self->_data.LoadOptions(GetOptionsFileName()); });
+      WithNoExceptions([self = this]() { self->LoadState(); });
 
       FillAvailableFiltersUI();
    }
@@ -350,38 +357,36 @@ namespace TreeReaderApp
 
    /////////////////////////////////////////////////////////////////////////
    //
+   // Main window state.
+
+   void MainWindow::SaveState()
+   {
+      ofstream stream(GetMainWindowStateFileName());
+      QByteArray state = saveState();
+      stream << state.toBase64().toStdString();
+   }
+
+   void MainWindow::LoadState()
+   {
+      ifstream stream(GetMainWindowStateFileName());
+      string text;
+      stream >> text;
+      QByteArray state = QByteArray::fromBase64(QByteArray::fromStdString(text));
+      restoreState(state, 0);
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Closing and saving.
 
    void MainWindow::closeEvent(QCloseEvent* ev)
    {
       if (SaveIfRequired(L::t(L"close the window"), L::t(L"closing the window")))
       {
-         try
-         {
-            _data.SaveNamedFilters(GetNamedFiltersFileName());
-         }
-         catch (const exception&)
-         {
-            // Ignore.
-         }
-
-         try
-         {
-            _data.SaveOptions(GetOptionsFileName());
-         }
-         catch (const exception&)
-         {
-            // Ignore.
-         }
-
-         try
-         {
-            _data.AbortAsyncFilter();
-         }
-         catch (const exception&)
-         {
-            // Ignore.
-         }
+         WithNoExceptions([self = this]() { self->_data.SaveNamedFilters(GetNamedFiltersFileName()); });
+         WithNoExceptions([self = this]() { self->_data.SaveOptions(GetOptionsFileName()); });
+         WithNoExceptions([self = this]() { self->SaveState(); });
+         WithNoExceptions([self = this]() { self->_data.AbortAsyncFilter(); });
 
          QWidget::closeEvent(ev);
       }

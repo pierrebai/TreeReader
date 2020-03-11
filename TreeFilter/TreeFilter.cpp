@@ -30,6 +30,6 @@ int wmain(int argc, wchar_t** argv)
       wcin.getline(buffer, sizeof(buffer)/sizeof(buffer[0]));
       if (!wcin || !buffer[0])
          break;
-      args = split(buffer);
+      args = Split(buffer);
    }
 }

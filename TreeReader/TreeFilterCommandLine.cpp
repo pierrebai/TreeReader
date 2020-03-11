@@ -83,7 +83,7 @@ namespace TreeReader
 
    wstring CommandLine::ParseCommands(const wstring& cmdText)
    {
-      return ParseCommands(split(cmdText));
+      return ParseCommands(Split(cmdText));
    }
 
    wstring CommandLine::ParseCommands(const vector<wstring>& cmds)

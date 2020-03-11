@@ -1,3 +1,2 @@
 Localisation.
-Use saveState and restoreState on mainWindow.
 Allow multi-filtering. (filter, then filter again)
