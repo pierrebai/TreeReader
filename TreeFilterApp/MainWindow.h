@@ -14,6 +14,7 @@ class QTreeView;
 class QDockWidget;
 class QTimer;
 class QLineEdit;
+class QPushButton;
 
 namespace TreeReaderApp
 {
@@ -93,6 +94,8 @@ namespace TreeReaderApp
 
       QAction* _optionsAction = nullptr;
       QToolButton* _optionsButton = nullptr;
+
+      QPushButton* _editSearchButton = nullptr;
 
       // UI elements.
       QTreeView* _treeView = nullptr;

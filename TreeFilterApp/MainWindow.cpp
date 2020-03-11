@@ -15,6 +15,7 @@
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qpushbutton.h>
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -167,6 +168,14 @@ namespace TreeReaderApp
          _simpleSearch = new QLineEdit;
          searchLayout->addWidget(_simpleSearch);
 
+         _editSearchButton = new QPushButton;
+         _editSearchButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
+         _editSearchButton->setToolTip(QString::fromWCharArray(L::t(L"Edit Search Filter")));
+         _editSearchButton->setFlat(true);
+         _editSearchButton->setMaximumSize(QSize(16, 16));
+
+         searchLayout->addWidget(_editSearchButton);
+
          simpleSearchDock->setWidget(searchContainer);
 
       auto mainContainer = new QWidget;
@@ -201,6 +210,19 @@ namespace TreeReaderApp
       {
          self->UpdateUndoRedoActions();
       };
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Simple text search.
+
+      _editSearchButton->connect(_editSearchButton, &QPushButton::clicked, [self = this]()
+      {
+         auto filter = ConvertSimpleTextToFilters(self->_simpleSearch->text().toStdWString(), self->_data.GetNamedFilters());
+         if (filter)
+         {
+            self->_filterEditor->SetEdited(filter, L"");
+         }
+      });
 
       _simpleSearch->connect(_simpleSearch, &QLineEdit::textChanged, [self = this](const QString& text)
       {
