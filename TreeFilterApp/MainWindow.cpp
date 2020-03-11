@@ -38,46 +38,38 @@ namespace TreeReaderApp
 
    namespace
    {
-      namespace L
-      {
-         inline const wchar_t* t(const wchar_t* text)
-         {
-            return text;
-         }
-      }
+      static constexpr char TreeFileTypes[] = "Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
 
-      static constexpr wchar_t TreeFileTypes[] = L"Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
-
-      static filesystem::path GetLocalDataFileName(const wchar_t filename[])
+      static filesystem::path GetLocalDataFileName(const QString& filename)
       {
-         auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, QString::fromWCharArray(filename), QStandardPaths::LocateFile);
+         auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, filename, QStandardPaths::LocateFile);
          if (!path.isEmpty())
             return path.toStdWString();
 
          auto location = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
          if (location.size() <= 0)
-            return filename;
+            return filename.toStdWString();
 
          filesystem::path dir(location.toStdWString());
          error_code error;
          filesystem::create_directories(dir, error);
 
-         return dir / filesystem::path(filename);
+         return dir / filesystem::path(filename.toStdWString());
       }
 
       static filesystem::path GetNamedFiltersFileName()
       {
-         return GetLocalDataFileName(L"tree-reader-named-filters.txt");
+         return GetLocalDataFileName("tree-reader-named-filters.txt");
       }
 
       static filesystem::path GetOptionsFileName()
       {
-         return GetLocalDataFileName(L"tree-reader-options.txt");
+         return GetLocalDataFileName("tree-reader-options.txt");
       }
 
       static filesystem::path GetMainWindowStateFileName()
       {
-         return GetLocalDataFileName(L"main-window-state.txt");
+         return GetLocalDataFileName("main-window-state.txt");
       }
    }
 
@@ -110,41 +102,41 @@ namespace TreeReaderApp
          toolbar->setObjectName("Main Toolbar");
          toolbar->setIconSize(QSize(32, 32));
 
-         _loadTreeAction = CreateAction(L::t(L"Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
+         _loadTreeAction = CreateAction(tr("Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
          _loadTreeButton = CreateToolButton(_loadTreeAction);
          toolbar->addWidget(_loadTreeButton);
 
-         _saveTreeAction = CreateAction(L::t(L"Save Tree"), IDB_TREE_SAVE, QKeySequence(QKeySequence::StandardKey::Save));
+         _saveTreeAction = CreateAction(tr("Save Tree"), IDB_TREE_SAVE, QKeySequence(QKeySequence::StandardKey::Save));
          _saveTreeButton = CreateToolButton(_saveTreeAction);
          toolbar->addWidget(_saveTreeButton);
 
-         _applyFilterAction = CreateAction(L::t(L"Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
+         _applyFilterAction = CreateAction(tr("Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
          _applyFilterButton = CreateToolButton(_applyFilterAction);
          toolbar->addWidget(_applyFilterButton);
 
-         _nameFilterAction = CreateAction(L::t(L"Name Filter"), IDB_FILTER_NAME);
+         _nameFilterAction = CreateAction(tr("Name Filter"), IDB_FILTER_NAME);
          _nameFilterButton = CreateToolButton(_nameFilterAction);
          toolbar->addWidget(_nameFilterButton);
 
          toolbar->addSeparator();
 
-         _undoAction = CreateAction(L::t(L"Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
+         _undoAction = CreateAction(tr("Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
          _undoButton = CreateToolButton(_undoAction);
          _undoAction->setEnabled(false);
          toolbar->addWidget(_undoButton);
 
-         _redoAction = CreateAction(L::t(L"Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
+         _redoAction = CreateAction(tr("Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
          _redoButton = CreateToolButton(_redoAction);
          _redoAction->setEnabled(false);
          toolbar->addWidget(_redoButton);
 
          toolbar->addSeparator();
 
-         _optionsAction = CreateAction(L::t(L"Options"), IDB_OPTIONS);
+         _optionsAction = CreateAction(tr("Options"), IDB_OPTIONS);
          _optionsButton = CreateToolButton(_optionsAction);
          toolbar->addWidget(_optionsButton);
 
-      auto filtersDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Filter")));
+      auto filtersDock = new QDockWidget(tr("Tree Filter"));
          filtersDock->setObjectName("Tree Filter");
          filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          auto filtersContainer = new QWidget();
@@ -159,7 +151,7 @@ namespace TreeReaderApp
 
          filtersDock->setWidget(filtersContainer);
 
-      auto simpleSearchDock = new QDockWidget(QString::fromWCharArray(L::t(L"Tree Text Search")));
+      auto simpleSearchDock = new QDockWidget(tr("Tree Text Search"));
          simpleSearchDock->setObjectName("Tree Text Search");
          simpleSearchDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
          auto searchContainer = new QWidget();
@@ -170,7 +162,7 @@ namespace TreeReaderApp
 
          _editSearchButton = new QPushButton;
          _editSearchButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
-         _editSearchButton->setToolTip(QString::fromWCharArray(L::t(L"Edit Search Filter")));
+         _editSearchButton->setToolTip(tr("Edit Search Filter"));
          _editSearchButton->setFlat(true);
          _editSearchButton->setMaximumSize(QSize(16, 16));
 
@@ -403,7 +395,7 @@ namespace TreeReaderApp
 
    void MainWindow::closeEvent(QCloseEvent* ev)
    {
-      if (SaveIfRequired(L::t(L"close the window"), L::t(L"closing the window")))
+      if (SaveIfRequired(tr("close the window"), tr("closing the window")))
       {
          WithNoExceptions([self = this]() { self->_data.SaveNamedFilters(GetNamedFiltersFileName()); });
          WithNoExceptions([self = this]() { self->_data.SaveOptions(GetOptionsFileName()); });
@@ -418,13 +410,13 @@ namespace TreeReaderApp
       }
    }
 
-   bool MainWindow::SaveIfRequired(const wstring& action, const wstring& actioning)
+   bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
       if (_data.GetFilteredTree() && !_data.IsFilteredTreeSaved())
       {
          YesNoCancel answer = AskYesNoCancel(
-            L::t(L"Unsaved Text Tree Warning"),
-            wstring(L::t(L"The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + L::t(L"?"),
+            tr("Unsaved Text Tree Warning"),
+            QString(tr("The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + QString(tr("?")),
             this);
          if (answer == YesNoCancel::Cancel)
             return false;
@@ -438,10 +430,10 @@ namespace TreeReaderApp
 
    void MainWindow::LoadTree()
    {
-      if (!SaveIfRequired(L::t(L"load a text tree"), L::t(L"loading a text tree")))
+      if (!SaveIfRequired(tr("load a text tree"), tr("loading a text tree")))
          return;
 
-      filesystem::path path = AskOpen(L::t(L"Load Text Tree"), L::t(TreeFileTypes), this);
+      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeFileTypes), this);
       _data.LoadTree(path);
 
       if (_data.GetCurrentTree() == nullptr)
@@ -455,7 +447,7 @@ namespace TreeReaderApp
       if (!_data.GetFilteredTree())
          return true;
 
-      filesystem::path path = AskSave(L::t(L"Save Filtered Text Tree"), L::t(TreeFileTypes), L"",  this);
+      filesystem::path path = AskSave(tr("Save Filtered Text Tree"), tr(TreeFileTypes), "",  this);
 
       _data.SaveFilteredTree(path);
 
@@ -504,7 +496,7 @@ namespace TreeReaderApp
 
       wstring filterName = _filterEditor->GetEditedName();
 
-      filterName = AskForText(L::t(L"Name a filter"), L::t(L"Filter Name"), filterName.c_str(), this);
+      filterName = AskForText(tr("Name a filter"), tr("Filter Name"), QString::fromStdWString(filterName), this);
       if (filterName.empty())
          return;
 

@@ -28,7 +28,7 @@ namespace QtAdditions
       return button;
    }
 
-   QToolButton* CreateToolButton(const wchar_t* text, int icon, QKeySequence key, const wchar_t* tooltip, function<void()> callback)
+   QToolButton* CreateToolButton(const QString& text, int icon, QKeySequence key, const QString& tooltip, function<void()> callback)
    {
       return CreateToolButton(CreateAction(text, icon, key, tooltip, callback));
    }
@@ -40,70 +40,42 @@ namespace QtAdditions
       return button;
    }
 
-   QAction* CreateAction(const wchar_t* text, int icon, QKeySequence key, const wchar_t* tooltip, function<void()> callback)
+   QAction* CreateAction(const QString& text, int icon, QKeySequence key, const QString& tooltip, function<void()> callback)
    {
       QAction* action = new QAction;
-      if (text && text[0])
-         action->setText(QString::fromWCharArray(text));
+      if (!text.isEmpty())
+         action->setText(text);
       if (icon > 0)
          action->setIcon(QIcon(CreatePixmapFromResource(icon)));
       if (!key.isEmpty())
          action->setShortcut(key);
-      if (tooltip && tooltip[0])
-         action->setToolTip(QString::fromWCharArray(tooltip));
+      if (!tooltip.isEmpty())
+         action->setToolTip(tooltip);
       if (callback)
          action->connect(action, &QAction::triggered, callback);
       return action;
    }
 
-   filesystem::path AskOpen(const wchar_t* title, const wchar_t* file_types, QWidget* parent)
+   filesystem::path AskOpen(const QString& title, const QString& file_types, QWidget* parent)
    {
-      if (!title)
-         title = L"";
-
-      if (!file_types)
-         file_types = L"";
-
-      const QString qfn = QFileDialog::getOpenFileName(
-         parent, QString::fromWCharArray(title), QString(), QString::fromWCharArray(file_types));
+      const QString qfn = QFileDialog::getOpenFileName(parent, title, QString(), file_types);
 
       return qfn.toStdWString();
    }
 
-   filesystem::path AskSave(const wchar_t* title, const wchar_t* file_types, const wchar_t* initialContent, QWidget* parent)
+   filesystem::path AskSave(const QString& title, const QString& file_types, const QString& initialContent, QWidget* parent)
    {
-      if (!title)
-         title = L"";
-
-      if (!file_types)
-         file_types = L"";
-
-      if (!initialContent)
-         initialContent = L"";
-
-      const QString qfn = QFileDialog::getSaveFileName(
-         parent, QString::fromWCharArray(title), QString::fromWCharArray(initialContent), QString::fromWCharArray(file_types));
+      const QString qfn = QFileDialog::getSaveFileName(parent, title, initialContent, file_types);
 
       return qfn.toStdWString();
    }
 
    // Ask yes/no/cancel.
-   YesNoCancel AskYesNoCancel(const wstring& title, const wstring& text, QWidget* parent)
+   YesNoCancel AskYesNoCancel(const QString& title, const QString& text, QWidget* parent)
    {
-      return AskYesNoCancel(title.c_str(), text.c_str(), parent);
-   }
-
-   YesNoCancel AskYesNoCancel(const wchar_t* title, const wchar_t* text, QWidget* parent)
-   {
-      if (!title)
-         title = L"";
-
-      if (!text)
-         text = L"";
-
       QMessageBox box;
-      box.setWindowTitle(QString::fromWCharArray(title));
-      box.setText(QString::fromWCharArray(text));
+      box.setWindowTitle(title);
+      box.setText(text);
       box.setStandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::No );
       box.setDefaultButton(QMessageBox::StandardButton::Cancel);
       switch (box.exec())
@@ -118,19 +90,9 @@ namespace QtAdditions
       }
    }
 
-   wstring AskForText(const wchar_t* title, const wchar_t* label, const wchar_t* initialContent, QWidget* parent)
+   wstring AskForText(const QString& title, const QString& label, const QString& initialContent, QWidget* parent)
    {
-      if (!title)
-         title = L"";
-
-      if (!label)
-         label = L"";
-
-      if (!initialContent)
-         initialContent = L"";
-
-      QString text = QInputDialog::getText(parent, QString::fromWCharArray(title), QString::fromWCharArray(label),
-         QLineEdit::Normal, QString::fromWCharArray(initialContent));
+      QString text = QInputDialog::getText(parent, title, label, QLineEdit::Normal, initialContent);
 
       return text.toStdWString();
    }

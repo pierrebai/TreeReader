@@ -21,17 +21,6 @@ namespace QtAdditions
 {
    using namespace std;
 
-   namespace
-   {
-      namespace L
-      {
-         inline const wchar_t* t(const wchar_t* text)
-         {
-            return text;
-         }
-      }
-   }
-
    /////////////////////////////////////////////////////////////////////////
    //
    // Widget list panel.
@@ -51,7 +40,7 @@ namespace QtAdditions
       _layout->setSpacing(0);
       setLayout(_layout);
 
-      _dropHere = new QLabel(QString::fromWCharArray(L::t(L"Drop items here.")));
+      _dropHere = new QLabel(tr("Drop items here."));
       _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
       _layout->addWidget(_dropHere);
 

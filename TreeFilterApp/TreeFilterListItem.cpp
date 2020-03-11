@@ -26,14 +26,6 @@ namespace TreeReaderApp
       using DeleteCallbackFunction = TreeFilterListItem::DeleteCallbackFunction;
       using EditCallbackFunction = TreeFilterListItem::EditCallbackFunction;
 
-      namespace L
-      {
-         inline const wchar_t* t(const wchar_t* text)
-         {
-            return text;
-         }
-      }
-
       /////////////////////////////////////////////////////////////////////////
       //
       // Filter panel creation helpers.
@@ -221,7 +213,7 @@ namespace TreeReaderApp
       {
          auto editButton = new QPushButton;
          editButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
-         editButton->setToolTip(QString::fromWCharArray(L::t(L"Edit this filter")));
+         editButton->setToolTip(tr("Edit this filter"));
          editButton->setFlat(true);
          editButton->setMaximumSize(QSize(16, 16));
          name_layout->addWidget(editButton);
@@ -236,7 +228,7 @@ namespace TreeReaderApp
       {
          auto deleteButton = new QPushButton;
          deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
-         deleteButton->setToolTip(QString::fromWCharArray(L::t(L"Delete this filter")));
+         deleteButton->setToolTip(tr("Delete this filter"));
          deleteButton->setFlat(true);
          deleteButton->setMaximumSize(QSize(16, 16));
          name_layout->addWidget(deleteButton);
@@ -249,7 +241,7 @@ namespace TreeReaderApp
 
       if (includeSelf)
       {
-         auto includeBox = new QCheckBox(QString::fromWCharArray(L::t(L"Include self")));
+         auto includeBox = new QCheckBox(tr("Include self"));
          includeBox->setChecked(active);
          container_layout->addWidget(includeBox);
 

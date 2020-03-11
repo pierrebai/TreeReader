@@ -23,17 +23,6 @@ namespace TreeReaderApp
    using namespace QtAdditions;
    using namespace std;
 
-   namespace
-   {
-      namespace L
-      {
-         inline const wchar_t* t(const wchar_t* text)
-         {
-            return text;
-         }
-      }
-   }
-
    ////////////////////////////////////////////////////////////////////////////
    //
    // A QWidget to select and order filters.

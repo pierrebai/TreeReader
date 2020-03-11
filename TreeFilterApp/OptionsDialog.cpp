@@ -10,17 +10,6 @@
 
 namespace TreeReaderApp
 {
-   namespace
-   {
-      namespace L
-      {
-         inline const wchar_t* t(const wchar_t* text)
-         {
-            return text;
-         }
-      }
-   }
-
    // Create the options dialog.
    OptionsDialog::OptionsDialog(CommandsOptions& options, QWidget* parent)
    : QDialog(parent), _options(options)
@@ -47,16 +36,16 @@ namespace TreeReaderApp
       layout->addWidget(form);
 
       _outputLineIndentEdit = new QLineEdit;
-      formLayout->addRow(QString::fromWCharArray(L::t(L"Output indentation")), _outputLineIndentEdit);
+      formLayout->addRow(tr("Output indentation"), _outputLineIndentEdit);
 
       _inputIndentEdit = new QLineEdit;
-      formLayout->addRow(QString::fromWCharArray(L::t(L"Input indentation")), _inputIndentEdit);
+      formLayout->addRow(tr("Input indentation"), _inputIndentEdit);
 
       _inputFilterEdit = new QLineEdit;
-      formLayout->addRow(QString::fromWCharArray(L::t(L"Input line filter")), _inputFilterEdit);
+      formLayout->addRow(tr("Input line filter"), _inputFilterEdit);
 
       _tabSizeEdit = new QLineEdit;
-      formLayout->addRow(QString::fromWCharArray(L::t(L"Tab size")), _tabSizeEdit);
+      formLayout->addRow(tr("Tab size"), _tabSizeEdit);
 
       _buttons = new QDialogButtonBox(QDialogButtonBox::StandardButton::Ok | QDialogButtonBox::StandardButton::Cancel);
       layout->addWidget(_buttons);

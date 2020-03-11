@@ -2,6 +2,9 @@
 
 #include <QtWidgets/qapplication.h>
 
+#include <QtCore/qlibraryinfo.h>
+#include <QtCore/qtranslator.h>
+
 static HINSTANCE appInstance;
 
 namespace TreeReaderApp
@@ -12,8 +15,16 @@ namespace TreeReaderApp
    {
       QScopedPointer<QApplication> app(new QApplication(argc, argv));
 
-      auto mainWindow = new MainWindow;
+      QTranslator qtTranslator;
+      qtTranslator.load("qt_" + QLocale::system().name(),
+         QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+      app->installTranslator(&qtTranslator);
 
+      QTranslator appTranslator;
+      appTranslator.load("TreeFilterApp_" + QLocale::system().name());
+      app->installTranslator(&appTranslator);
+
+      auto mainWindow = new MainWindow;
       mainWindow->resize(1000, 800);
       mainWindow->show();
 

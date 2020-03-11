@@ -18,7 +18,7 @@ namespace QtAdditions
    // Create toolbar buttons.
    // Note: icon is a bitmap resource ID.
 
-   QToolButton* CreateToolButton(const wchar_t* text, int icon = 0, QKeySequence key = QKeySequence(), const wchar_t* tooltip = nullptr, std::function<void()> = nullptr);
+   QToolButton* CreateToolButton(const QString& text, int icon = 0, QKeySequence key = QKeySequence(), const QString& tooltip = nullptr, std::function<void()> = nullptr);
    QToolButton* CreateToolButton(QAction* action);
    QToolButton* CreateToolButton();
 
@@ -27,7 +27,7 @@ namespace QtAdditions
    // Create action.
    // Note: icon is a bitmap resource ID.
 
-   QAction* CreateAction(const wchar_t* text, int icon = 0, QKeySequence key = QKeySequence(), const wchar_t* tooltip = nullptr, std::function<void()> = nullptr);
+   QAction* CreateAction(const QString& text, int icon = 0, QKeySequence key = QKeySequence(), const QString& tooltip = nullptr, std::function<void()> = nullptr);
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -39,14 +39,14 @@ namespace QtAdditions
    //
    // Show a dialog to open or save something.
 
-   std::filesystem::path AskOpen(const wchar_t* title, const wchar_t* file_types, QWidget* parent);
-   std::filesystem::path AskSave(const wchar_t* title, const wchar_t* file_types, const wchar_t* initialContent, QWidget* parent);
+   std::filesystem::path AskOpen(const QString& title, const QString& file_types, QWidget* parent);
+   std::filesystem::path AskSave(const QString& title, const QString& file_types, const QString& initialContent, QWidget* parent);
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Ask for text.
 
-   std::wstring AskForText(const wchar_t* title, const wchar_t* label, const wchar_t* initialContent, QWidget* parent);
+   std::wstring AskForText(const QString& title, const QString& label, const QString& initialContent, QWidget* parent);
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -59,8 +59,7 @@ namespace QtAdditions
       Cancel = 2,
    };
 
-   YesNoCancel AskYesNoCancel(const std::wstring& title, const std::wstring& text, QWidget* parent);
-   YesNoCancel AskYesNoCancel(const wchar_t* title, const wchar_t* text, QWidget* parent);
+   YesNoCancel AskYesNoCancel(const QString& title, const QString& text, QWidget* parent);
 
    ////////////////////////////////////////////////////////////////////////////
    //

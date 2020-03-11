@@ -17,14 +17,6 @@ namespace TreeReader
    constexpr Result DropAndSkip { false, true, false };
    constexpr Result KeepAndSkip { false, true, true };
 
-   namespace L
-   {
-      inline const wchar_t* t(const wchar_t* text)
-      {
-         return text;
-      }
-   }
-
    wstring TreeFilter::GetName() const
    {
       return GetShortName();
