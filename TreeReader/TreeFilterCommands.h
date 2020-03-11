@@ -53,11 +53,15 @@ namespace TreeReader
 
       // Filtering.
 
-      void ApplyFilterToTree();
-      void ApplyFilterToTreeAsync();
+      void ApplyFilterToTree(bool async = false);
+      void ApplyFilterToTreeAsync() { ApplyFilterToTree(true); }
       void AbortAsyncFilter();
       bool IsAsyncFilterReady();
+
       void SearchInTree(const std::wstring& text);
+      void SearchInTreeAsync(const std::wstring& text);
+      void AbortAsyncSearch();
+      bool IsAsyncSearchReady();
 
       // Named filters management.
 
@@ -85,7 +89,7 @@ namespace TreeReader
       void DeadedFilters(std::any& data);
       void AwakenFilters(const std::any& data);
       void CommitFilterToUndo();
-      void ApplySearchInTree();
+      void ApplySearchInTree(bool async);
 
       std::wstring _treeFileName;
       std::vector<std::shared_ptr<TextTree>> _trees;
@@ -99,6 +103,7 @@ namespace TreeReader
 
       std::wstring _searchedText;
       std::shared_ptr<TextTree> _searched;
+      AsyncFilterTreeResult _asyncSearching;
 
       std::shared_ptr<NamedFilters> _knownFilters = std::make_shared<NamedFilters>();
 

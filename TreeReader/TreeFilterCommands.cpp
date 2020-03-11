@@ -37,7 +37,7 @@ namespace TreeReader
       if (newTree && newTree->Roots.size() > 0)
       {
          _trees.emplace_back(move(newTree));
-         ApplySearchInTree();
+         ApplySearchInTree(false);
          return {};
       }
       else
@@ -66,58 +66,83 @@ namespace TreeReader
       CommitFilterToUndo();
    }
 
-   void CommandsContext::ApplyFilterToTree()
-   {
-      if (_trees.size() <= 0)
-         return;
-
-      if (_filter)
-      {
-         _filtered = make_shared<TextTree>();
-         FilterTree(*_trees.back(), *_filtered, _filter);
-         _filteredWasSaved = false;
-      }
-      else
-      {
-         _filtered = make_shared<TextTree>(*_trees.back());
-         // Note: pure copy of input tree are considered to have been saved.
-         _filteredWasSaved = true;
-      }
-
-      ApplySearchInTree();
-   }
-
-   void CommandsContext::ApplyFilterToTreeAsync()
+   void CommandsContext::ApplyFilterToTree(bool async)
    {
       if (_trees.size() <= 0)
          return;
 
       AbortAsyncFilter();
 
-      _asyncFiltering = move(FilterTreeAsync(_trees.back(), _filter));
+      if (_filter)
+      {
+         if (async)
+         {
+            _asyncFiltering = move(FilterTreeAsync(_trees.back(), _filter));
+         }
+         else
+         {
+            _filtered = make_shared<TextTree>();
+            FilterTree(*_trees.back(), *_filtered, _filter);
+            _filteredWasSaved = false;
+            ApplySearchInTree(async);
+         }
+      }
+      else
+      {
+         _filtered = make_shared<TextTree>(*_trees.back());
+         // Note: pure copy of input tree are considered to have been saved.
+         _filteredWasSaved = true;
+         ApplySearchInTree(async);
+      }
    }
 
    void CommandsContext::AbortAsyncFilter()
    {
       if (_asyncFiltering.second)
          _asyncFiltering.second->Abort = true;
+      _asyncFiltering = AsyncFilterTreeResult();
+
+      AbortAsyncSearch();
    }
 
    bool CommandsContext::IsAsyncFilterReady()
    {
-      if (!_asyncFiltering.first.valid())
-         return false;
+      if (_asyncFiltering.first.valid())
+      {
+         if (_asyncFiltering.first.wait_for(1us) != future_status::ready)
+            return false;
 
-      if (!_asyncFiltering.second)
-         return true;
+         _filtered = make_shared<TextTree>(_asyncFiltering.first.get());
+         _filteredWasSaved = false;
+         _asyncFiltering = AsyncFilterTreeResult();
 
-      if (_asyncFiltering.first.wait_for(1us) != future_status::ready)
-         return false;
+         ApplySearchInTree(true);
+      }
 
-      _filtered = make_shared<TextTree>(_asyncFiltering.first.get());
-      _asyncFiltering = AsyncFilterTreeResult();
+      return IsAsyncSearchReady();
+   }
 
-      ApplySearchInTree();
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Text search.
+
+   void CommandsContext::AbortAsyncSearch()
+   {
+      if (_asyncSearching.second)
+         _asyncSearching.second->Abort = true;
+      _asyncSearching = AsyncFilterTreeResult();
+   }
+
+   bool CommandsContext::IsAsyncSearchReady()
+   {
+      if (_asyncSearching.first.valid())
+      {
+         if (_asyncSearching.first.wait_for(1us) != future_status::ready)
+            return false;
+
+         _searched = make_shared<TextTree>(_asyncSearching.first.get());
+         _asyncSearching = AsyncFilterTreeResult();
+      }
 
       return true;
    }
@@ -129,10 +154,20 @@ namespace TreeReader
 
       _searchedText = text;
 
-      ApplySearchInTree();
+      ApplySearchInTree(false);
    }
 
-   void CommandsContext::ApplySearchInTree()
+   void CommandsContext::SearchInTreeAsync(const std::wstring& text)
+   {
+      if (_searchedText == text)
+         return;
+
+      _searchedText = text;
+
+      ApplySearchInTree(true);
+   }
+
+   void CommandsContext::ApplySearchInTree(bool async)
    {
       if (_searchedText.empty())
       {
@@ -146,8 +181,18 @@ namespace TreeReader
          return;
 
       auto filter = ConvertSimpleTextToFilters(_searchedText, *_knownFilters);
-      _searched = make_shared<TextTree>();
-      FilterTree(*applyTo, *_searched, filter);
+
+      AbortAsyncSearch();
+
+      if (async)
+      {
+         _asyncSearching = move(FilterTreeAsync(applyTo, filter));
+      }
+      else
+      {
+         _searched = make_shared<TextTree>();
+         FilterTree(*applyTo, *_searched, filter);
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -270,7 +315,7 @@ namespace TreeReader
       if (_trees.size() > 0)
          _trees.pop_back();
 
-      ApplySearchInTree();
+      ApplySearchInTree(false);
    }
    
    /////////////////////////////////////////////////////////////////////////

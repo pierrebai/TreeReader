@@ -492,8 +492,8 @@ namespace TreeReaderApp
 
    void MainWindow::SearchInTree(const QString& text)
    {
-      _data.SearchInTree(text.toStdWString());
-      FillTextTreeUI();
+      _data.SearchInTreeAsync(text.toStdWString());
+      _filteringTimer->start(10);
    }
 
    void MainWindow::NameFilter()
