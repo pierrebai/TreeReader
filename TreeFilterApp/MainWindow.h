@@ -28,9 +28,8 @@ namespace TreeReaderApp
    //
    // The main window of the tree filter app.
 
-   class MainWindow : public QMainWindow
+   struct MainWindow : QMainWindow
    {
-   public:
       // Create the main window.
       MainWindow();
 
@@ -104,6 +103,8 @@ namespace TreeReaderApp
       TreeFilterListWidget* _availableFiltersList = nullptr;
       QWidgetScrollListWidget* _scrollFiltersList = nullptr;
       QTimer* _filteringTimer = nullptr;
+
+      Q_OBJECT;
    };
 }
 

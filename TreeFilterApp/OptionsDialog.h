@@ -15,9 +15,8 @@ namespace TreeReaderApp
    //
    // Options dialog.
 
-   class OptionsDialog : public QDialog
+   struct OptionsDialog : QDialog
    {
-   public:
       // Create the options dialog.
       OptionsDialog(CommandsOptions& options, QWidget* parent = nullptr);
 
@@ -44,6 +43,8 @@ namespace TreeReaderApp
       QLineEdit* _inputFilterEdit = nullptr;
       QLineEdit* _tabSizeEdit = nullptr;
       QDialogButtonBox* _buttons = nullptr;
+
+      Q_OBJECT;
    };
 }
 

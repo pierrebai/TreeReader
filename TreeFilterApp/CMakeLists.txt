@@ -8,6 +8,12 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Gui REQUIRED)
 find_package(Qt5 COMPONENTS WinExtras REQUIRED)
+find_package(Qt5 COMPONENTS LinguistTools REQUIRED)
+
+qt5_create_translation(qmFiles
+   ${CMAKE_SOURCE_DIR}
+   TreeFilterApp_fr.ts
+)
 
 add_executable(TreeFilterApp WIN32
    TreeFilterApp.cpp
@@ -21,6 +27,8 @@ add_executable(TreeFilterApp WIN32
    Resource.rc             resource.h
 
    ToDo.txt
+
+   ${qmFiles}
 
    #resources.qrc
 )
@@ -40,5 +48,6 @@ target_include_directories(TreeFilterApp PUBLIC
 
 add_custom_command(TARGET TreeFilterApp POST_BUILD
    COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:TreeFilterApp>"
+   COMMAND ${CMAKE_COMMAND} -E copy "${qmFiles}" "$<TARGET_FILE_DIR:TreeFilterApp>"
 )
 

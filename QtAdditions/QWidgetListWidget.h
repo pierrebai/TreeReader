@@ -56,5 +56,7 @@ namespace QtAdditions
       ListModifiedCallbackFunction _modifCallback;
       QVBoxLayout* _layout = nullptr;
       QLabel* _dropHere = nullptr;
+
+      Q_OBJECT;
    };
 }

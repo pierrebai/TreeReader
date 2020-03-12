@@ -20,9 +20,8 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   class FilterEditor : public QWidget
+   struct FilterEditor : QWidget
    {
-   public:
       // Callback when the edited filter is changed.
       typedef std::function<void(const TreeFilterPtr&)> FilterChangedCallback;
       FilterChangedCallback FilterChanged;
@@ -39,6 +38,9 @@ namespace TreeReaderApp
 
    protected:
       std::unique_ptr<FiltersEditorUI> _ui;
+
+      Q_OBJECT;
+
    };
 }
 

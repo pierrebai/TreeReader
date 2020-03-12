@@ -49,5 +49,7 @@ namespace TreeReaderApp
 
       TreeFilterListItem* Clone() const override;
       TreeFilterListItem* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
+
+      Q_OBJECT;
    };
 }
