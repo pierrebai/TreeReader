@@ -25,6 +25,13 @@ namespace TreeReader
          return sstream.str();
       }
 
+      wstring ConvertFilterToText(const StopWhenKeptTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"stop-when-kept [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
+         return sstream.str();
+      }
+
       wstring ConvertFilterToText(const UntilTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
@@ -153,6 +160,7 @@ namespace TreeReader
 
          CALL_CONVERTER(AcceptTreeFilter)
          CALL_CONVERTER(StopTreeFilter)
+         CALL_CONVERTER(StopWhenKeptTreeFilter)
          CALL_CONVERTER(UntilTreeFilter)
          CALL_CONVERTER(ContainsTreeFilter)
          CALL_CONVERTER(RegexTreeFilter)
@@ -212,6 +220,16 @@ namespace TreeReader
       {
          EatClosingBrace(sstream);
          return Stop();
+      }
+
+      template <>
+      TreeFilterPtr ConvertTextToFilter<StopWhenKeptTreeFilter>(wistringstream& sstream)
+      {
+         auto filter = ConvertTextToFilters(sstream);
+
+         EatClosingBrace(sstream);
+
+         return StopWhenKept(filter);
       }
 
       template <>
@@ -426,6 +444,7 @@ namespace TreeReader
          CALL_CONVERTER(L"no-child", RemoveChildrenTreeFilter)
          CALL_CONVERTER(L"range", LevelRangeTreeFilter)
          CALL_CONVERTER(L"stop", StopTreeFilter)
+         CALL_CONVERTER(L"stop-when-kept", StopWhenKeptTreeFilter)
          CALL_CONVERTER(L"until", UntilTreeFilter)
          CALL_CONVERTER(L"named", NamedTreeFilter)
 

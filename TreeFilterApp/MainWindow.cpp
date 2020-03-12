@@ -321,6 +321,7 @@ namespace TreeReaderApp
 
       _availableFiltersList->AddTreeFilter(Accept());
       _availableFiltersList->AddTreeFilter(Stop());
+      _availableFiltersList->AddTreeFilter(StopWhenKept(nullptr));
       _availableFiltersList->AddTreeFilter(Until(nullptr));
       _availableFiltersList->AddTreeFilter(Contains(L""));
       _availableFiltersList->AddTreeFilter(Regex(L""));

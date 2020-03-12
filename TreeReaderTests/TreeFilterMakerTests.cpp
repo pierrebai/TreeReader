@@ -38,6 +38,19 @@ namespace TreeReaderTests
          Assert::IsTrue(rebuilt != nullptr);
       }
 
+      TEST_METHOD(ConvertToTextStopWhenKeptFilter)
+      {
+         auto filter = StopWhenKept(Accept());
+
+         const wstring text = ConvertFiltersToText(filter);
+
+         Assert::AreEqual(L"V1: \nstop-when-kept [ \n accept [ ] ]", text.c_str());
+
+         auto rebuilt = dynamic_pointer_cast<StopWhenKeptTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         Assert::IsTrue(rebuilt != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<AcceptTreeFilter>(rebuilt->Filter) != nullptr);
+      }
+
       TEST_METHOD(ConvertToTextContainsFilter)
       {
          auto filter = Contains(L"\"abc\"");

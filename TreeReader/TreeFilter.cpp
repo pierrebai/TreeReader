@@ -237,6 +237,15 @@ namespace TreeReader
       return DropAndSkip;
    }
 
+   Result StopWhenKeptTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
+   {
+      Result result = DelegateTreeFilter::IsKept(tree, node, level);
+      if (result.Keep)
+         result = result | StopAndKeep;
+
+      return result;
+   }
+
    Result IfSubTreeTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
       FilterTreeVisitor visitor(tree, _filtered, Filter);
@@ -407,6 +416,7 @@ namespace TreeReader
    IMPLEMENT_SIMPLE_NAME(IfSubTreeTreeFilter,      L"If a child",                      L"Keeps the node if one if its child is accepted by the sub-filter")
    IMPLEMENT_SIMPLE_NAME(IfSiblingTreeFilter,      L"If a sibling",                    L"Keeps the node if one if its sibling is accepted by the sub-filter")
    IMPLEMENT_SIMPLE_NAME(NamedTreeFilter,          Name,                               L"Delegates the decision to keep the node to the named filter")
+   IMPLEMENT_SIMPLE_NAME(StopWhenKeptTreeFilter,   L"Stop when kept",                  L"Stops filtering when a sub-filter keeps a node.")
 
    #undef IMPLEMENT_SIMPLE_NAME
    #undef IMPLEMENT_STREAM_NAME
@@ -434,6 +444,7 @@ namespace TreeReader
    IMPLEMENT_CLONE(IfSubTreeTreeFilter)
    IMPLEMENT_CLONE(IfSiblingTreeFilter)
    IMPLEMENT_CLONE(NamedTreeFilter)
+   IMPLEMENT_CLONE(StopWhenKeptTreeFilter)
 
    #undef IMPLEMENT_CLONE
 }

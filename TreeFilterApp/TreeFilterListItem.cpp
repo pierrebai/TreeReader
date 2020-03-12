@@ -40,6 +40,11 @@ namespace TreeReaderApp
          return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
       }
 
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<StopWhenKeptTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      {
+         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
+      }
+
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<UntilTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
          return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
@@ -123,25 +128,26 @@ namespace TreeReaderApp
       #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delFunc, editFunc); }
 
       CALL_CONVERTER(AcceptTreeFilter)
-         CALL_CONVERTER(StopTreeFilter)
-         CALL_CONVERTER(UntilTreeFilter)
-         CALL_CONVERTER(ContainsTreeFilter)
-         CALL_CONVERTER(RegexTreeFilter)
-         CALL_CONVERTER(NotTreeFilter)
-         CALL_CONVERTER(IfSubTreeTreeFilter)
-         CALL_CONVERTER(IfSiblingTreeFilter)
-         CALL_CONVERTER(CountChildrenTreeFilter)
-         CALL_CONVERTER(CountSiblingsTreeFilter)
-         CALL_CONVERTER(OrTreeFilter)
-         CALL_CONVERTER(AndTreeFilter)
-         CALL_CONVERTER(UnderTreeFilter)
-         CALL_CONVERTER(RemoveChildrenTreeFilter)
-         CALL_CONVERTER(LevelRangeTreeFilter)
-         CALL_CONVERTER(NamedTreeFilter)
+      CALL_CONVERTER(StopTreeFilter)
+      CALL_CONVERTER(StopWhenKeptTreeFilter)
+      CALL_CONVERTER(UntilTreeFilter)
+      CALL_CONVERTER(ContainsTreeFilter)
+      CALL_CONVERTER(RegexTreeFilter)
+      CALL_CONVERTER(NotTreeFilter)
+      CALL_CONVERTER(IfSubTreeTreeFilter)
+      CALL_CONVERTER(IfSiblingTreeFilter)
+      CALL_CONVERTER(CountChildrenTreeFilter)
+      CALL_CONVERTER(CountSiblingsTreeFilter)
+      CALL_CONVERTER(OrTreeFilter)
+      CALL_CONVERTER(AndTreeFilter)
+      CALL_CONVERTER(UnderTreeFilter)
+      CALL_CONVERTER(RemoveChildrenTreeFilter)
+      CALL_CONVERTER(LevelRangeTreeFilter)
+      CALL_CONVERTER(NamedTreeFilter)
 
-         #undef CALL_CONVERTER
+      #undef CALL_CONVERTER
 
-         return nullptr;
+      return nullptr;
    }
 
    TreeFilterListItem::TreeFilterListItem(
