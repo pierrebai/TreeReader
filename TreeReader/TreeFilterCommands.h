@@ -120,6 +120,10 @@ namespace TreeReader
 
       std::shared_ptr<TextTree> GetCurrentTree() const;
       std::shared_ptr<TextTree> GetFilteredTree() const;
+
+      bool CanPushTree() const;
+      bool CanPopTree() const;
+
       void PushFilteredAsTree();
       void PopTree();
 

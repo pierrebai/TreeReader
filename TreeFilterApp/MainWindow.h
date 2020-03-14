@@ -63,6 +63,12 @@ namespace TreeReaderApp
       void FilterTree();
       void verifyAsyncFiltering();
       void SearchInTree(const QString& text);
+
+      void PushFilter();
+      void PopFilter();
+      void UpdatePushPopActions();
+
+      // Filter naming.
       void NameFilter();
       void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
 
@@ -90,6 +96,12 @@ namespace TreeReaderApp
 
       QAction* _nameFilterAction = nullptr;
       QToolButton* _nameFilterButton = nullptr;
+
+      QAction* _pushFilterAction = nullptr;
+      QToolButton* _pushFilterButton = nullptr;
+
+      QAction* _popFilterAction = nullptr;
+      QToolButton* _popFilterButton = nullptr;
 
       QAction* _optionsAction = nullptr;
       QToolButton* _optionsButton = nullptr;

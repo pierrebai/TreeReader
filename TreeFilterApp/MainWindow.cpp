@@ -118,6 +118,14 @@ namespace TreeReaderApp
          _nameFilterButton = CreateToolButton(_nameFilterAction);
          toolbar->addWidget(_nameFilterButton);
 
+         _pushFilterAction = CreateAction(tr("Filtered Tree"), IDB_FILTER_PUSH);
+         _pushFilterButton = CreateToolButton(_pushFilterAction);
+         toolbar->addWidget(_pushFilterButton);
+
+         _popFilterAction = CreateAction(tr("Forget Tree"), IDB_FILTER_POP);
+         _popFilterButton = CreateToolButton(_popFilterAction);
+         toolbar->addWidget(_popFilterButton);
+
          toolbar->addSeparator();
 
          _undoAction = CreateAction(tr("Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
@@ -259,6 +267,16 @@ namespace TreeReaderApp
          self->NameFilter();
       });
 
+      _pushFilterAction->connect(_pushFilterAction, &QAction::triggered, [self = this]()
+      {
+         self->PushFilter();
+      });
+
+      _popFilterAction->connect(_popFilterAction, &QAction::triggered, [self = this]()
+      {
+         self->PopFilter();
+      });
+
       _optionsAction->connect(_optionsAction, &QAction::triggered, [self = this]()
       {
          self->OpenOptions();
@@ -284,6 +302,9 @@ namespace TreeReaderApp
       WithNoExceptions([self = this]() { self->_data.LoadOptions(GetOptionsFileName()); });
       WithNoExceptions([self = this]() { self->LoadState(); });
 
+      UpdatePushPopActions();
+      UpdateUndoRedoActions();
+
       FillAvailableFiltersUI();
    }
 
@@ -307,6 +328,8 @@ namespace TreeReaderApp
          _treeView->setModel(model);
          delete oldModel;
       }
+
+      UpdatePushPopActions();
    }
 
    void MainWindow::FillFilterEditorUI()
@@ -468,7 +491,6 @@ namespace TreeReaderApp
 
       _data.ApplyFilterToTreeAsync();
       _filteringTimer->start(10);
-
    }
 
    void MainWindow::verifyAsyncFiltering()
@@ -488,6 +510,31 @@ namespace TreeReaderApp
       _data.SearchInTreeAsync(text.toStdWString());
       _filteringTimer->start(10);
    }
+
+   void MainWindow::PushFilter()
+   {
+      _data.PushFilteredAsTree();
+      FillTextTreeUI();
+      FillFilterEditorUI();
+   }
+
+   void MainWindow::PopFilter()
+   {
+      _data.PopTree();
+      FillTextTreeUI();
+      FillFilterEditorUI();
+   }
+
+   void MainWindow::UpdatePushPopActions()
+   {
+      _pushFilterAction->setEnabled(_data.CanPushTree());
+      _popFilterAction->setEnabled(_data.CanPopTree());
+
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Filter naming.
 
    void MainWindow::NameFilter()
    {

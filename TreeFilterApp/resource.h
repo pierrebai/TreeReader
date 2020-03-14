@@ -16,14 +16,15 @@
 #define IDB_FILTER_APPLY                128
 #define IDB_FILTER_NAME                 129
 #define IDB_FILTER_EDIT                 130
-#define IDB_BITMAP1                     131
 #define IDB_OPTIONS                     131
+#define IDB_FILTER_PUSH                 132
+#define IDB_FILTER_POP                  133
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

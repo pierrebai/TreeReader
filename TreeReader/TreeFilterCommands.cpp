@@ -329,27 +329,42 @@ namespace TreeReader
       return _searched ? _searched : ctx.Filtered;
    }
 
-   void CommandsContext::PushFilteredAsTree()
+   bool CommandsContext::CanPushTree() const
    {
       auto& ctx = _trees.back();
 
-      if (ctx.Filtered)
-      {
-         _trees.emplace_back();
-         auto& newCtx = _trees.back();
-         newCtx.Tree = ctx.Filtered;
-         newCtx.TreeFileName = ctx.FilteredFileName;
-      }
+      return ctx.Filtered != nullptr;
+   }
+
+   bool CommandsContext::CanPopTree() const
+   {
+      return (_trees.size() > 1);
+   }
+
+   void CommandsContext::PushFilteredAsTree()
+   {
+      if (!CanPushTree())
+         return;
+
+      auto& ctx = _trees.back();
+
+      TreeContext newCtx;
+      newCtx.Tree = ctx.Filtered;
+      newCtx.TreeFileName = ctx.FilteredFileName;
+
+      _trees.emplace_back(move(newCtx));
    }
    
    void CommandsContext::PopTree()
    {
-      if (_trees.size() > 1)
-         _trees.pop_back();
+      if (!CanPopTree())
+         return;
+
+      _trees.pop_back();
 
       ApplySearchInTree(false);
    }
-   
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Undo / redo.
