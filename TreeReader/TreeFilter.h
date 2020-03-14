@@ -14,6 +14,8 @@ namespace TreeReader
    struct TreeFilter;
    typedef std::shared_ptr<TreeFilter> TreeFilterPtr;
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter used to reduce a text tree to another simpler text tree.
 
    struct TreeFilter
@@ -55,6 +57,8 @@ namespace TreeReader
       virtual TreeFilterPtr Clone() const = 0;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that delegates to another filter.
    //
    // Allows adding behavior to another existing filter.
@@ -70,6 +74,8 @@ namespace TreeReader
       Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that accepts all nodes.
 
    struct AcceptTreeFilter : TreeFilter
@@ -80,6 +86,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that stops filtering.
    //
    // Can keep or not keep the node, as desired.
@@ -97,6 +105,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that stops the filtering as soon as its delegate accept a node.
 
    struct StopWhenKeptTreeFilter : DelegateTreeFilter
@@ -110,6 +120,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that stops filtering when another sub-filter keeps a node.
    //
    // Never keeps the node. Used to stop doing sb-tree filtering. (See IfSubTree and IfSibling.)
@@ -125,6 +137,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that keeps nodes containing a given text.
 
    struct ContainsTreeFilter : TreeFilter
@@ -141,6 +155,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter by matching the exact address of the text.
    // Can be use to keep an exact node, using selection in a UI for example.
 
@@ -158,6 +174,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that keeps nodes matching a regular expression.
 
    struct RegexTreeFilter : TreeFilter
@@ -175,6 +193,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that combines the result of other filters.
 
    struct CombineTreeFilter : TreeFilter
@@ -188,6 +208,8 @@ namespace TreeReader
       CombineTreeFilter(const CombineTreeFilter& other);
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that inverts the keep decision of another filter.
 
    struct NotTreeFilter : DelegateTreeFilter
@@ -201,6 +223,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that accepts a node if any of its sub-filters accept the node.
 
    struct OrTreeFilter : CombineTreeFilter
@@ -215,6 +239,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that accepts a node if all of its sub-filters accept the node.
 
    struct AndTreeFilter : CombineTreeFilter
@@ -229,7 +255,9 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
-   // Filter that accepts all children of a node that was accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Filter that accepts all children of a node that was accepted by another.
    //
    // Can accept or not that parent initial node.
 
@@ -250,9 +278,13 @@ namespace TreeReader
       size_t _keepAllNodesUnderLevel = -1;
    };
 
-   // Filter that accepts a given number of siblings of a node that was accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
    //
-   // Can accept or not that initial node. That node is not included in the count in all cases.
+   // Filter that accepts a given number of siblings of a node that was
+   // accepted by another filter.
+   //
+   // Can accept or not that initial node. That node is not included
+   // in the count in all cases.
 
    struct CountSiblingsTreeFilter : DelegateTreeFilter
    {
@@ -274,9 +306,13 @@ namespace TreeReader
       size_t _countdown = 0;
    };
 
-   // Filter that accepts a given number of children of a node that was accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
    //
-   // Can accept or not that initial node. That node is not included in the count in all cases.
+   // Filter that accepts a given number of children of a node that was
+   // accepted by another filter.
+   //
+   // Can accept or not that initial node. That node is not included
+   // in the count in all cases.
 
    struct CountChildrenTreeFilter : DelegateTreeFilter
    {
@@ -298,7 +334,10 @@ namespace TreeReader
       size_t _countdown = 0;
    };
 
-   // Filter that removes all children of a node that was accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Filter that removes all children of a node that was accepted
+   // by another filter.
    //
    // Can remove or not that parent initial node.
 
@@ -316,6 +355,8 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that accepts nodes that are within a range of depth in the tree.
 
    struct LevelRangeTreeFilter : TreeFilter
@@ -333,7 +374,10 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
-   // Filter that accepts a node if at least one child is accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Filter that accepts a node if at least one child is accepted
+   // by another filter.
 
    struct IfSubTreeTreeFilter : DelegateTreeFilter
    {
@@ -349,7 +393,10 @@ namespace TreeReader
       TextTree _filtered;
    };
 
-   // Filter that accepts a node if at least one sibling is accepted by another filter.
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Filter that accepts a node if at least one sibling is accepted
+   // by another filter.
 
    struct IfSiblingTreeFilter : DelegateTreeFilter
    {
@@ -362,9 +409,12 @@ namespace TreeReader
       TreeFilterPtr Clone() const override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter that reference a named filter.
    //
-   // Note: this is not a delegate filter because we don't want its sub-filters visible to other code.
+   // Note: this is not a delegate filter because we don't want
+   //       its sub-filters visible to other code.
 
    struct NamedFilters;
 
@@ -387,6 +437,8 @@ namespace TreeReader
       friend struct NamedFilters;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Functions to create filters.
 
    inline std::shared_ptr<AcceptTreeFilter> Accept() { return std::make_shared<AcceptTreeFilter>(); }
@@ -412,6 +464,8 @@ namespace TreeReader
    inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
    inline std::shared_ptr<StopWhenKeptTreeFilter> StopWhenKept(const TreeFilterPtr& filter) { return std::make_shared<StopWhenKeptTreeFilter>(filter); }
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // The tree visitor that actually does the filtering.
 
    struct FilterTreeVisitor : SimpleTreeVisitor
@@ -431,6 +485,8 @@ namespace TreeReader
       std::vector<bool> _fillChildren;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filters a source tree into a filtered tree using the given filter.
 
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);

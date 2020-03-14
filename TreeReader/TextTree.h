@@ -8,13 +8,18 @@
 
 namespace TreeReader
 {
-   // Holds whatever is necessary to make the raw text pointer valid for the lifetime of a text tree.
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Holds whatever is necessary to make the raw text pointer valid
+   // for the lifetime of a text tree.
 
    struct TextHolder
    {
       virtual ~TextHolder() = default;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // The tree of text.
    //
    // Contains nodes, forming a tree structure.
@@ -71,6 +76,8 @@ namespace TreeReader
 
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Convert the text tree to a textual form with indentation.
 
    std::wostream& PrintTree(std::wostream& stream, const TextTree& tree, const std::wstring& indentation = L"  ");

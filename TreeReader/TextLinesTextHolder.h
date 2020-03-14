@@ -4,6 +4,8 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Holds text as a vector of text strings.
    //
    // Beware that the string text pointers could theoretically moved while the vector

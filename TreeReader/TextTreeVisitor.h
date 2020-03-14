@@ -8,6 +8,8 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // A visitor that access each node of a tree one by one.
 
    struct TreeVisitor
@@ -30,6 +32,8 @@ namespace TreeReader
       virtual Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Simple visitor that doesn't need to know that it is going deeper or higher.
 
    struct SimpleTreeVisitor : TreeVisitor
@@ -38,6 +42,8 @@ namespace TreeReader
       Result GoHigher(size_t higherLevel) override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // A visitor that calls another visitor.
    //
    // Allows adding behavior to another existing visitor.
@@ -52,6 +58,8 @@ namespace TreeReader
       Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // A visitor that delegates to a function when visiting each node.
 
    typedef std::function<TreeVisitor::Result(const TextTree & tree, const TextTree::Node & node, size_t level)> NodeVisitFunction;
@@ -66,6 +74,8 @@ namespace TreeReader
       Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // A delegate visitor that can be aborted from another thread.
 
    struct CanAbortTreeVisitor : DelegateTreeVisitor
@@ -78,6 +88,8 @@ namespace TreeReader
       Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Visits each node of a tree in order.
    //
    // That is, visit each node before its children and visits its children before its siblings.

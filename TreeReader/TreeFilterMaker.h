@@ -5,6 +5,10 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Conversion from text to filters.
+
    // Create a textual description of a tree of filters.
    std::wstring  ConvertFiltersToText(const TreeFilterPtr& filter);
 

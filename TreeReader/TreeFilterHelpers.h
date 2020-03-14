@@ -4,6 +4,8 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // A visitor that delegates to a function when visiting each filter.
    //
    // Allows starting from an arbitrary filter and not visiting the initial filter.

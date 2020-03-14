@@ -13,6 +13,15 @@ namespace TreeReader
 
    /////////////////////////////////////////////////////////////////////////
    //
+   // Context constructor.
+   CommandsContext::CommandsContext()
+   {
+      // Ensure there is always at least one tree context.
+      _trees.emplace_back();
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
    // Tree loading and saving.
 
    void CommandsContext::SetInputFilter(const wstring& filterRegex)
@@ -32,11 +41,15 @@ namespace TreeReader
 
    wstring CommandsContext::LoadTree(const filesystem::path& filename)
    {
-      _treeFileName = filename;
-      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filesystem::path(_treeFileName), Options.ReadOptions));
+      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filename, Options.ReadOptions));
       if (newTree && newTree->Roots.size() > 0)
       {
-         _trees.emplace_back(move(newTree));
+         _trees.emplace_back();
+         auto& ctx = _trees.back();
+
+         ctx.TreeFileName = filename;
+         ctx.Tree = newTree;
+
          ApplySearchInTree(false);
          return {};
       }
@@ -48,11 +61,13 @@ namespace TreeReader
 
    void CommandsContext::SaveFilteredTree(const filesystem::path& filename)
    {
-      _filteredFileName = filename;
-      if (_filtered)
+      auto& ctx = _trees.back();
+
+      if (ctx.Filtered)
       {
-         WriteSimpleTextTree(filesystem::path(_filteredFileName), *_filtered, Options.OutputLineIndent);
-         _filteredWasSaved = true;
+         WriteSimpleTextTree(filename, *ctx.Filtered, Options.OutputLineIndent);
+         ctx.FilteredFileName = filename;
+         ctx.FilteredWasSaved = true;
       }
    }
 
@@ -62,36 +77,37 @@ namespace TreeReader
 
    void CommandsContext::SetFilter(const TreeFilterPtr& filter)
    {
-      _filter = filter;
+      auto& ctx = _trees.back();
+
+      ctx.Filter = filter;
       CommitFilterToUndo();
    }
 
    void CommandsContext::ApplyFilterToTree(bool async)
    {
-      if (_trees.size() <= 0)
-         return;
+      auto& ctx = _trees.back();
 
       AbortAsyncFilter();
 
-      if (_filter)
+      if (ctx.Filter)
       {
          if (async)
          {
-            _asyncFiltering = move(FilterTreeAsync(_trees.back(), _filter));
+            _asyncFiltering = move(FilterTreeAsync(ctx.Tree, ctx.Filter));
          }
          else
          {
-            _filtered = make_shared<TextTree>();
-            FilterTree(*_trees.back(), *_filtered, _filter);
-            _filteredWasSaved = false;
+            ctx.Filtered = make_shared<TextTree>();
+            FilterTree(*ctx.Tree, *ctx.Filtered, ctx.Filter);
+            ctx.FilteredWasSaved = false;
             ApplySearchInTree(async);
          }
       }
       else
       {
-         _filtered = make_shared<TextTree>(*_trees.back());
+         ctx.Filtered = make_shared<TextTree>(*ctx.Tree);
          // Note: pure copy of input tree are considered to have been saved.
-         _filteredWasSaved = true;
+         ctx.FilteredWasSaved = true;
          ApplySearchInTree(async);
       }
    }
@@ -107,13 +123,15 @@ namespace TreeReader
 
    bool CommandsContext::IsAsyncFilterReady()
    {
+      auto& ctx = _trees.back();
+
       if (_asyncFiltering.first.valid())
       {
          if (_asyncFiltering.first.wait_for(1us) != future_status::ready)
             return false;
 
-         _filtered = make_shared<TextTree>(_asyncFiltering.first.get());
-         _filteredWasSaved = false;
+         ctx.Filtered = make_shared<TextTree>(_asyncFiltering.first.get());
+         ctx.FilteredWasSaved = false;
          _asyncFiltering = AsyncFilterTreeResult();
 
          ApplySearchInTree(true);
@@ -169,13 +187,15 @@ namespace TreeReader
 
    void CommandsContext::ApplySearchInTree(bool async)
    {
+      auto& ctx = _trees.back();
+
       if (_searchedText.empty())
       {
          _searched = nullptr;
          return;
       }
 
-      shared_ptr<TextTree> applyTo = _filtered ? _filtered : _trees.size() > 0 ? _trees.back() : shared_ptr<TextTree>();
+      shared_ptr<TextTree> applyTo = ctx.Filtered ? ctx.Filtered : _trees.size() > 0 ? ctx.Tree : shared_ptr<TextTree>();
 
       if (!applyTo)
          return;
@@ -201,7 +221,10 @@ namespace TreeReader
 
    NamedFilterPtr CommandsContext::NameFilter(const wstring& filterName)
    {
-      return NameFilter(filterName, _filter);
+      auto& ctx = _trees.back();
+      ctx.FilterName = filterName;
+
+      return NameFilter(filterName, ctx.Filter);
    }
 
    NamedFilterPtr CommandsContext::NameFilter(const wstring& filterName, const TreeFilterPtr& filter)
@@ -291,28 +314,37 @@ namespace TreeReader
 
    shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
    {
+      auto& ctx = _trees.back();
+
       if (_trees.size() <= 0)
          return {};
 
-      return _trees.back();
+      return ctx.Tree;
    }
 
    shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
    {
-      return _searched ? _searched : _filtered;
+      auto& ctx = _trees.back();
+
+      return _searched ? _searched : ctx.Filtered;
    }
 
    void CommandsContext::PushFilteredAsTree()
    {
-      if (_filtered)
+      auto& ctx = _trees.back();
+
+      if (ctx.Filtered)
       {
-         _trees.emplace_back(move(_filtered));
+         _trees.emplace_back();
+         auto& newCtx = _trees.back();
+         newCtx.Tree = ctx.Filtered;
+         newCtx.TreeFileName = ctx.FilteredFileName;
       }
    }
    
    void CommandsContext::PopTree()
    {
-      if (_trees.size() > 0)
+      if (_trees.size() > 1)
          _trees.pop_back();
 
       ApplySearchInTree(false);
@@ -324,13 +356,17 @@ namespace TreeReader
 
    void CommandsContext::DeadedFilters(any& data)
    {
-      data = ConvertFiltersToText(_filter);
+      auto& ctx = _trees.back();
+
+      data = ConvertFiltersToText(ctx.Filter);
    }
 
    void CommandsContext::AwakenFilters(const any& data)
    {
+      auto& ctx = _trees.back();
+
       // Note: do not call SetFilter as it would put it in undo/redo...
-      _filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
+      ctx.Filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
    }
 
    void CommandsContext::ClearUndoStack()
@@ -340,12 +376,14 @@ namespace TreeReader
 
    void CommandsContext::CommitFilterToUndo()
    {
+      auto& ctx = _trees.back();
+
       _undoRedo.Commit(
-         {
-            ConvertFiltersToText(_filter),
-            [self = this](any& data) { self->DeadedFilters(data); },
-            [self = this](const any& data) { self->AwakenFilters(data); }
-         });
+      {
+         ConvertFiltersToText(ctx.Filter),
+         [self = this](any& data) { self->DeadedFilters(data); },
+         [self = this](const any& data) { self->AwakenFilters(data); }
+      });
    }
     
 }

@@ -65,8 +65,10 @@ namespace TreeReader
 
       if (Debug)
       {
-         if (_filter)
-            stream << L"Filters: " << ConvertFiltersToText(_filter) << endl;
+         auto& ctx = _trees.back();
+
+         if (ctx.Filter)
+            stream << L"Filters: " << ConvertFiltersToText(ctx.Filter) << endl;
          else
             stream << L"Invalid filter: " << filterText << endl;
       }
@@ -91,14 +93,9 @@ namespace TreeReader
       wstring result;
 
       // Backup current settings to detect changes.
-      CommandLine previousCtx;
-      previousCtx.FilterText = FilterText;
-      previousCtx.Options = Options;
-      previousCtx.Options.ReadOptions = Options.ReadOptions;
-      previousCtx._treeFileName = _treeFileName;
-      previousCtx.UseV1 = UseV1;
-      previousCtx._filter = _filter;
-      previousCtx._trees = _trees;
+      const TreeContext previousCtx = _trees.back();
+      const CommandsOptions previousOptions = Options;
+      auto previousFilterText = FilterText;
 
       FilterText = L"";
 
@@ -171,7 +168,7 @@ namespace TreeReader
             ApplyFilterToTree();
             PushFilteredAsTree();
             ClearFilterText();
-            previousCtx.FilterText = L"";
+            previousFilterText = L"";
          }
          else if (cmd == L"name" && i + 1 < cmds.size())
          {
@@ -197,14 +194,14 @@ namespace TreeReader
       }
 
       if (FilterText.empty())
-         FilterText = previousCtx.FilterText;
+         FilterText = previousFilterText;
 
-      const bool optionsChanged = (previousCtx.Options != Options);
-      const bool readOptionsChanged = (previousCtx.Options.ReadOptions != Options.ReadOptions);
-      const bool fileChanged = (previousCtx._treeFileName != _treeFileName);
-      const bool filterTextChanged = (previousCtx.FilterText != FilterText || previousCtx.UseV1 != UseV1);
-      const bool filterChanged = (filterTextChanged || previousCtx._filter != _filter);
-      const bool treeChanged = (previousCtx._trees.size() != _trees.size() || (previousCtx._trees.size() > 0 && previousCtx._trees.back() != _trees.back()));
+      const bool optionsChanged = (previousOptions != Options);
+      const bool readOptionsChanged = (previousOptions.ReadOptions != Options.ReadOptions);
+      const bool fileChanged = (previousCtx.TreeFileName != _trees.back().TreeFileName);
+      const bool filterTextChanged = (previousFilterText != FilterText);
+      const bool filterChanged = (filterTextChanged || previousCtx.Filter != _trees.back().Filter);
+      const bool treeChanged = (previousCtx != _trees.back());
 
       if (filterTextChanged)
          result += CreateFilter();

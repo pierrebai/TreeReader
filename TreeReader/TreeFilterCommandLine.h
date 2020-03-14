@@ -4,6 +4,10 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
+   // Extra data used in teh command-line program.
+
    struct CommandLine : CommandsContext
    {
       // Options.
@@ -38,7 +42,7 @@ namespace TreeReader
       bool operator!=(const CommandLine& other) const
       {
          return Options       != other.Options
-             || _treeFileName  != other._treeFileName
+             || _trees.back().TreeFileName  != other._trees.back().TreeFileName
              || UseV1         != other.UseV1
              || IsInteractive != other.IsInteractive
              || Debug         != other.Debug;

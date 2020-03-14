@@ -8,6 +8,8 @@
 
 namespace TreeReader
 {
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Manages a dictionary of named filters.
 
    typedef std::shared_ptr<NamedTreeFilter> NamedFilterPtr;
@@ -25,6 +27,8 @@ namespace TreeReader
       std::map<std::wstring, NamedFilterPtr> _filters;
    };
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Saved and load the named filters into a file.
 
    void WriteNamedFilters(const std::filesystem::path& path, const NamedFilters& filters);
@@ -33,9 +37,12 @@ namespace TreeReader
    NamedFilters ReadNamedFilters(const std::filesystem::path& path);
    NamedFilters ReadNamedFilters(std::wistream& stream);
 
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Fill the named filters found in the given tree of filters.
    // The named are matched with the filters found in the given named filters.
-   // This is used to fix a tree of filters after converting from a text format, for example.
+   // This is used to fix a tree of filters after converting from a text format
+   // for example.
 
    void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named);
 }
