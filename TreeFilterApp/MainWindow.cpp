@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "TextTreeModel.h"
+#include "TextTreeSubWindow.h"
 #include "OptionsDialog.h"
 
 #include "QtUtilities.h"
@@ -13,11 +14,9 @@
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qmdiarea.h>
-#include <QtWidgets/qmdisubwindow.h>
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -492,23 +491,9 @@ namespace TreeReaderApp
       auto newTree = _data.GetCurrentTree();
       auto name = _data.GetCurrentTreeFileName();
 
-      auto treeView = new QTreeView;
-      treeView->setUniformRowHeights(true);
-      treeView->setHeaderHidden(true);
-      treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-      _treeViews[treeView] = newTree;
-
-      TextTreeModel* model = new TextTreeModel;
-      model->Tree = newTree;
-
-      auto oldModel = treeView->model();
-      treeView->setModel(model);
-      delete oldModel;
-
-      auto sub = _tabs->addSubWindow(treeView, Qt::SubWindow);
-      sub->showMaximized();
-      sub->setWindowTitle(QString::fromStdWString(name));
+      auto subWindow = new TextTreeSubWindow(newTree, name);
+      _tabs->addSubWindow(subWindow);
+      subWindow->showMaximized();
 
       UpdateCreateTabAction();
    }
@@ -523,8 +508,8 @@ namespace TreeReaderApp
 
    void MainWindow::UpdateTextTreeTab()
    {
-      auto model = GetCurrentTextTreeModel();
-      if (!model)
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
          return;
 
       TextTreePtr newTree;
@@ -536,8 +521,8 @@ namespace TreeReaderApp
       {
          newTree = _data.GetCurrentTree();
       }
-      model->Tree = newTree;
-      model->Reset();
+
+      window->UpdateShownModel(newTree);
 
       UpdateCreateTabAction();
    }
@@ -546,31 +531,18 @@ namespace TreeReaderApp
    //
    // Current tab.
 
-   QTreeView* MainWindow::GetCurrentTextTreeView()
+   TextTreeSubWindow* MainWindow::GetCurrentTextSubWindow()
    {
-      auto sub = _tabs->currentSubWindow();
-      if (!sub)
-         return nullptr;
-
-      return dynamic_cast<QTreeView*>(sub->widget());
-   }
-
-   TextTreeModel* MainWindow::GetCurrentTextTreeModel()
-   {
-      auto treeView = GetCurrentTextTreeView();
-      if (!treeView)
-         return nullptr;
-
-      return dynamic_cast<TextTreeModel*>(treeView->model());
+      return dynamic_cast<TextTreeSubWindow*>(_tabs->currentSubWindow());
    }
 
    TextTreePtr MainWindow::GetCurrentTextTree()
    {
-      auto view = GetCurrentTextTreeView();
-      if (!view)
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
          return nullptr;
 
-      return _treeViews[view];
+      return window->OriginalTree;
    }
 
    /////////////////////////////////////////////////////////////////////////

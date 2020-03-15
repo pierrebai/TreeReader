@@ -60,7 +60,7 @@ namespace TreeReader
    
    int UniqueTreeFilter::hash::operator()(const wchar_t* text) const
    {
-      int h = 0;  while (text) { h += *text * 131; ++text; } return h & INT_MAX;
+      int h = 0;  if (text) while (*text) { h += *text * 131; ++text; } return h & INT_MAX;
    }
 
    bool UniqueTreeFilter::comp::operator()(const wchar_t* lhs, const wchar_t* rhs) const

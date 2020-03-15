@@ -20,6 +20,7 @@ add_executable(TreeFilterApp WIN32
    FilterEditor.cpp           FilterEditor.h
    MainWindow.cpp             MainWindow.h
    TextTreeModel.cpp          TextTreeModel.h
+   TextTreeSubWindow.cpp      TextTreeSubWindow.h
    TreeFilterListItem.cpp     TreeFilterListItem.h
    TreeFilterListWidget.cpp   TreeFilterListWidget.h
    OptionsDialog.cpp          OptionsDialog.h

@@ -29,8 +29,10 @@ namespace TreeReaderApp
    using TextTreePtr = TreeReader::TextTreePtr;
    using CommandsContext = TreeReader::CommandsContext;
    using UndoStack = TreeReader::UndoStack;
+
    using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
-   struct TextTreeModel;
+
+   struct TextTreeSubWindow;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -73,8 +75,7 @@ namespace TreeReaderApp
       void UpdateTextTreeTab();
 
       // Current tab.
-      QTreeView* GetCurrentTextTreeView();
-      TextTreeModel* GetCurrentTextTreeModel();
+      TextTreeSubWindow* GetCurrentTextSubWindow();
       TextTreePtr GetCurrentTextTree();
 
       // Main window state.
@@ -134,7 +135,6 @@ namespace TreeReaderApp
       QTimer* _filteringTimer = nullptr;
 
       QMdiArea* _tabs = nullptr;
-      std::map<QTreeView *, TextTreePtr> _treeViews;
 
       Q_OBJECT;
    };
