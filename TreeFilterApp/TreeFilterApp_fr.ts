@@ -118,12 +118,12 @@ Voulez-vous le sauvegarder avant de </translation>
         <translation>Sauver l&apos;arbre filtré</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="642"/>
+        <location filename="MainWindow.cpp" line="652"/>
         <source>Name a filter</source>
         <translation>Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="642"/>
+        <location filename="MainWindow.cpp" line="652"/>
         <source>Filter Name</source>
         <translation>Nom du filtre</translation>
     </message>

@@ -89,6 +89,7 @@ namespace TreeReaderApp
       void VerifyAsyncFiltering();
       void AbortAsyncFiltering();
       void SearchInTree(const QString& text);
+      void SearchInTree();
 
       void PushFilter();
       void UpdateCreateTabAction();

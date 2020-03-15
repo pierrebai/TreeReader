@@ -473,8 +473,8 @@ namespace TreeReaderApp
    {
       filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeFileTypes), this);
       auto newTree = _data.LoadTree(path);
-      newTree->SearchInTree(_simpleSearch->text().toStdWString());
       AddTextTreeTab(newTree);
+      SearchInTree();
    }
 
    bool MainWindow::SaveFilteredTree(TextTreeSubWindow* window)
@@ -506,14 +506,19 @@ namespace TreeReaderApp
       subWindow->showMaximized();
 
       FillFilterEditorUI();
+      SearchInTree();
 
       UpdateCreateTabAction();
    }
 
    void MainWindow::UpdateActiveTab()
    {
-      // TODO: avoid re-filling if the same tree is displayed.
+      auto window = GetCurrentSubWindow();
+      if (!window)
+         return;
+
       FillFilterEditorUI();
+      SearchInTree();
    }
 
    void MainWindow::UpdateTextTreeTab()
@@ -596,6 +601,11 @@ namespace TreeReaderApp
    {
       for (auto window : GetAllSubWindows())
          window->Tree->AbortAsyncFilter();
+   }
+
+   void MainWindow::SearchInTree()
+   {
+      SearchInTree(_simpleSearch->text());
    }
 
    void MainWindow::SearchInTree(const QString& text)

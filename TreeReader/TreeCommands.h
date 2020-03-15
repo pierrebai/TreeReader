@@ -58,6 +58,7 @@ namespace TreeReader
       void SearchInTreeAsync(const std::wstring& text);
       void AbortAsyncSearch();
       bool IsAsyncSearchReady();
+      void ApplySearchInTree(bool async);
 
       // Filtered tree save.
 
@@ -69,8 +70,6 @@ namespace TreeReader
       void DeadedFilters(std::any& data);
       void AwakenFilters(const std::any& data);
       void CommitFilterToUndo();
-
-      void ApplySearchInTree(bool async);
 
       // Asynchronous filtering and searching.
       AsyncFilterTreeResult _asyncFiltering;
