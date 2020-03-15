@@ -81,7 +81,7 @@ namespace TreeReader
       FilterTree(sourceTree, filteredTree, *filter);
    }
 
-   AsyncFilterTreeResult FilterTreeAsync(const shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter)
+   AsyncFilterTreeResult FilterTreeAsync(const TextTreePtr& sourceTree, const TreeFilterPtr& filter)
    {
       if (!filter)
          return {};

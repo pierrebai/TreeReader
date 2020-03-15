@@ -6,13 +6,16 @@
 
 namespace TreeReaderApp
 {
+   using TextTreePtr = TreeReader::TextTreePtr;
+
    ////////////////////////////////////////////////////////////////////////////
    //
    // Tree model containing all lines of a text tree.
 
    struct TextTreeModel : QAbstractItemModel
    {
-      std::shared_ptr<TreeReader::TextTree> Tree;
+      TextTreePtr Tree;
+      void Reset();
 
       QVariant data(const QModelIndex& index, int role) const override;
       QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

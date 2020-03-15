@@ -76,6 +76,8 @@ namespace TreeReader
 
    };
 
+   typedef std::shared_ptr<TextTree> TextTreePtr;
+
    ////////////////////////////////////////////////////////////////////////////
    //
    // Convert the text tree to a textual form with indentation.

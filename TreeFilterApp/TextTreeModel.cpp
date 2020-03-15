@@ -6,6 +6,12 @@ namespace TreeReaderApp
    using namespace TreeReader;
    using Node = TextTree::Node;
 
+   void TextTreeModel::Reset()
+   {
+      beginResetModel();
+      endResetModel();
+   }
+
    QVariant TextTreeModel::data(const QModelIndex& index, int role) const
    {
       if (!Tree)

@@ -1,7 +1,10 @@
 Allow multi-filtering. (filter, then filter again)
-Add unique-filter to keep unique text.
-Remove counting filters, they dont' work well. (They get reset if they find another match...)
 Make more complex filters (match + until, others)
 Make named filters have open slot (text or sub-filters)
+
+Allow closing tab.
+Ask to save before closing tab.
+Apply quick search when switching tabs?
+
 Use undo/redo from github.
 Use QWidgetListWidget from github.

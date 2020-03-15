@@ -39,10 +39,10 @@ namespace TreeReader
    struct TreeContext
    {
       std::wstring TreeFileName;
-      std::shared_ptr<TextTree> Tree;
+      TextTreePtr Tree;
 
       std::wstring FilteredFileName;
-      std::shared_ptr<TextTree> Filtered;
+      TextTreePtr Filtered;
       bool FilteredWasSaved = false;
 
       std::wstring FilterName;
@@ -88,12 +88,13 @@ namespace TreeReader
 
       std::wstring LoadTree(const std::filesystem::path& filename);
       void SaveFilteredTree(const std::filesystem::path& filename);
-      bool IsFilteredTreeSaved() const { return _trees.back().FilteredWasSaved; }
+      bool IsFilteredTreeSaved() const;
 
       // Current filter.
 
       void SetFilter(const TreeFilterPtr& filter);
-      const TreeFilterPtr& GetFilter() const { return _trees.back().Filter; }
+      const TreeFilterPtr& GetFilter() const;
+      const std::wstring& GetFilterName() const;
 
       // Filtering.
 
@@ -117,16 +118,21 @@ namespace TreeReader
       void SaveNamedFilters(const std::filesystem::path& filename);
       void LoadNamedFilters(const std::filesystem::path& filename);
 
-      // Current text tree and filtered tree.
+      // Current text tree.
 
-      std::shared_ptr<TextTree> GetCurrentTree() const;
-      std::shared_ptr<TextTree> GetFilteredTree() const;
+      const TreeContext& GetCurrentTreeContext() const;
+      TextTreePtr GetCurrentTree() const;
+      bool SetCurrentTree(const TextTreePtr& tree);
+      std::wstring GetCurrentTreeFileName() const;
 
-      bool CanPushTree() const;
-      bool CanPopTree() const;
+      bool CanRemoveCurrentTree() const;
+      void RemoveCurrentTree();
 
-      void PushFilteredAsTree();
-      void PopTree();
+      // Current filtered tree.
+
+      TextTreePtr GetFilteredTree() const;
+      bool CanCreateTreeFromFiltered() const;
+      TextTreePtr CreateTreeFromFiltered();
 
       // Undo / redo.
 
@@ -139,11 +145,14 @@ namespace TreeReader
       void AwakenFilters(const std::any& data);
       void CommitFilterToUndo();
 
+      TreeContext& GetCurrentTreeContext();
+
       void ApplySearchInTree(bool async);
 
       // A stack of tree being filtered.
       // Commands can make teh filtered result a new base tree.
       std::vector<TreeContext> _trees;
+      size_t _currentTree = -1;
 
       // Asynchronous filtering and searching.
       AsyncFilterTreeResult _asyncFiltering;
@@ -151,7 +160,7 @@ namespace TreeReader
 
       // Search text. Applied on top of the filters.
       std::wstring _searchedText;
-      std::shared_ptr<TextTree> _searched;
+      TextTreePtr _searched;
 
       // Known named filters.
       std::shared_ptr<NamedFilters> _knownFilters = std::make_shared<NamedFilters>();

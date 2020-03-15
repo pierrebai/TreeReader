@@ -16,6 +16,8 @@
 #include <QtWidgets/qtreeview.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qmdiarea.h>
+#include <QtWidgets/qmdisubwindow.h>
 
 #include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
@@ -98,101 +100,118 @@ namespace TreeReaderApp
       _filteringTimer = new QTimer(this);
       _filteringTimer->setSingleShot(true);
 
+      BuildToolBarUI();
+      BuildFiltersUI();
+      BuildSimpleSearchUI();
+      BuildTabbedUI();
+
+      setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
+   }
+
+   void MainWindow::BuildToolBarUI()
+   {
       auto toolbar = new QToolBar();
-         toolbar->setObjectName("Main Toolbar");
-         toolbar->setIconSize(QSize(32, 32));
+      toolbar->setObjectName("Main Toolbar");
+      toolbar->setIconSize(QSize(32, 32));
 
-         _loadTreeAction = CreateAction(tr("Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
-         _loadTreeButton = CreateToolButton(_loadTreeAction);
-         toolbar->addWidget(_loadTreeButton);
+      _loadTreeAction = CreateAction(tr("Load Tree"), IDB_TREE_OPEN, QKeySequence(QKeySequence::StandardKey::Open));
+      _loadTreeButton = CreateToolButton(_loadTreeAction);
+      toolbar->addWidget(_loadTreeButton);
 
-         _saveTreeAction = CreateAction(tr("Save Tree"), IDB_TREE_SAVE, QKeySequence(QKeySequence::StandardKey::Save));
-         _saveTreeButton = CreateToolButton(_saveTreeAction);
-         toolbar->addWidget(_saveTreeButton);
+      _saveTreeAction = CreateAction(tr("Save Tree"), IDB_TREE_SAVE, QKeySequence(QKeySequence::StandardKey::Save));
+      _saveTreeButton = CreateToolButton(_saveTreeAction);
+      toolbar->addWidget(_saveTreeButton);
 
-         _applyFilterAction = CreateAction(tr("Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
-         _applyFilterButton = CreateToolButton(_applyFilterAction);
-         toolbar->addWidget(_applyFilterButton);
+      _applyFilterAction = CreateAction(tr("Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
+      _applyFilterButton = CreateToolButton(_applyFilterAction);
+      toolbar->addWidget(_applyFilterButton);
 
-         _nameFilterAction = CreateAction(tr("Name Filter"), IDB_FILTER_NAME);
-         _nameFilterButton = CreateToolButton(_nameFilterAction);
-         toolbar->addWidget(_nameFilterButton);
+      _nameFilterAction = CreateAction(tr("Name Filter"), IDB_FILTER_NAME);
+      _nameFilterButton = CreateToolButton(_nameFilterAction);
+      toolbar->addWidget(_nameFilterButton);
 
-         _pushFilterAction = CreateAction(tr("Filtered Tree"), IDB_FILTER_PUSH);
-         _pushFilterButton = CreateToolButton(_pushFilterAction);
-         toolbar->addWidget(_pushFilterButton);
+      _pushFilterAction = CreateAction(tr("Use Filtered"), IDB_FILTER_PUSH);
+      _pushFilterButton = CreateToolButton(_pushFilterAction);
+      toolbar->addWidget(_pushFilterButton);
 
-         _popFilterAction = CreateAction(tr("Forget Tree"), IDB_FILTER_POP);
-         _popFilterButton = CreateToolButton(_popFilterAction);
-         toolbar->addWidget(_popFilterButton);
+      toolbar->addSeparator();
 
-         toolbar->addSeparator();
+      _undoAction = CreateAction(tr("Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
+      _undoButton = CreateToolButton(_undoAction);
+      _undoAction->setEnabled(false);
+      toolbar->addWidget(_undoButton);
 
-         _undoAction = CreateAction(tr("Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
-         _undoButton = CreateToolButton(_undoAction);
-         _undoAction->setEnabled(false);
-         toolbar->addWidget(_undoButton);
+      _redoAction = CreateAction(tr("Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
+      _redoButton = CreateToolButton(_redoAction);
+      _redoAction->setEnabled(false);
+      toolbar->addWidget(_redoButton);
 
-         _redoAction = CreateAction(tr("Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
-         _redoButton = CreateToolButton(_redoAction);
-         _redoAction->setEnabled(false);
-         toolbar->addWidget(_redoButton);
+      toolbar->addSeparator();
 
-         toolbar->addSeparator();
+      _optionsAction = CreateAction(tr("Options"), IDB_OPTIONS);
+      _optionsButton = CreateToolButton(_optionsAction);
+      toolbar->addWidget(_optionsButton);
 
-         _optionsAction = CreateAction(tr("Options"), IDB_OPTIONS);
-         _optionsButton = CreateToolButton(_optionsAction);
-         toolbar->addWidget(_optionsButton);
+      addToolBar(toolbar);
+   }
 
+   void MainWindow::BuildFiltersUI()
+   {
       auto filtersDock = new QDockWidget(tr("Tree Filter"));
-         filtersDock->setObjectName("Tree Filter");
-         filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
-         auto filtersContainer = new QWidget();
-         auto filtersLayout = new QHBoxLayout(filtersContainer);
+      filtersDock->setObjectName("Tree Filter");
+      filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+      auto filtersContainer = new QWidget();
+      auto filtersLayout = new QHBoxLayout(filtersContainer);
 
-         _availableFiltersList = new TreeFilterListWidget;
-         _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
-         filtersLayout->addWidget(_scrollFiltersList);
+      _availableFiltersList = new TreeFilterListWidget;
+      _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
+      filtersLayout->addWidget(_scrollFiltersList);
 
-         _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filtersContainer);
-         filtersLayout->addWidget(_filterEditor);
+      _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filtersContainer);
+      filtersLayout->addWidget(_filterEditor);
 
-         filtersDock->setWidget(filtersContainer);
+      filtersDock->setWidget(filtersContainer);
 
+      addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
+   }
+
+   void MainWindow::BuildSimpleSearchUI()
+   {
       auto simpleSearchDock = new QDockWidget(tr("Tree Text Search"));
-         simpleSearchDock->setObjectName("Tree Text Search");
-         simpleSearchDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
-         auto searchContainer = new QWidget();
-         auto searchLayout = new QHBoxLayout(searchContainer);
+      simpleSearchDock->setObjectName("Tree Text Search");
+      simpleSearchDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
+      auto searchContainer = new QWidget();
+      auto searchLayout = new QHBoxLayout(searchContainer);
 
-         _simpleSearch = new QLineEdit;
-         searchLayout->addWidget(_simpleSearch);
+      _simpleSearch = new QLineEdit;
+      searchLayout->addWidget(_simpleSearch);
 
-         _editSearchButton = new QPushButton;
-         _editSearchButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
-         _editSearchButton->setToolTip(tr("Edit Search Filter"));
-         _editSearchButton->setFlat(true);
-         _editSearchButton->setMaximumSize(QSize(16, 16));
+      _editSearchButton = new QPushButton;
+      _editSearchButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
+      _editSearchButton->setToolTip(tr("Edit Search Filter"));
+      _editSearchButton->setFlat(true);
+      _editSearchButton->setMaximumSize(QSize(16, 16));
 
-         searchLayout->addWidget(_editSearchButton);
+      searchLayout->addWidget(_editSearchButton);
 
-         simpleSearchDock->setWidget(searchContainer);
+      simpleSearchDock->setWidget(searchContainer);
 
+      addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, simpleSearchDock);
+   }
+
+   void MainWindow::BuildTabbedUI()
+   {
       auto mainContainer = new QWidget;
-         auto mainLayout = new QVBoxLayout(mainContainer);
+      auto mainLayout = new QVBoxLayout(mainContainer);
 
-         _treeView = new QTreeView;
-         _treeView->setUniformRowHeights(true);
-         _treeView->setHeaderHidden(true);
-         _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+      _tabs = new QMdiArea;
+      _tabs->setViewMode(QMdiArea::ViewMode::TabbedView);
+      _tabs->setDocumentMode(true);
+      _tabs->setTabsClosable(true);
 
-         mainLayout->addWidget(_treeView);
+      mainLayout->addWidget(_tabs);
 
       setCentralWidget(mainContainer);
-      addToolBar(toolbar);
-      addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filtersDock);
-      addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, simpleSearchDock);
-      setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -201,15 +220,14 @@ namespace TreeReaderApp
 
    void MainWindow::ConnectUI()
    {
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Asynchronous filtering.
+
       _filteringTimer->connect(_filteringTimer, &QTimer::timeout, [self = this]()
       {
          self->verifyAsyncFiltering();
       });
-
-      _data.UndoRedo().Changed = [self = this](UndoStack&)
-      {
-         self->UpdateUndoRedoActions();
-      };
 
       /////////////////////////////////////////////////////////////////////////
       //
@@ -232,6 +250,11 @@ namespace TreeReaderApp
       /////////////////////////////////////////////////////////////////////////
       //
       // Undo / redo actions.
+
+      _data.UndoRedo().Changed = [self = this](UndoStack&)
+      {
+         self->UpdateUndoRedoActions();
+      };
 
       _undoAction->connect(_undoAction, &QAction::triggered, [self=this]()
       {
@@ -257,6 +280,10 @@ namespace TreeReaderApp
          self->SaveFilteredTree();
       });
 
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Filtering.
+
       _applyFilterAction->connect(_applyFilterAction, &QAction::triggered, [self = this]()
       {
          self->FilterTree();
@@ -272,11 +299,6 @@ namespace TreeReaderApp
          self->PushFilter();
       });
 
-      _popFilterAction->connect(_popFilterAction, &QAction::triggered, [self = this]()
-      {
-         self->PopFilter();
-      });
-
       _optionsAction->connect(_optionsAction, &QAction::triggered, [self = this]()
       {
          self->OpenOptions();
@@ -290,6 +312,15 @@ namespace TreeReaderApp
       {
          self->_data.SetFilter(self->_filterEditor->GetEdited());
       };
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      // Tabs.
+
+      _tabs->connect(_tabs, &QMdiArea::subWindowActivated, [self = this](QMdiSubWindow* sub)
+      {
+         self->UpdateActiveTab();
+      });
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -302,39 +333,15 @@ namespace TreeReaderApp
       WithNoExceptions([self = this]() { self->_data.LoadOptions(GetOptionsFileName()); });
       WithNoExceptions([self = this]() { self->LoadState(); });
 
-      UpdatePushPopActions();
+      UpdateCreateTabAction();
       UpdateUndoRedoActions();
 
       FillAvailableFiltersUI();
    }
 
-   void MainWindow::FillTextTreeUI()
-   {
-      shared_ptr<TextTree> newTree;
-      if (_data.GetFilteredTree())
-      {
-         newTree = _data.GetFilteredTree();
-      }
-      else
-      {
-         newTree = _data.GetCurrentTree();
-      }
-
-      if (!_treeView->model() || !dynamic_cast<TextTreeModel*>(_treeView->model()) || dynamic_cast<TextTreeModel*>(_treeView->model())->Tree != newTree)
-      {
-         TextTreeModel* model = new TextTreeModel;
-         model->Tree = newTree;
-         auto oldModel = _treeView->model();
-         _treeView->setModel(model);
-         delete oldModel;
-      }
-
-      UpdatePushPopActions();
-   }
-
    void MainWindow::FillFilterEditorUI()
    {
-      _filterEditor->SetEdited(_data.GetFilter(), L"");
+      _filterEditor->SetEdited(_data.GetFilter(), _data.GetFilterName());
    }
 
    void MainWindow::FillAvailableFiltersUI()
@@ -435,6 +442,8 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
+      // TODO: will have to save all tabs!!!
+
       if (_data.GetFilteredTree() && !_data.IsFilteredTreeSaved())
       {
          YesNoCancel answer = AskYesNoCancel(
@@ -453,16 +462,13 @@ namespace TreeReaderApp
 
    void MainWindow::LoadTree()
    {
-      if (!SaveIfRequired(tr("load a text tree"), tr("loading a text tree")))
-         return;
-
       filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeFileTypes), this);
       _data.LoadTree(path);
 
       if (_data.GetCurrentTree() == nullptr)
          return;
 
-      FillTextTreeUI();
+      AddTextTreeTab();
    }
 
    bool MainWindow::SaveFilteredTree()
@@ -475,6 +481,96 @@ namespace TreeReaderApp
       _data.SaveFilteredTree(path);
 
       return true;
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Tab management.
+
+   void MainWindow::AddTextTreeTab()
+   {
+      auto newTree = _data.GetCurrentTree();
+      auto name = _data.GetCurrentTreeFileName();
+
+      auto treeView = new QTreeView;
+      treeView->setUniformRowHeights(true);
+      treeView->setHeaderHidden(true);
+      treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+      _treeViews[treeView] = newTree;
+
+      TextTreeModel* model = new TextTreeModel;
+      model->Tree = newTree;
+
+      auto oldModel = treeView->model();
+      treeView->setModel(model);
+      delete oldModel;
+
+      auto sub = _tabs->addSubWindow(treeView, Qt::SubWindow);
+      sub->showMaximized();
+      sub->setWindowTitle(QString::fromStdWString(name));
+
+      UpdateCreateTabAction();
+   }
+
+   void MainWindow::UpdateActiveTab()
+   {
+      if (_data.SetCurrentTree(GetCurrentTextTree()))
+      {
+         FillFilterEditorUI();
+      }
+   }
+
+   void MainWindow::UpdateTextTreeTab()
+   {
+      auto model = GetCurrentTextTreeModel();
+      if (!model)
+         return;
+
+      TextTreePtr newTree;
+      if (_data.GetFilteredTree())
+      {
+         newTree = _data.GetFilteredTree();
+      }
+      else
+      {
+         newTree = _data.GetCurrentTree();
+      }
+      model->Tree = newTree;
+      model->Reset();
+
+      UpdateCreateTabAction();
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Current tab.
+
+   QTreeView* MainWindow::GetCurrentTextTreeView()
+   {
+      auto sub = _tabs->currentSubWindow();
+      if (!sub)
+         return nullptr;
+
+      return dynamic_cast<QTreeView*>(sub->widget());
+   }
+
+   TextTreeModel* MainWindow::GetCurrentTextTreeModel()
+   {
+      auto treeView = GetCurrentTextTreeView();
+      if (!treeView)
+         return nullptr;
+
+      return dynamic_cast<TextTreeModel*>(treeView->model());
+   }
+
+   TextTreePtr MainWindow::GetCurrentTextTree()
+   {
+      auto view = GetCurrentTextTreeView();
+      if (!view)
+         return nullptr;
+
+      return _treeViews[view];
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -496,7 +592,7 @@ namespace TreeReaderApp
    {
       if (_data.IsAsyncFilterReady())
       {
-         FillTextTreeUI();
+         UpdateTextTreeTab();
       }
       else
       {
@@ -512,23 +608,14 @@ namespace TreeReaderApp
 
    void MainWindow::PushFilter()
    {
-      _data.PushFilteredAsTree();
-      FillTextTreeUI();
+      _data.CreateTreeFromFiltered();
+      AddTextTreeTab();
       FillFilterEditorUI();
    }
 
-   void MainWindow::PopFilter()
+   void MainWindow::UpdateCreateTabAction()
    {
-      _data.PopTree();
-      FillTextTreeUI();
-      FillFilterEditorUI();
-   }
-
-   void MainWindow::UpdatePushPopActions()
-   {
-      _pushFilterAction->setEnabled(_data.CanPushTree());
-      _popFilterAction->setEnabled(_data.CanPopTree());
-
+      _pushFilterAction->setEnabled(_data.CanCreateTreeFromFiltered());
    }
 
    /////////////////////////////////////////////////////////////////////////

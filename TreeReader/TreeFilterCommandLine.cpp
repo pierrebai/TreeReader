@@ -156,17 +156,17 @@ namespace TreeReader
          }
          else if (cmd == L"push-filtered")
          {
-            PushFilteredAsTree();
+            CreateTreeFromFiltered();
          }
          else if (cmd == L"pop-tree")
          {
-            PopTree();
+            RemoveCurrentTree();
          }
          else if (cmd == L"then")
          {
             result += CreateFilter();
             ApplyFilterToTree();
-            PushFilteredAsTree();
+            CreateTreeFromFiltered();
             ClearFilterText();
             previousFilterText = L"";
          }

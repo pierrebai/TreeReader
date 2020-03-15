@@ -16,8 +16,6 @@ namespace TreeReader
    // Context constructor.
    CommandsContext::CommandsContext()
    {
-      // Ensure there is always at least one tree context.
-      _trees.emplace_back();
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -45,7 +43,9 @@ namespace TreeReader
       if (newTree && newTree->Roots.size() > 0)
       {
          _trees.emplace_back();
-         auto& ctx = _trees.back();
+         _currentTree = _trees.size() - 1;
+
+         auto& ctx = GetCurrentTreeContext();
 
          ctx.TreeFileName = filename;
          ctx.Tree = newTree;
@@ -61,7 +61,7 @@ namespace TreeReader
 
    void CommandsContext::SaveFilteredTree(const filesystem::path& filename)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       if (ctx.Filtered)
       {
@@ -71,21 +71,36 @@ namespace TreeReader
       }
    }
 
+   bool CommandsContext::IsFilteredTreeSaved() const
+   {
+      return GetCurrentTreeContext().FilteredWasSaved;
+   }
+
    /////////////////////////////////////////////////////////////////////////
    //
    // Current filter.
 
    void CommandsContext::SetFilter(const TreeFilterPtr& filter)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       ctx.Filter = filter;
       CommitFilterToUndo();
    }
 
+   const TreeFilterPtr& CommandsContext::GetFilter() const
+   {
+      return GetCurrentTreeContext().Filter;
+   }
+
+   const std::wstring& CommandsContext::GetFilterName() const
+   {
+      return GetCurrentTreeContext().FilterName;
+   }
+
    void CommandsContext::ApplyFilterToTree(bool async)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       AbortAsyncFilter();
 
@@ -123,7 +138,7 @@ namespace TreeReader
 
    bool CommandsContext::IsAsyncFilterReady()
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       if (_asyncFiltering.first.valid())
       {
@@ -187,7 +202,7 @@ namespace TreeReader
 
    void CommandsContext::ApplySearchInTree(bool async)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       if (_searchedText.empty())
       {
@@ -195,7 +210,7 @@ namespace TreeReader
          return;
       }
 
-      shared_ptr<TextTree> applyTo = ctx.Filtered ? ctx.Filtered : _trees.size() > 0 ? ctx.Tree : shared_ptr<TextTree>();
+      TextTreePtr applyTo = ctx.Filtered ? ctx.Filtered : ctx.Tree;
 
       if (!applyTo)
          return;
@@ -223,7 +238,7 @@ namespace TreeReader
 
    NamedFilterPtr CommandsContext::NameFilter(const wstring& filterName)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
       ctx.FilterName = filterName;
 
       return NameFilter(filterName, ctx.Filter);
@@ -312,75 +327,121 @@ namespace TreeReader
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Current text tree and filtered tree.
+   // Current text tree.
 
-   shared_ptr<TextTree> CommandsContext::GetCurrentTree() const
+   const TreeContext& CommandsContext::GetCurrentTreeContext() const
    {
-      auto& ctx = _trees.back();
+      return const_cast<CommandsContext*>(this)->GetCurrentTreeContext();
+   }
 
-      if (_trees.size() <= 0)
-         return {};
+   TreeContext& CommandsContext::GetCurrentTreeContext()
+   {
+      if (_currentTree < 0 || _currentTree >= _trees.size())
+      {
+         static TreeContext empty;
+         return empty;
+      }
+
+      return _trees[_currentTree];
+   }
+
+   TextTreePtr CommandsContext::GetCurrentTree() const
+   {
+      auto& ctx = GetCurrentTreeContext();
 
       return ctx.Tree;
    }
 
-   shared_ptr<TextTree> CommandsContext::GetFilteredTree() const
+   bool CommandsContext::SetCurrentTree(const TextTreePtr& tree)
    {
-      auto& ctx = _trees.back();
+      for (size_t i = 0; i < _trees.size(); ++i)
+      {
+         if (_trees[i].Tree == tree)
+         {
+            if (_currentTree != i)
+            {
+               _currentTree = i;
+               return true;
+            }
+            break;
+         }
+      }
+
+      return false;
+   }
+
+   bool CommandsContext::CanRemoveCurrentTree() const
+   {
+      return _trees.size() > 0;
+   }
+
+   void CommandsContext::RemoveCurrentTree()
+   {
+      if (!CanRemoveCurrentTree())
+         return;
+
+      _trees.erase(_trees.begin() + _currentTree);
+      _currentTree -= 1;
+
+      ApplySearchInTree(false);
+   }
+
+   std::wstring CommandsContext::GetCurrentTreeFileName() const
+   {
+      auto& ctx = GetCurrentTreeContext();
+
+      return ctx.TreeFileName;
+   }
+
+   /////////////////////////////////////////////////////////////////////////
+   //
+   // Current filtered tree.
+
+   TextTreePtr CommandsContext::GetFilteredTree() const
+   {
+      auto& ctx = GetCurrentTreeContext();
 
       return _searched ? _searched : ctx.Filtered;
    }
 
-   bool CommandsContext::CanPushTree() const
+   bool CommandsContext::CanCreateTreeFromFiltered() const
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       return ctx.Filtered != nullptr;
    }
 
-   bool CommandsContext::CanPopTree() const
+   TextTreePtr CommandsContext::CreateTreeFromFiltered()
    {
-      return (_trees.size() > 1);
-   }
+      if (!CanCreateTreeFromFiltered())
+         return {};
 
-   void CommandsContext::PushFilteredAsTree()
-   {
-      if (!CanPushTree())
-         return;
-
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       TreeContext newCtx;
       newCtx.Tree = ctx.Filtered;
       newCtx.TreeFileName = ctx.FilteredFileName;
 
       _trees.emplace_back(move(newCtx));
+      _currentTree = _trees.size() - 1;
+
+      return GetCurrentTree();
    }
    
-   void CommandsContext::PopTree()
-   {
-      if (!CanPopTree())
-         return;
-
-      _trees.pop_back();
-
-      ApplySearchInTree(false);
-   }
-
    /////////////////////////////////////////////////////////////////////////
    //
    // Undo / redo.
 
    void CommandsContext::DeadedFilters(any& data)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       data = ConvertFiltersToText(ctx.Filter);
    }
 
    void CommandsContext::AwakenFilters(const any& data)
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       // Note: do not call SetFilter as it would put it in undo/redo...
       ctx.Filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
@@ -393,7 +454,7 @@ namespace TreeReader
 
    void CommandsContext::CommitFilterToUndo()
    {
-      auto& ctx = _trees.back();
+      auto& ctx = GetCurrentTreeContext();
 
       _undoRedo.Commit(
       {

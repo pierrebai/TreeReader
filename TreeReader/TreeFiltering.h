@@ -20,7 +20,7 @@ namespace TreeReader
 
    using AsyncFilterTreeResult = std::pair<std::future<TextTree>, std::shared_ptr<CanAbortTreeVisitor>>;
 
-   AsyncFilterTreeResult FilterTreeAsync(const std::shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter);
+   AsyncFilterTreeResult FilterTreeAsync(const TextTreePtr& sourceTree, const TreeFilterPtr& filter);
 
    ////////////////////////////////////////////////////////////////////////////
    //

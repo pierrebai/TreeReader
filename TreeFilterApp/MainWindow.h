@@ -15,14 +15,22 @@ class QDockWidget;
 class QTimer;
 class QLineEdit;
 class QPushButton;
+class QMdiArea;
+
+namespace TreeReader
+{
+   struct TextTree;
+}
 
 namespace TreeReaderApp
 {
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
+   using TextTreePtr = TreeReader::TextTreePtr;
    using CommandsContext = TreeReader::CommandsContext;
    using UndoStack = TreeReader::UndoStack;
    using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
+   struct TextTreeModel;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -37,12 +45,16 @@ namespace TreeReaderApp
       // Create the UI elements.
       void BuildUI();
 
+      void BuildToolBarUI();
+      void BuildFiltersUI();
+      void BuildSimpleSearchUI();
+      void BuildTabbedUI();
+
       // Connect the signals of the UI elements.
       void ConnectUI();
 
       // Fill the UI with the intial data.
       void FillUI();
-      void FillTextTreeUI();
       void FillFilterEditorUI();
       void FillAvailableFiltersUI();
 
@@ -55,6 +67,16 @@ namespace TreeReaderApp
       void LoadTree();
       bool SaveFilteredTree();
 
+      // Tab management.
+      void AddTextTreeTab();
+      void UpdateActiveTab(); 
+      void UpdateTextTreeTab();
+
+      // Current tab.
+      QTreeView* GetCurrentTextTreeView();
+      TextTreeModel* GetCurrentTextTreeModel();
+      TextTreePtr GetCurrentTextTree();
+
       // Main window state.
       void SaveState();
       void LoadState();
@@ -65,8 +87,7 @@ namespace TreeReaderApp
       void SearchInTree(const QString& text);
 
       void PushFilter();
-      void PopFilter();
-      void UpdatePushPopActions();
+      void UpdateCreateTabAction();
 
       // Filter naming.
       void NameFilter();
@@ -100,21 +121,20 @@ namespace TreeReaderApp
       QAction* _pushFilterAction = nullptr;
       QToolButton* _pushFilterButton = nullptr;
 
-      QAction* _popFilterAction = nullptr;
-      QToolButton* _popFilterButton = nullptr;
-
       QAction* _optionsAction = nullptr;
       QToolButton* _optionsButton = nullptr;
 
       QPushButton* _editSearchButton = nullptr;
 
       // UI elements.
-      QTreeView* _treeView = nullptr;
       QLineEdit* _simpleSearch = nullptr;
       FilterEditor* _filterEditor = nullptr;
       TreeFilterListWidget* _availableFiltersList = nullptr;
       QWidgetScrollListWidget* _scrollFiltersList = nullptr;
       QTimer* _filteringTimer = nullptr;
+
+      QMdiArea* _tabs = nullptr;
+      std::map<QTreeView *, TextTreePtr> _treeViews;
 
       Q_OBJECT;
    };
