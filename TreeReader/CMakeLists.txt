@@ -8,6 +8,7 @@ add_library(TreeReader
    TextTree.cpp               TextTree.h
    TextTreeVisitor.cpp        TextTreeVisitor.h
    TreeFilter.cpp             TreeFilter.h
+   TreeFiltering.cpp          TreeFiltering.h
    TreeFilterHelpers.cpp      TreeFilterHelpers.h
    TreeFilterMaker.cpp        TreeFilterMaker.h
    SimpleTreeFilterMaker.cpp

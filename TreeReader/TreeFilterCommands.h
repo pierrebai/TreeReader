@@ -2,6 +2,7 @@
 
 #include "TextTree.h"
 #include "TreeFilter.h"
+#include "TreeFiltering.h"
 #include "SimpleTreeReader.h"
 #include "NamedFilters.h"
 #include "UndoStack.h"
