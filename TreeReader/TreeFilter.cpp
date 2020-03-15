@@ -249,7 +249,8 @@ namespace TreeReader
 
    Result IfSubTreeTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
-      FilterTreeVisitor visitor(tree, _filtered, Filter);
+      StopWhenKeptTreeFilter stopWhenKept(Filter);
+      FilterTreeVisitor visitor(tree, _filtered, stopWhenKept);
       VisitInOrder(tree, &node, false, visitor);
       return (_filtered.Roots.size() > 0) ? Keep : Drop;
    }

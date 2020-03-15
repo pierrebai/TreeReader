@@ -98,7 +98,7 @@ namespace TreeReader
          else
          {
             ctx.Filtered = make_shared<TextTree>();
-            FilterTree(*ctx.Tree, *ctx.Filtered, ctx.Filter);
+            FilterTree(*ctx.Tree, *ctx.Filtered, *ctx.Filter);
             ctx.FilteredWasSaved = false;
             ApplySearchInTree(async);
          }
@@ -201,6 +201,8 @@ namespace TreeReader
          return;
 
       auto filter = ConvertSimpleTextToFilters(_searchedText, *_knownFilters);
+      if (!filter)
+         return;
 
       AbortAsyncSearch();
 
@@ -211,7 +213,7 @@ namespace TreeReader
       else
       {
          _searched = make_shared<TextTree>();
-         FilterTree(*applyTo, *_searched, filter);
+         FilterTree(*applyTo, *_searched, *filter);
       }
    }
 

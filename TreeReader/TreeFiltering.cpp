@@ -7,7 +7,7 @@ namespace TreeReader
    using Result = TreeFilter::Result;
    using Node = TextTree::Node;
 
-   FilterTreeVisitor::FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
+   FilterTreeVisitor::FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
       : FilteredTree(filteredTree), Filter(filter)
    {
       filteredTree.Reset();
@@ -24,16 +24,13 @@ namespace TreeReader
 
    TreeVisitor::Result FilterTreeVisitor::Visit(const TextTree& tree, const Node& sourceNode, const size_t sourceLevel)
    {
-      if (!Filter)
-         return Result();
-
       _filteredBranchNodes.resize(sourceLevel + 1, nullptr);
       _fillChildren.resize(sourceLevel + 1, false);
 
       // Either the index of the newly created filtered node if kept, or -1 if not kept.
       Node* filteredNode = nullptr;
 
-      const TreeFilter::Result result = Filter->IsKept(tree, sourceNode, sourceLevel);
+      const TreeFilter::Result result = Filter.IsKept(tree, sourceNode, sourceLevel);
       if (result.Keep)
       {
          // Connect to the nearest node in the branch.
@@ -67,6 +64,12 @@ namespace TreeReader
       return TreeVisitor::Result(result);
    }
 
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
+   {
+      FilterTreeVisitor visitor(sourceTree, filteredTree, filter);
+      VisitInOrder(sourceTree, visitor);
+   }
+
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
    {
       if (!filter)
@@ -75,8 +78,7 @@ namespace TreeReader
          return;
       }
 
-      FilterTreeVisitor visitor(sourceTree, filteredTree, filter);
-      VisitInOrder(sourceTree, visitor);
+      FilterTree(sourceTree, filteredTree, *filter);
    }
 
    AsyncFilterTreeResult FilterTreeAsync(const shared_ptr<TextTree>& sourceTree, const TreeFilterPtr& filter)
@@ -88,7 +90,7 @@ namespace TreeReader
       auto fut = async(launch::async, [sourceTree, filter, abort]()
       {
          TextTree filtered;
-         abort->Visitor = make_shared<FilterTreeVisitor>(*sourceTree, filtered, filter);
+         abort->Visitor = make_shared<FilterTreeVisitor>(*sourceTree, filtered, *filter);
          VisitInOrder(*sourceTree, *abort);
          return filtered;
       });

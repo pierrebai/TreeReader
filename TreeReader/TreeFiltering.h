@@ -15,6 +15,7 @@ namespace TreeReader
    //
    // Filters a source tree into a filtered tree using the given filter.
 
+   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter);
    void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
 
    using AsyncFilterTreeResult = std::pair<std::future<TextTree>, std::shared_ptr<CanAbortTreeVisitor>>;
@@ -28,9 +29,9 @@ namespace TreeReader
    struct FilterTreeVisitor : SimpleTreeVisitor
    {
       TextTree& FilteredTree;
-      TreeFilterPtr Filter;
+      TreeFilter& Filter;
 
-      FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter);
+      FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter);
 
       Result Visit(const TextTree& tree, const TextTree::Node& sourceNode, const size_t sourceLevel) override;
 

@@ -1,4 +1,5 @@
 #include "TreeFilter.h"
+#include "TreeFiltering.h"
 #include "TreeReaderTestHelpers.h"
 #include "CppUnitTest.h"
 
@@ -17,7 +18,7 @@ namespace TreeReaderTests
 		TEST_METHOD(PrintSimpleTreeWithContainsFilter)
 		{
 			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Contains(L"g"));
+			FilterTree(CreateSimpleTree(), filtered, *Contains(L"g"));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -30,7 +31,7 @@ namespace TreeReaderTests
       {
          TextTree tree = CreateSimpleTree();
          TextTree filtered;
-         FilterTree(tree, filtered, ExactAddress(tree.Roots[0]->TextPtr));
+         FilterTree(tree, filtered, *ExactAddress(tree.Roots[0]->TextPtr));
 
          wostringstream sstream;
          sstream << filtered;
