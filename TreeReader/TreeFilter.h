@@ -8,6 +8,7 @@
 #include <vector>
 #include <regex>
 #include <future>
+#include <unordered_set>
 
 namespace TreeReader
 {
@@ -157,6 +158,26 @@ namespace TreeReader
 
    ////////////////////////////////////////////////////////////////////////////
    //
+   // Filter that keeps only the first node that contain some text.
+
+   struct UniqueTreeFilter : TreeFilter
+   {
+      UniqueTreeFilter() = default;
+
+      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+      std::wstring GetShortName() const override;
+      std::wstring GetDescription() const override;
+      TreeFilterPtr Clone() const override;
+
+   private:
+      struct hash { int  operator()(const wchar_t* text) const; };
+      struct comp { bool operator()(const wchar_t* lhs, const wchar_t* rhs) const; };
+
+      std::unordered_set<const wchar_t*, hash, comp> _uniques;
+   };
+
+   ////////////////////////////////////////////////////////////////////////////
+   //
    // Filter by matching the exact address of the text.
    // Can be use to keep an exact node, using selection in a UI for example.
 
@@ -280,62 +301,6 @@ namespace TreeReader
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts a given number of siblings of a node that was
-   // accepted by another filter.
-   //
-   // Can accept or not that initial node. That node is not included
-   // in the count in all cases.
-
-   struct CountSiblingsTreeFilter : DelegateTreeFilter
-   {
-      size_t Count = 0;
-      bool IncludeSelf = true;
-
-      CountSiblingsTreeFilter() = default;
-      CountSiblingsTreeFilter(const TreeFilterPtr& filter, size_t count, bool includeSelf = true)
-         : DelegateTreeFilter(filter), Count(count), IncludeSelf(includeSelf) {}
-
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
-
-   private:
-      size_t _keepNodesAtLevel = -1;
-      size_t _countdown = 0;
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   //
-   // Filter that accepts a given number of children of a node that was
-   // accepted by another filter.
-   //
-   // Can accept or not that initial node. That node is not included
-   // in the count in all cases.
-
-   struct CountChildrenTreeFilter : DelegateTreeFilter
-   {
-      size_t Count = 0;
-      bool IncludeSelf = true;
-
-      CountChildrenTreeFilter() = default;
-      CountChildrenTreeFilter(const TreeFilterPtr& filter, size_t count, bool includeSelf = true)
-         : DelegateTreeFilter(filter), Count(count), IncludeSelf(includeSelf) {}
-
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
-
-   private:
-      size_t _keepNodesUnderLevel = -1;
-      size_t _countdown = 0;
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   //
    // Filter that removes all children of a node that was accepted
    // by another filter.
    //
@@ -445,6 +410,7 @@ namespace TreeReader
    inline std::shared_ptr<StopTreeFilter> Stop() { return std::make_shared<StopTreeFilter>(); }
    inline std::shared_ptr<UntilTreeFilter> Until(const TreeFilterPtr& filter) { return std::make_shared<UntilTreeFilter>(filter); }
    inline std::shared_ptr<ContainsTreeFilter> Contains(const std::wstring& text) { return std::make_shared<ContainsTreeFilter>(text); }
+   inline std::shared_ptr<UniqueTreeFilter> Unique() { return std::make_shared<UniqueTreeFilter>(); }
    inline std::shared_ptr<TextAddressTreeFilter> ExactAddress(const wchar_t* text) { return std::make_shared<TextAddressTreeFilter>(text); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(reg ? reg : L""); }
    inline std::shared_ptr<RegexTreeFilter> Regex(const std::wstring& reg) { return std::make_shared<RegexTreeFilter>(reg); }
@@ -454,8 +420,6 @@ namespace TreeReader
    inline std::shared_ptr<OrTreeFilter> Any(const std::vector<TreeFilterPtr>& filters) { return std::make_shared<OrTreeFilter>(filters); }
    inline std::shared_ptr<AndTreeFilter> All(const std::vector<TreeFilterPtr>& filters) { return std::make_shared<AndTreeFilter>(filters); }
    inline std::shared_ptr<UnderTreeFilter> Under(const TreeFilterPtr& filter, bool includeSelf = true) { return std::make_shared<UnderTreeFilter>(filter, includeSelf); }
-   inline std::shared_ptr<CountSiblingsTreeFilter> CountSiblings(const TreeFilterPtr& filter, size_t count, bool includeSelf = true) { return std::make_shared<CountSiblingsTreeFilter>(filter, count, includeSelf); }
-   inline std::shared_ptr<CountChildrenTreeFilter> CountChildren(const TreeFilterPtr& filter, size_t count, bool includeSelf = true) { return std::make_shared<CountChildrenTreeFilter>(filter, count, includeSelf); }
    inline std::shared_ptr<RemoveChildrenTreeFilter> NoChild(const TreeFilterPtr& filter, bool removeSelf = false) { return std::make_shared<RemoveChildrenTreeFilter>(filter, removeSelf); }
    inline std::shared_ptr<LevelRangeTreeFilter> LevelRange(size_t min, size_t max) { return std::make_shared<LevelRangeTreeFilter>(min, max); }
    inline std::shared_ptr<LevelRangeTreeFilter> MinLevel(size_t level) { return LevelRange(level, -1); }

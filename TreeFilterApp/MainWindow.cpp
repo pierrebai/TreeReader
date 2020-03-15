@@ -348,12 +348,11 @@ namespace TreeReaderApp
       _availableFiltersList->AddTreeFilter(Until(nullptr));
       _availableFiltersList->AddTreeFilter(Contains(L""));
       _availableFiltersList->AddTreeFilter(Regex(L""));
+      _availableFiltersList->AddTreeFilter(Unique());
       _availableFiltersList->AddTreeFilter(Not(nullptr));
       _availableFiltersList->AddTreeFilter(Any(vector<TreeFilterPtr>()));
       _availableFiltersList->AddTreeFilter(All(vector<TreeFilterPtr>()));
       _availableFiltersList->AddTreeFilter(Under(nullptr));
-      _availableFiltersList->AddTreeFilter(CountSiblings(nullptr, 0));
-      _availableFiltersList->AddTreeFilter(CountChildren(nullptr, 0));
       _availableFiltersList->AddTreeFilter(NoChild(nullptr));
       _availableFiltersList->AddTreeFilter(LevelRange(0, 100));
       _availableFiltersList->AddTreeFilter(IfSubTree(nullptr));

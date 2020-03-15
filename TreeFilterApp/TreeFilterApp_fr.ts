@@ -74,59 +74,59 @@
         <translation>Éditer le filtre de recherche</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="422"/>
+        <location filename="MainWindow.cpp" line="421"/>
         <source>close the window</source>
         <translation>fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="422"/>
+        <location filename="MainWindow.cpp" line="421"/>
         <source>closing the window</source>
         <translation>fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="442"/>
+        <location filename="MainWindow.cpp" line="441"/>
         <source>Unsaved Text Tree Warning</source>
         <translation>Arbre filtré non sauvegardé</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="443"/>
+        <location filename="MainWindow.cpp" line="442"/>
         <source>The current filtered tree has not been saved.
 Do you want to save it before </source>
         <translation>L&apos;arbre actuel n&apos;a pas été sauvegardé.
 Voulez-vous le sauvegarder avant de </translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="443"/>
+        <location filename="MainWindow.cpp" line="442"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="457"/>
+        <location filename="MainWindow.cpp" line="456"/>
         <source>load a text tree</source>
         <translation>lire un nouvel arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="457"/>
+        <location filename="MainWindow.cpp" line="456"/>
         <source>loading a text tree</source>
         <translation>lire un nouvel arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="460"/>
+        <location filename="MainWindow.cpp" line="459"/>
         <source>Load Text Tree</source>
         <translation>Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="474"/>
+        <location filename="MainWindow.cpp" line="473"/>
         <source>Save Filtered Text Tree</source>
         <translation>Sauver l&apos;arbre filtré</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="547"/>
+        <location filename="MainWindow.cpp" line="546"/>
         <source>Name a filter</source>
         <translation>Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="547"/>
+        <location filename="MainWindow.cpp" line="546"/>
         <source>Filter Name</source>
         <translation>Nom du filtre</translation>
     </message>
@@ -157,17 +157,17 @@ Voulez-vous le sauvegarder avant de </translation>
 <context>
     <name>TreeReaderApp::TreeFilterListItem</name>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="222"/>
+        <location filename="TreeFilterListItem.cpp" line="216"/>
         <source>Edit this filter</source>
         <translation>Éditer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="237"/>
+        <location filename="TreeFilterListItem.cpp" line="231"/>
         <source>Delete this filter</source>
         <translation>Effacer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="250"/>
+        <location filename="TreeFilterListItem.cpp" line="244"/>
         <source>Include self</source>
         <translation>Inclure soi-même</translation>
     </message>

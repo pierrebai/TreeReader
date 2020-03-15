@@ -57,6 +57,25 @@ namespace TreeReader
    {
       return (wcsstr(node.TextPtr, Contained.c_str()) != nullptr) ? Keep : Drop;
    }
+   
+   int UniqueTreeFilter::hash::operator()(const wchar_t* text) const
+   {
+      int h = 0;  while (text) { h += *text * 131; ++text; } return h & INT_MAX;
+   }
+
+   bool UniqueTreeFilter::comp::operator()(const wchar_t* lhs, const wchar_t* rhs) const
+   {
+      return std::wcscmp(lhs, rhs) == 0;
+   }
+
+   Result UniqueTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
+   {
+      if (_uniques.count(node.TextPtr) > 0)
+         return Drop;
+
+      _uniques.insert(node.TextPtr);
+      return Keep;
+   }
 
    Result TextAddressTreeFilter::IsKept(const TextTree& tree, const Node& node, size_t level)
    {
@@ -128,88 +147,6 @@ namespace TreeReader
       // Record the level at which we must come back up to to stop accepting nodes
       // without checking the filter.
       _keepAllNodesUnderLevel = level;
-
-      // If the filter must not keep the matching node, then set Keep to false here.
-      // apply it here.
-      if (!IncludeSelf)
-         result.Keep = false;
-
-      return result;
-   }
-
-   Result CountSiblingsTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
-   {
-      // If we've reached back up higher than the level where we found the match previously,
-      // then stop keeping nodes. We do this by making the apply under level very large
-      // and the count to zero.
-      if (level < _keepNodesAtLevel)
-      {
-         _keepNodesAtLevel = -1;
-         _countdown = 0;
-      }
-
-      // If we previously found a match and there are still a number of nodes to be accepted,
-      // reduce that number and keep the node.
-      if (_countdown > 0 && level == _keepNodesAtLevel)
-      {
-         --_countdown;
-         return Keep;
-      }
-
-      // If the node doesn't match the other filter, don't apply the other filter.
-      // Just return the result of the other filter.
-      Result result = DelegateTreeFilter::IsKept(tree, node, level);
-      if (!result.Keep)
-         return result;
-
-      // If we reach here, the other filter matched, so we will start accepting
-      // a number of nodes under this one.
-      //
-      // Record the level at which we must come back up to to stop accepting nodes
-      // without checking the filter.
-      _keepNodesAtLevel = level;
-      _countdown = Count;
-
-      // If the filter must not keep the matching node, then set Keep to false here.
-      // apply it here.
-      if (!IncludeSelf)
-         result.Keep = false;
-
-      return result;
-   }
-
-   Result CountChildrenTreeFilter::IsKept(const TextTree& tree, const TextTree::Node& node, size_t level)
-   {
-      // If we've reached back up to the level where we found the match previously,
-      // then stop keeping nodes. We do this by making the apply under level very large
-      // and the count to zero.
-      if (level <= _keepNodesUnderLevel)
-      {
-         _keepNodesUnderLevel = -1;
-         _countdown = 0;
-      }
-
-      // If we previously found a match and there are still a number of nodes to be accepted,
-      // reduce that number and keep the node.
-      if (_countdown > 0 && level > _keepNodesUnderLevel)
-      {
-         --_countdown;
-         return Keep;
-      }
-
-      // If the node doesn't match the other filter, don't apply the other filter.
-      // Just return the result of the other filter.
-      Result result = DelegateTreeFilter::IsKept(tree, node, level);
-      if (!result.Keep)
-         return result;
-
-      // If we reach here, the other filter matched, so we will start accepting
-      // a number of nodes under this one.
-      //
-      // Record the level at which we must come back up to to stop accepting nodes
-      // without checking the filter.
-      _keepNodesUnderLevel = level;
-      _countdown = Count;
 
       // If the filter must not keep the matching node, then set Keep to false here.
       // apply it here.
@@ -316,14 +253,13 @@ namespace TreeReader
    IMPLEMENT_SIMPLE_NAME(StopTreeFilter,           L"Stop",                            L"Stops filtering")
    IMPLEMENT_SIMPLE_NAME(UntilTreeFilter,          L"Until",                           L"Stops filtering when the sub-filter accepts a node")
    IMPLEMENT_STREAM_NAME(ContainsTreeFilter,       L"Match", Contained,                L"Keeps the node if it matches the given text")
+   IMPLEMENT_SIMPLE_NAME(UniqueTreeFilter,         L"Unique",                          L"Keeps unique nodes (remove duplicates)")
    IMPLEMENT_STREAM_NAME(TextAddressTreeFilter,    L"Exact node", ExactAddress,        L"Keeps one exact, previously selected node")
    IMPLEMENT_STREAM_NAME(RegexTreeFilter,          L"Match regex", RegexTextForm,      L"Keeps the node if it matches the given regular expression")
    IMPLEMENT_SIMPLE_NAME(NotTreeFilter,            L"Not",                             L"Inverses the result of the sub-filter")
    IMPLEMENT_SIMPLE_NAME(OrTreeFilter,             L"If any",                          L"Keeps the node if any of the sub-filters accepts")
    IMPLEMENT_SIMPLE_NAME(AndTreeFilter,            L"If all",                          L"Keeps the node if all of the sub-filters accepts")
    IMPLEMENT_SIMPLE_NAME(UnderTreeFilter,          L"If, keep all under",              L"Keeps all nodes under")
-   IMPLEMENT_STREAM_NAME(CountSiblingsTreeFilter,  L"Limit siblings to", Count,        L"Keeps a maximum number of sibling nodes")
-   IMPLEMENT_STREAM_NAME(CountChildrenTreeFilter,  L"Limit children to", Count,        L"Keeps a maximum number of children nodes")
    IMPLEMENT_SIMPLE_NAME(RemoveChildrenTreeFilter, L"Remove all children",             L"Removes all children nodes")
    IMPLEMENT_STREAM_NAME(LevelRangeTreeFilter,     L"Keep levels", MinLevel << L"-" << MaxLevel, L"Keeps nodes that are within a range of tree depths")
    IMPLEMENT_SIMPLE_NAME(IfSubTreeTreeFilter,      L"If a child",                      L"Keeps the node if one if its child is accepted by the sub-filter")
@@ -344,14 +280,13 @@ namespace TreeReader
    IMPLEMENT_CLONE(StopTreeFilter)
    IMPLEMENT_CLONE(UntilTreeFilter)
    IMPLEMENT_CLONE(ContainsTreeFilter)
+   IMPLEMENT_CLONE(UniqueTreeFilter)
    IMPLEMENT_CLONE(TextAddressTreeFilter)
    IMPLEMENT_CLONE(RegexTreeFilter)
    IMPLEMENT_CLONE(NotTreeFilter)
    IMPLEMENT_CLONE(OrTreeFilter)
    IMPLEMENT_CLONE(AndTreeFilter)
    IMPLEMENT_CLONE(UnderTreeFilter)
-   IMPLEMENT_CLONE(CountSiblingsTreeFilter)
-   IMPLEMENT_CLONE(CountChildrenTreeFilter)
    IMPLEMENT_CLONE(RemoveChildrenTreeFilter)
    IMPLEMENT_CLONE(LevelRangeTreeFilter)
    IMPLEMENT_CLONE(IfSubTreeTreeFilter)

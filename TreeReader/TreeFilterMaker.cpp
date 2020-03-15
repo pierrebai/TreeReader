@@ -46,6 +46,13 @@ namespace TreeReader
          return sstream.str();
       }
 
+      wstring ConvertFilterToText(const UniqueTreeFilter& filter, size_t indent)
+      {
+         wostringstream sstream;
+         sstream << L"unique [ ]";
+         return sstream.str();
+      }
+
       wstring ConvertFilterToText(const RegexTreeFilter& filter, size_t indent)
       {
          wostringstream sstream;
@@ -71,20 +78,6 @@ namespace TreeReader
       {
          wostringstream sstream;
          sstream << L"if-sib [ " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
-         return sstream.str();
-      }
-
-      wstring ConvertFilterToText(const CountChildrenTreeFilter& filter, size_t indent)
-      {
-         wostringstream sstream;
-         sstream << L"count-sub [ " << boolalpha << filter.IncludeSelf << L", " << filter.Count << ", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
-         return sstream.str();
-      }
-
-      wstring ConvertFilterToText(const CountSiblingsTreeFilter& filter, size_t indent)
-      {
-         wostringstream sstream;
-         sstream << L"count-sib [ " << boolalpha << filter.IncludeSelf << L", " << filter.Count << ", " << ConvertFilterToText(filter.Filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
@@ -163,12 +156,11 @@ namespace TreeReader
          CALL_CONVERTER(StopWhenKeptTreeFilter)
          CALL_CONVERTER(UntilTreeFilter)
          CALL_CONVERTER(ContainsTreeFilter)
+         CALL_CONVERTER(UniqueTreeFilter)
          CALL_CONVERTER(RegexTreeFilter)
          CALL_CONVERTER(NotTreeFilter)
          CALL_CONVERTER(IfSubTreeTreeFilter)
          CALL_CONVERTER(IfSiblingTreeFilter)
-         CALL_CONVERTER(CountChildrenTreeFilter)
-         CALL_CONVERTER(CountSiblingsTreeFilter)
          CALL_CONVERTER(OrTreeFilter)
          CALL_CONVERTER(AndTreeFilter)
          CALL_CONVERTER(UnderTreeFilter)
@@ -254,6 +246,13 @@ namespace TreeReader
       }
 
       template <>
+      TreeFilterPtr ConvertTextToFilter<UniqueTreeFilter>(wistringstream& sstream)
+      {
+         EatClosingBrace(sstream);
+         return Unique();
+      }
+
+      template <>
       TreeFilterPtr ConvertTextToFilter<RegexTreeFilter>(wistringstream& sstream)
       {
          wstring regex;
@@ -292,40 +291,6 @@ namespace TreeReader
          EatClosingBrace(sstream);
 
          return IfSibling(filter);
-      }
-
-      template <>
-      TreeFilterPtr ConvertTextToFilter<CountChildrenTreeFilter>(wistringstream& sstream)
-      {
-         bool includeSelf;
-         wchar_t comma;
-         sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
-
-         size_t count;
-         sstream >> skipws >> count >> skipws >> comma;
-
-         auto filter = ConvertTextToFilters(sstream);
-
-         EatClosingBrace(sstream);
-
-         return CountChildren(filter, count, includeSelf);
-      }
-
-      template <>
-      TreeFilterPtr ConvertTextToFilter<CountSiblingsTreeFilter>(wistringstream& sstream)
-      {
-         bool includeSelf;
-         wchar_t comma;
-         sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
-
-         size_t count;
-         sstream >> skipws >> count >> skipws >> comma;
-
-         auto filter = ConvertTextToFilters(sstream);
-
-         EatClosingBrace(sstream);
-
-         return CountSiblings(filter, count, includeSelf);
       }
 
       vector<TreeFilterPtr> ConvertTextToMultiFilters(wistringstream& sstream)
@@ -432,12 +397,11 @@ namespace TreeReader
 
          CALL_CONVERTER(L"accept", AcceptTreeFilter)
          CALL_CONVERTER(L"contains", ContainsTreeFilter)
+         CALL_CONVERTER(L"unique", UniqueTreeFilter)
          CALL_CONVERTER(L"regex", RegexTreeFilter)
          CALL_CONVERTER(L"not", NotTreeFilter)
          CALL_CONVERTER(L"if-sub", IfSubTreeTreeFilter)
          CALL_CONVERTER(L"if-sib", IfSiblingTreeFilter)
-         CALL_CONVERTER(L"count-sub", CountChildrenTreeFilter)
-         CALL_CONVERTER(L"count-sib", CountSiblingsTreeFilter)
          CALL_CONVERTER(L"or", OrTreeFilter)
          CALL_CONVERTER(L"and", AndTreeFilter)
          CALL_CONVERTER(L"under", UnderTreeFilter)

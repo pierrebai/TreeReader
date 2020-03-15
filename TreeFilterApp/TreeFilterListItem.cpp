@@ -55,6 +55,11 @@ namespace TreeReaderApp
          return new TreeFilterListItem(filter, delFunc, editFunc, &filter->Contained);
       }
 
+      TreeFilterListItem* CreateFilterPanel(const shared_ptr<UniqueTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
+      {
+         return new TreeFilterListItem(filter, delFunc, editFunc);
+      }
+
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<RegexTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
          return new TreeFilterListItem(filter, delFunc, editFunc, &filter->RegexTextForm);
@@ -73,16 +78,6 @@ namespace TreeReaderApp
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<IfSiblingTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
       {
          return new TreeFilterListItem(filter, delFunc, editFunc, nullptr);
-      }
-
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<CountChildrenTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
-      {
-         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
-      }
-
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<CountSiblingsTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
-      {
-         return new TreeFilterListItem(filter, delFunc, editFunc, nullptr, &filter->IncludeSelf, &filter->Count);
       }
 
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<OrTreeFilter>& filter, DeleteCallbackFunction delFunc, EditCallbackFunction editFunc)
@@ -132,12 +127,11 @@ namespace TreeReaderApp
       CALL_CONVERTER(StopWhenKeptTreeFilter)
       CALL_CONVERTER(UntilTreeFilter)
       CALL_CONVERTER(ContainsTreeFilter)
+      CALL_CONVERTER(UniqueTreeFilter)
       CALL_CONVERTER(RegexTreeFilter)
       CALL_CONVERTER(NotTreeFilter)
       CALL_CONVERTER(IfSubTreeTreeFilter)
       CALL_CONVERTER(IfSiblingTreeFilter)
-      CALL_CONVERTER(CountChildrenTreeFilter)
-      CALL_CONVERTER(CountSiblingsTreeFilter)
       CALL_CONVERTER(OrTreeFilter)
       CALL_CONVERTER(AndTreeFilter)
       CALL_CONVERTER(UnderTreeFilter)

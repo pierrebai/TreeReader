@@ -170,20 +170,6 @@ namespace TreeReader
                AddFilter(filter);
                neededFilter = &filter->Filter;
             }
-            else if (part == L"#>" || part == L"count-children")
-            {
-               auto filter = make_shared<CountChildrenTreeFilter>();
-               filter->Count = GetNextCount(stream);
-               AddFilter(filter);
-               neededFilter = &filter->Filter;
-            }
-            else if (part == L"#=" || part == L"count-siblings")
-            {
-               auto filter = make_shared<CountSiblingsTreeFilter>();
-               filter->Count = GetNextCount(stream);
-               AddFilter(filter);
-               neededFilter = &filter->Filter;
-            }
             else if (part == L"." || part == L"stop")
             {
                AddFilter(Stop());
@@ -197,6 +183,10 @@ namespace TreeReader
             else if (part == L"*" || part == L"accept")
             {
                AddFilter(Accept());
+            }
+            else if (part == L"unique")
+            {
+               AddFilter(Unique());
             }
             else
             {
