@@ -40,8 +40,6 @@ namespace TreeReaderApp
 
    namespace
    {
-      static constexpr char TreeFileTypes[] = "Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
-
       static filesystem::path GetLocalDataFileName(const QString& filename)
       {
          auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, filename, QStandardPaths::LocateFile);
@@ -451,27 +449,15 @@ namespace TreeReaderApp
    bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
       for (auto window : GetAllSubWindows())
-      {
-         if (window->Tree->GetFilteredTree() && !window->Tree->IsFilteredTreeSaved())
-         {
-            YesNoCancel answer = AskYesNoCancel(
-               tr("Unsaved Text Tree Warning"),
-               QString(tr("The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + QString(tr("?")),
-               this);
-            if (answer == YesNoCancel::Cancel)
-               return false;
-            else if (answer == YesNoCancel::Yes)
-               if (!SaveFilteredTree(window))
-                  return false;
-         }
-      }
+         if (!window->SaveIfRequired(action, actioning))
+            return false;
 
       return true;
    }
 
    void MainWindow::LoadTree()
    {
-      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeFileTypes), this);
+      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeCommands::TreeFileTypes), this);
       auto newTree = _data.LoadTree(path);
       AddTextTreeTab(newTree);
       SearchInTree();
@@ -482,14 +468,7 @@ namespace TreeReaderApp
       if (!window)
          return true;
 
-      if (!window->Tree->GetFilteredTree())
-         return true;
-
-      filesystem::path path = AskSave(tr("Save Filtered Text Tree"), tr(TreeFileTypes), "",  this);
-
-      window->Tree->SaveFilteredTree(path, _data.Options);
-
-      return true;
+      return window->SaveFilteredTree(_data.Options);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -501,7 +480,7 @@ namespace TreeReaderApp
       if (!newTree)
          return;
 
-      auto subWindow = new TextTreeSubWindow(newTree);
+      auto subWindow = new TextTreeSubWindow(newTree, _data.Options);
       _tabs->addSubWindow(subWindow);
       subWindow->showMaximized();
 

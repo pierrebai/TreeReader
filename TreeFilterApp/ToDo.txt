@@ -2,7 +2,5 @@ Allow multi-filtering. (filter, then filter again)
 Make more complex filters (match + until, others)
 Make named filters have open slot (text or sub-filters)
 
-Ask to save before closing tab.
-
 Use undo/redo from github.
 Use QWidgetListWidget from github.

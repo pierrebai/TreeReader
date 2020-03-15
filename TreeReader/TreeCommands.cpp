@@ -21,7 +21,7 @@ namespace TreeReader
    //
    // Filtered tree save.
 
-   void TreeCommands::SaveFilteredTree(const filesystem::path& filename, CommandsOptions& options)
+   void TreeCommands::SaveFilteredTree(const filesystem::path& filename, const CommandsOptions& options)
    {
       if (Filtered)
       {

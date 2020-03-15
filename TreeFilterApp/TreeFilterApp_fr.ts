@@ -12,27 +12,27 @@
 <context>
     <name>TreeReaderApp::MainWindow</name>
     <message>
-        <location filename="MainWindow.cpp" line="117"/>
+        <location filename="MainWindow.cpp" line="115"/>
         <source>Load Tree</source>
         <translation>Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="121"/>
+        <location filename="MainWindow.cpp" line="119"/>
         <source>Save Tree</source>
         <translation>Sauver un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="125"/>
+        <location filename="MainWindow.cpp" line="123"/>
         <source>Filter Tree</source>
         <translation>Filtrer</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="129"/>
+        <location filename="MainWindow.cpp" line="127"/>
         <source>Name Filter</source>
         <translation>Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="133"/>
+        <location filename="MainWindow.cpp" line="131"/>
         <source>Use Filtered</source>
         <oldsource>Filtered Tree</oldsource>
         <translation>Nouvel Arbre</translation>
@@ -43,61 +43,58 @@
         <translation type="vanished">Oublier l&apos;arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="139"/>
+        <location filename="MainWindow.cpp" line="137"/>
         <source>Undo</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="144"/>
+        <location filename="MainWindow.cpp" line="142"/>
         <source>Redo</source>
         <translation>Rétablir</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="151"/>
+        <location filename="MainWindow.cpp" line="149"/>
         <source>Options</source>
         <translation>Options</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="160"/>
+        <location filename="MainWindow.cpp" line="158"/>
         <source>Tree Filter</source>
         <translation>Filtres</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="180"/>
+        <location filename="MainWindow.cpp" line="178"/>
         <source>Tree Text Search</source>
         <translation>Recherche rapide</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="191"/>
+        <location filename="MainWindow.cpp" line="189"/>
         <source>Edit Search Filter</source>
         <translation>Éditer le filtre de recherche</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="436"/>
+        <location filename="MainWindow.cpp" line="434"/>
         <source>close the window</source>
         <translation>fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="436"/>
+        <location filename="MainWindow.cpp" line="434"/>
         <source>closing the window</source>
         <translation>fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="458"/>
         <source>Unsaved Text Tree Warning</source>
-        <translation>Arbre filtré non sauvegardé</translation>
+        <translation type="vanished">Arbre filtré non sauvegardé</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="459"/>
         <source>The current filtered tree has not been saved.
 Do you want to save it before </source>
-        <translation>L&apos;arbre actuel n&apos;a pas été sauvegardé.
+        <translation type="vanished">L&apos;arbre actuel n&apos;a pas été sauvegardé.
 Voulez-vous le sauvegarder avant de </translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="459"/>
         <source>?</source>
-        <translation>?</translation>
+        <translation type="vanished">?</translation>
     </message>
     <message>
         <source>load a text tree</source>
@@ -108,22 +105,21 @@ Voulez-vous le sauvegarder avant de </translation>
         <translation type="vanished">lire un nouvel arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="474"/>
+        <location filename="MainWindow.cpp" line="460"/>
         <source>Load Text Tree</source>
         <translation>Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="488"/>
         <source>Save Filtered Text Tree</source>
-        <translation>Sauver l&apos;arbre filtré</translation>
+        <translation type="vanished">Sauver l&apos;arbre filtré</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="652"/>
+        <location filename="MainWindow.cpp" line="631"/>
         <source>Name a filter</source>
         <translation>Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="652"/>
+        <location filename="MainWindow.cpp" line="631"/>
         <source>Filter Name</source>
         <translation>Nom du filtre</translation>
     </message>
@@ -149,6 +145,41 @@ Voulez-vous le sauvegarder avant de </translation>
         <location filename="OptionsDialog.cpp" line="48"/>
         <source>Tab size</source>
         <translation>Largeur de tabulation</translation>
+    </message>
+</context>
+<context>
+    <name>TreeReaderApp::TextTreeSubWindow</name>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="53"/>
+        <source>close the tab</source>
+        <translation>fermer l&apos;onglet</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="53"/>
+        <source>closing the tab</source>
+        <translation>fermer l&apos;onglet</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="70"/>
+        <source>Unsaved Text Tree Warning</source>
+        <translation>Arbre filtré non sauvegardé</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="71"/>
+        <source>The current filtered tree has not been saved.
+Do you want to save it before </source>
+        <translation>L&apos;arbre actuel n&apos;a pas été sauvegardé.
+Voulez-vous le sauvegarder avant de </translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="71"/>
+        <source>?</source>
+        <translation>?</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="88"/>
+        <source>Save Filtered Text Tree</source>
+        <translation>Sauver l&apos;arbre filtré</translation>
     </message>
 </context>
 <context>

@@ -62,7 +62,8 @@ namespace TreeReader
 
       // Filtered tree save.
 
-      void SaveFilteredTree(const std::filesystem::path& filename, CommandsOptions& options);
+      static constexpr char TreeFileTypes[] = "Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
+      void SaveFilteredTree(const std::filesystem::path& filename, const CommandsOptions& options);
       bool IsFilteredTreeSaved() const;
 
    private:
