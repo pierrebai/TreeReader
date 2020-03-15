@@ -13,6 +13,7 @@ add_library(TreeReader
    TreeFilterMaker.cpp        TreeFilterMaker.h
    SimpleTreeFilterMaker.cpp
    TreeFilterCommands.cpp     TreeFilterCommands.h
+   TreeCommands.cpp           TreeCommands.h
    TreeFilterCommandLine.cpp  TreeFilterCommandLine.h
    TreeReaderHelpers.cpp      TreeReaderHelpers.h
    NamedFilters.cpp           NamedFilters.h

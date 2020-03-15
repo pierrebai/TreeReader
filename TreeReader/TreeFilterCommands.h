@@ -13,6 +13,9 @@
 
 namespace TreeReader
 {
+   struct TreeCommands;
+   using TreeCommandsPtr = std::shared_ptr<TreeCommands>;
+
    ////////////////////////////////////////////////////////////////////////////
    //
    // Options for the command context.
@@ -27,34 +30,6 @@ namespace TreeReader
       {
          return OutputLineIndent != other.OutputLineIndent
              || ReadOptions      != other.ReadOptions;
-      }
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   //
-   // A single group of tree/filter/filtered result.
-   //
-   // The command context keeps a stack of these.
-
-   struct TreeContext
-   {
-      std::wstring TreeFileName;
-      TextTreePtr Tree;
-
-      std::wstring FilteredFileName;
-      TextTreePtr Filtered;
-      bool FilteredWasSaved = false;
-
-      std::wstring FilterName;
-      TreeFilterPtr Filter;
-
-      // Comparison with other tree context.
-
-      bool operator!=(const TreeContext& other) const
-      {
-         return TreeFileName != other.TreeFileName
-             || FilteredFileName != other.FilteredFileName
-             || Filter != other.Filter;
       }
    };
 
@@ -86,31 +61,11 @@ namespace TreeReader
       void SetInputIndent(const std::wstring& indentText);
       void SetOutputIndent(const std::wstring& indentText);
 
-      std::wstring LoadTree(const std::filesystem::path& filename);
-      void SaveFilteredTree(const std::filesystem::path& filename);
-      bool IsFilteredTreeSaved() const;
-
-      // Current filter.
-
-      void SetFilter(const TreeFilterPtr& filter);
-      const TreeFilterPtr& GetFilter() const;
-      const std::wstring& GetFilterName() const;
-
-      // Filtering.
-
-      void ApplyFilterToTree(bool async = false);
-      void ApplyFilterToTreeAsync() { ApplyFilterToTree(true); }
-      void AbortAsyncFilter();
-      bool IsAsyncFilterReady();
-
-      void SearchInTree(const std::wstring& text);
-      void SearchInTreeAsync(const std::wstring& text);
-      void AbortAsyncSearch();
-      bool IsAsyncSearchReady();
+      TreeCommandsPtr LoadTree(const std::filesystem::path& filename);
 
       // Named filters management.
 
-      NamedFilterPtr NameFilter(const std::wstring& filterName);
+      NamedFilterPtr NameFilter(const std::wstring& filterName, const TreeCommandsPtr& tree);
       NamedFilterPtr NameFilter(const std::wstring& filterName, const TreeFilterPtr& filter);
       bool RemoveNamedFilter(const std::wstring& filterName);
       const NamedFilters& GetNamedFilters() const { return *_knownFilters; }
@@ -120,53 +75,27 @@ namespace TreeReader
 
       // Current text tree.
 
-      const TreeContext& GetCurrentTreeContext() const;
-      TextTreePtr GetCurrentTree() const;
-      bool SetCurrentTree(const TextTreePtr& tree);
-      std::wstring GetCurrentTreeFileName() const;
-
-      bool CanRemoveCurrentTree() const;
-      void RemoveCurrentTree();
+      void RemoveTree(const TreeCommandsPtr& tree);
 
       // Current filtered tree.
 
-      TextTreePtr GetFilteredTree() const;
-      bool CanCreateTreeFromFiltered() const;
-      TextTreePtr CreateTreeFromFiltered();
+      TreeCommandsPtr CreateTreeFromFiltered(const TreeCommandsPtr& tree);
 
       // Undo / redo.
 
       void ClearUndoStack();
-      UndoStack& UndoRedo() { return _undoRedo; }
+      UndoStack& UndoRedo() { return *_undoRedo; }
 
    protected:
-      // Functions used for undo/redo.
-      void DeadedFilters(std::any& data);
-      void AwakenFilters(const std::any& data);
-      void CommitFilterToUndo();
-
-      TreeContext& GetCurrentTreeContext();
-
-      void ApplySearchInTree(bool async);
 
       // A stack of tree being filtered.
-      // Commands can make teh filtered result a new base tree.
-      std::vector<TreeContext> _trees;
-      size_t _currentTree = -1;
-
-      // Asynchronous filtering and searching.
-      AsyncFilterTreeResult _asyncFiltering;
-      AsyncFilterTreeResult _asyncSearching;
-
-      // Search text. Applied on top of the filters.
-      std::wstring _searchedText;
-      TextTreePtr _searched;
+      std::vector<TreeCommandsPtr> _trees;
 
       // Known named filters.
       std::shared_ptr<NamedFilters> _knownFilters = std::make_shared<NamedFilters>();
 
       // Undo/redo stack.
-      UndoStack _undoRedo;
+      std::shared_ptr<UndoStack> _undoRedo = std::make_shared<UndoStack>();
    };
 
 }

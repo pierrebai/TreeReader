@@ -1,12 +1,13 @@
 #include "TextTreeSubWindow.h"
 #include "TextTreeModel.h"
+#include "TreeCommands.h"
 
 #include <QtWidgets/qtreeview.h>
 
 namespace TreeReaderApp
 {
-   TextTreeSubWindow::TextTreeSubWindow(const TextTreePtr& tree, const std::wstring& name)
-   : OriginalTree(tree)
+   TextTreeSubWindow::TextTreeSubWindow(const TreeCommandsPtr& tree)
+   : Tree(tree)
    {
       _treeView = new QTreeView;
       _treeView->setUniformRowHeights(true);
@@ -14,7 +15,7 @@ namespace TreeReaderApp
       _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
       _model = new TextTreeModel;
-      _model->Tree = tree;
+      _model->Tree = tree->GetCurrentTree();
 
       auto oldModel = _treeView->model();
       _treeView->setModel(_model);
@@ -22,7 +23,7 @@ namespace TreeReaderApp
 
       setWidget(_treeView);
 
-      setWindowTitle(QString::fromStdWString(name));
+      setWindowTitle(QString::fromStdWString(tree->GetCurrentTreeFileName()));
       setAttribute(Qt::WA_DeleteOnClose);
    }
 

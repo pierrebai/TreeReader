@@ -19,8 +19,9 @@ int wmain(int argc, wchar_t** argv)
       if (!result.empty())
          wcout << result << endl;
 
-      if (ctx.GetFilteredTree())
-         PrintTree(wcout, *ctx.GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
+      // TODO
+      //if (ctx.GetFilteredTree())
+      //   PrintTree(wcout, *ctx.GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
 
       if (!ctx.IsInteractive)
          break;

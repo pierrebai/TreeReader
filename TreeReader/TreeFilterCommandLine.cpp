@@ -59,19 +59,20 @@ namespace TreeReader
    {
       wostringstream stream;
 
-      SetFilter(UseV1
-               ? ConvertTextToFilters(filterText, *_knownFilters)
-               : ConvertSimpleTextToFilters(filterText, *_knownFilters));
+      // TODO
+      //SetFilter(UseV1
+      //         ? ConvertTextToFilters(filterText, *_knownFilters)
+      //         : ConvertSimpleTextToFilters(filterText, *_knownFilters));
 
-      if (Debug)
-      {
-         auto& ctx = _trees.back();
+      //if (Debug)
+      //{
+      //   auto& ctx = _trees.back();
 
-         if (ctx.Filter)
-            stream << L"Filters: " << ConvertFiltersToText(ctx.Filter) << endl;
-         else
-            stream << L"Invalid filter: " << filterText << endl;
-      }
+      //   if (ctx.Filter)
+      //      stream << L"Filters: " << ConvertFiltersToText(ctx.Filter) << endl;
+      //   else
+      //      stream << L"Invalid filter: " << filterText << endl;
+      //}
       return stream.str();
    }
 
@@ -93,123 +94,123 @@ namespace TreeReader
       wstring result;
 
       // Backup current settings to detect changes.
-      const TreeContext previousCtx = _trees.back();
       const CommandsOptions previousOptions = Options;
       auto previousFilterText = FilterText;
 
       FilterText = L"";
 
-      for (size_t i = 0; i < cmds.size(); ++i)
-      {
-         const wstring& cmd = cmds[i];
-         if (cmd == L"v1")
-         {
-            UseV1 = true;
-         }
-         if (cmd == L"no-v1")
-         {
-            UseV1 = false;
-         }
-         else if (cmd == L"interactive")
-         {
-            IsInteractive = true;
-         }
-         else if (cmd == L"no-interactive")
-         {
-            IsInteractive = false;
-         }
-         else if (cmd == L"help")
-         {
-            result += GetHelp();
-         }
-         else if (cmd == L"-d" || cmd == L"debug")
-         {
-            Debug = true;
-         }
-         else if (cmd == L"no-debug")
-         {
-            Debug = false;
-         }
-         else if (cmd == L"input-filter" && i + 1 < cmds.size())
-         {
-            SetInputFilter(cmds[++i]);
-         }
-         else if (cmd == L"input-indent" && i + 1 < cmds.size())
-         {
-            SetInputIndent(cmds[++i]);
-         }
-         else if (cmd == L"output-indent" && i + 1 < cmds.size())
-         {
-            SetOutputIndent(cmds[++i]);
-         }
-         else if (cmd == L"load" && i + 1 < cmds.size())
-         {
-            result += LoadTree(cmds[++i]);
-         }
-         else if (cmd == L"save" && i + 1 < cmds.size())
-         {
-            SaveFilteredTree(cmds[++i]);
-         }
-         else if (cmd == L"filter" && i + 1 < cmds.size())
-         {
-            AppendFilterText(cmds[++i]);
-         }
-         else if (cmd == L"push-filtered")
-         {
-            CreateTreeFromFiltered();
-         }
-         else if (cmd == L"pop-tree")
-         {
-            RemoveCurrentTree();
-         }
-         else if (cmd == L"then")
-         {
-            result += CreateFilter();
-            ApplyFilterToTree();
-            CreateTreeFromFiltered();
-            ClearFilterText();
-            previousFilterText = L"";
-         }
-         else if (cmd == L"name" && i + 1 < cmds.size())
-         {
-            result += CreateFilter();
-            NameFilter(cmds[++i]);
-         }
-         else if (cmd == L"save-filters" && i + 1 < cmds.size())
-         {
-            SaveNamedFilters(cmds[++i]);
-         }
-         else if (cmd == L"load-filters" && i + 1 < cmds.size())
-         {
-            LoadNamedFilters(cmds[++i]);
-         }
-         else if (cmd == L"list-filters")
-         {
-            result += ListNamedFilters();
-         }
-         else
-         {
-            AppendFilterText(cmd);
-         }
-      }
+      // TODO
+      //for (size_t i = 0; i < cmds.size(); ++i)
+      //{
+      //   const wstring& cmd = cmds[i];
+      //   if (cmd == L"v1")
+      //   {
+      //      UseV1 = true;
+      //   }
+      //   if (cmd == L"no-v1")
+      //   {
+      //      UseV1 = false;
+      //   }
+      //   else if (cmd == L"interactive")
+      //   {
+      //      IsInteractive = true;
+      //   }
+      //   else if (cmd == L"no-interactive")
+      //   {
+      //      IsInteractive = false;
+      //   }
+      //   else if (cmd == L"help")
+      //   {
+      //      result += GetHelp();
+      //   }
+      //   else if (cmd == L"-d" || cmd == L"debug")
+      //   {
+      //      Debug = true;
+      //   }
+      //   else if (cmd == L"no-debug")
+      //   {
+      //      Debug = false;
+      //   }
+      //   else if (cmd == L"input-filter" && i + 1 < cmds.size())
+      //   {
+      //      SetInputFilter(cmds[++i]);
+      //   }
+      //   else if (cmd == L"input-indent" && i + 1 < cmds.size())
+      //   {
+      //      SetInputIndent(cmds[++i]);
+      //   }
+      //   else if (cmd == L"output-indent" && i + 1 < cmds.size())
+      //   {
+      //      SetOutputIndent(cmds[++i]);
+      //   }
+      //   else if (cmd == L"load" && i + 1 < cmds.size())
+      //   {
+      //      result += LoadTree(cmds[++i]);
+      //   }
+      //   else if (cmd == L"save" && i + 1 < cmds.size())
+      //   {
+      //      SaveFilteredTree(cmds[++i]);
+      //   }
+      //   else if (cmd == L"filter" && i + 1 < cmds.size())
+      //   {
+      //      AppendFilterText(cmds[++i]);
+      //   }
+      //   else if (cmd == L"push-filtered")
+      //   {
+      //      CreateTreeFromFiltered();
+      //   }
+      //   else if (cmd == L"pop-tree")
+      //   {
+      //      RemoveCurrentTree();
+      //   }
+      //   else if (cmd == L"then")
+      //   {
+      //      result += CreateFilter();
+      //      ApplyFilterToTree();
+      //      CreateTreeFromFiltered();
+      //      ClearFilterText();
+      //      previousFilterText = L"";
+      //   }
+      //   else if (cmd == L"name" && i + 1 < cmds.size())
+      //   {
+      //      result += CreateFilter();
+      //      NameFilter(cmds[++i]);
+      //   }
+      //   else if (cmd == L"save-filters" && i + 1 < cmds.size())
+      //   {
+      //      SaveNamedFilters(cmds[++i]);
+      //   }
+      //   else if (cmd == L"load-filters" && i + 1 < cmds.size())
+      //   {
+      //      LoadNamedFilters(cmds[++i]);
+      //   }
+      //   else if (cmd == L"list-filters")
+      //   {
+      //      result += ListNamedFilters();
+      //   }
+      //   else
+      //   {
+      //      AppendFilterText(cmd);
+      //   }
+      //}
 
       if (FilterText.empty())
          FilterText = previousFilterText;
 
       const bool optionsChanged = (previousOptions != Options);
       const bool readOptionsChanged = (previousOptions.ReadOptions != Options.ReadOptions);
-      const bool fileChanged = (previousCtx.TreeFileName != _trees.back().TreeFileName);
+      //const bool fileChanged = (previousCtx.TreeFileName != _trees.back().TreeFileName);
       const bool filterTextChanged = (previousFilterText != FilterText);
-      const bool filterChanged = (filterTextChanged || previousCtx.Filter != _trees.back().Filter);
-      const bool treeChanged = (previousCtx != _trees.back());
+      //const bool filterChanged = (filterTextChanged || previousCtx.Filter != _trees.back().Filter);
+      //const bool treeChanged = (previousCtx != _trees.back());
 
       if (filterTextChanged)
          result += CreateFilter();
 
-      if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
-      {
-         ApplyFilterToTree();
-      }
+      //if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
+      //{
+      //   ApplyFilterToTree();
+      //}
 
       return result;
    }

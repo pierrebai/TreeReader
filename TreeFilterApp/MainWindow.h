@@ -20,6 +20,7 @@ class QMdiArea;
 namespace TreeReader
 {
    struct TextTree;
+   struct TreeCommands;
 }
 
 namespace TreeReaderApp
@@ -29,6 +30,7 @@ namespace TreeReaderApp
    using TextTreePtr = TreeReader::TextTreePtr;
    using CommandsContext = TreeReader::CommandsContext;
    using UndoStack = TreeReader::UndoStack;
+   using TreeCommandsPtr = std::shared_ptr<TreeReader::TreeCommands>;
 
    using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
 
@@ -70,13 +72,12 @@ namespace TreeReaderApp
       bool SaveFilteredTree();
 
       // Tab management.
-      void AddTextTreeTab();
+      void AddTextTreeTab(const TreeCommandsPtr& newTree);
       void UpdateActiveTab(); 
       void UpdateTextTreeTab();
 
       // Current tab.
       TextTreeSubWindow* GetCurrentTextSubWindow();
-      TextTreePtr GetCurrentTextTree();
 
       // Main window state.
       void SaveState();
@@ -84,7 +85,8 @@ namespace TreeReaderApp
 
       // Tree filtering.
       void FilterTree();
-      void verifyAsyncFiltering();
+      void VerifyAsyncFiltering();
+      void AbortAsyncFiltering();
       void SearchInTree(const QString& text);
 
       void PushFilter();

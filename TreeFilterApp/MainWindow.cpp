@@ -7,6 +7,7 @@
 
 #include "TreeFilterMaker.h"
 #include "TreeReaderHelpers.h"
+#include "TreeCommands.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
@@ -225,7 +226,7 @@ namespace TreeReaderApp
 
       _filteringTimer->connect(_filteringTimer, &QTimer::timeout, [self = this]()
       {
-         self->verifyAsyncFiltering();
+         self->VerifyAsyncFiltering();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -309,7 +310,11 @@ namespace TreeReaderApp
 
       _filterEditor->FilterChanged = [self=this](const TreeFilterPtr& filter)
       {
-         self->_data.SetFilter(self->_filterEditor->GetEdited());
+         auto window = self->GetCurrentTextSubWindow();
+         if (!window)
+            return;
+
+         window->Tree->SetFilter(self->_filterEditor->GetEdited());
       };
 
       /////////////////////////////////////////////////////////////////////////
@@ -340,7 +345,11 @@ namespace TreeReaderApp
 
    void MainWindow::FillFilterEditorUI()
    {
-      _filterEditor->SetEdited(_data.GetFilter(), _data.GetFilterName());
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      _filterEditor->SetEdited(window->Tree->GetFilter(), window->Tree->GetFilterName());
    }
 
    void MainWindow::FillAvailableFiltersUI()
@@ -429,7 +438,7 @@ namespace TreeReaderApp
          WithNoExceptions([self = this]() { self->_data.SaveNamedFilters(GetNamedFiltersFileName()); });
          WithNoExceptions([self = this]() { self->_data.SaveOptions(GetOptionsFileName()); });
          WithNoExceptions([self = this]() { self->SaveState(); });
-         WithNoExceptions([self = this]() { self->_data.AbortAsyncFilter(); });
+         WithNoExceptions([self = this]() { self->AbortAsyncFiltering(); });
 
          QWidget::closeEvent(ev);
       }
@@ -442,8 +451,11 @@ namespace TreeReaderApp
    bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
       // TODO: will have to save all tabs!!!
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return true;
 
-      if (_data.GetFilteredTree() && !_data.IsFilteredTreeSaved())
+      if (window->Tree->GetFilteredTree() && !window->Tree->IsFilteredTreeSaved())
       {
          YesNoCancel answer = AskYesNoCancel(
             tr("Unsaved Text Tree Warning"),
@@ -462,22 +474,24 @@ namespace TreeReaderApp
    void MainWindow::LoadTree()
    {
       filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeFileTypes), this);
-      _data.LoadTree(path);
-
-      if (_data.GetCurrentTree() == nullptr)
-         return;
-
-      AddTextTreeTab();
+      auto newTree = _data.LoadTree(path);
+      newTree->SearchInTree(_simpleSearch->text().toStdWString());
+      AddTextTreeTab(newTree);
    }
 
    bool MainWindow::SaveFilteredTree()
    {
-      if (!_data.GetFilteredTree())
+      // TODO: pass in the sub-window to save.
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return true;
+
+      if (!window->Tree->GetFilteredTree())
          return true;
 
       filesystem::path path = AskSave(tr("Save Filtered Text Tree"), tr(TreeFileTypes), "",  this);
 
-      _data.SaveFilteredTree(path);
+      window->Tree->SaveFilteredTree(path, _data.Options);
 
       return true;
    }
@@ -486,24 +500,24 @@ namespace TreeReaderApp
    //
    // Tab management.
 
-   void MainWindow::AddTextTreeTab()
+   void MainWindow::AddTextTreeTab(const TreeCommandsPtr& newTree)
    {
-      auto newTree = _data.GetCurrentTree();
-      auto name = _data.GetCurrentTreeFileName();
+      if (!newTree)
+         return;
 
-      auto subWindow = new TextTreeSubWindow(newTree, name);
+      auto subWindow = new TextTreeSubWindow(newTree);
       _tabs->addSubWindow(subWindow);
       subWindow->showMaximized();
+
+      FillFilterEditorUI();
 
       UpdateCreateTabAction();
    }
 
    void MainWindow::UpdateActiveTab()
    {
-      if (_data.SetCurrentTree(GetCurrentTextTree()))
-      {
-         FillFilterEditorUI();
-      }
+      // TODO: avoid re-filling if the same tree is displayed.
+      FillFilterEditorUI();
    }
 
    void MainWindow::UpdateTextTreeTab()
@@ -513,13 +527,13 @@ namespace TreeReaderApp
          return;
 
       TextTreePtr newTree;
-      if (_data.GetFilteredTree())
+      if (window->Tree->GetFilteredTree())
       {
-         newTree = _data.GetFilteredTree();
+         newTree = window->Tree->GetFilteredTree();
       }
       else
       {
-         newTree = _data.GetCurrentTree();
+         newTree = window->Tree->GetCurrentTree();
       }
 
       window->UpdateShownModel(newTree);
@@ -536,33 +550,32 @@ namespace TreeReaderApp
       return dynamic_cast<TextTreeSubWindow*>(_tabs->currentSubWindow());
    }
 
-   TextTreePtr MainWindow::GetCurrentTextTree()
-   {
-      auto window = GetCurrentTextSubWindow();
-      if (!window)
-         return nullptr;
-
-      return window->OriginalTree;
-   }
-
    /////////////////////////////////////////////////////////////////////////
    //
    // Tree filtering.
 
    void MainWindow::FilterTree()
    {
-      _data.SetFilter(_filterEditor->GetEdited());
-
-      if (_data.GetCurrentTree() == nullptr)
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
          return;
 
-      _data.ApplyFilterToTreeAsync();
+      window->Tree->SetFilter(_filterEditor->GetEdited());
+
+      if (window->Tree->GetCurrentTree() == nullptr)
+         return;
+
+      window->Tree->ApplyFilterToTreeAsync();
       _filteringTimer->start(10);
    }
 
-   void MainWindow::verifyAsyncFiltering()
+   void MainWindow::VerifyAsyncFiltering()
    {
-      if (_data.IsAsyncFilterReady())
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      if (window->Tree->IsAsyncFilterReady())
       {
          UpdateTextTreeTab();
       }
@@ -572,22 +585,43 @@ namespace TreeReaderApp
       }
    }
 
+   void MainWindow::AbortAsyncFiltering()
+   {
+      // TODO: will have to abort all tabs!!!
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      window->Tree->AbortAsyncFilter();
+   }
+
    void MainWindow::SearchInTree(const QString& text)
    {
-      _data.SearchInTreeAsync(text.toStdWString());
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      window->Tree->SearchInTreeAsync(text.toStdWString());
       _filteringTimer->start(10);
    }
 
    void MainWindow::PushFilter()
    {
-      _data.CreateTreeFromFiltered();
-      AddTextTreeTab();
-      FillFilterEditorUI();
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      auto newTree = _data.CreateTreeFromFiltered(window->Tree);
+      AddTextTreeTab(newTree);
    }
 
    void MainWindow::UpdateCreateTabAction()
    {
-      _pushFilterAction->setEnabled(_data.CanCreateTreeFromFiltered());
+      auto window = GetCurrentTextSubWindow();
+      if (!window)
+         return;
+
+      _pushFilterAction->setEnabled(window->Tree->CanCreateTreeFromFiltered());
    }
 
    /////////////////////////////////////////////////////////////////////////
