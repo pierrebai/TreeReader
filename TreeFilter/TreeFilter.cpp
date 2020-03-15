@@ -1,4 +1,5 @@
 #include "TreeFilterCommandLine.h"
+#include "TreeCommands.h"
 #include "TreeReaderHelpers.h"
 
 #include <iostream>
@@ -19,9 +20,8 @@ int wmain(int argc, wchar_t** argv)
       if (!result.empty())
          wcout << result << endl;
 
-      // TODO
-      //if (ctx.GetFilteredTree())
-      //   PrintTree(wcout, *ctx.GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
+      if (ctx.CurrentTree->GetFilteredTree())
+         PrintTree(wcout, *ctx.CurrentTree->GetFilteredTree(), ctx.Options.OutputLineIndent) << endl;
 
       if (!ctx.IsInteractive)
          break;

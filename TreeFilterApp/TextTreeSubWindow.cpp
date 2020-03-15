@@ -15,7 +15,7 @@ namespace TreeReaderApp
       _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
       _model = new TextTreeModel;
-      _model->Tree = tree->GetCurrentTree();
+      _model->Tree = tree->GetOriginalTree();
 
       auto oldModel = _treeView->model();
       _treeView->setModel(_model);
@@ -23,7 +23,7 @@ namespace TreeReaderApp
 
       setWidget(_treeView);
 
-      setWindowTitle(QString::fromStdWString(tree->GetCurrentTreeFileName()));
+      setWindowTitle(QString::fromStdWString(tree->GetOriginalTreeFileName()));
       setAttribute(Qt::WA_DeleteOnClose);
    }
 

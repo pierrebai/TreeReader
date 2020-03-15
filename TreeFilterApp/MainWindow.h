@@ -69,7 +69,7 @@ namespace TreeReaderApp
       void closeEvent(QCloseEvent* ev);
       bool SaveIfRequired(const QString& action, const QString& actioning);
       void LoadTree();
-      bool SaveFilteredTree();
+      bool SaveFilteredTree(TextTreeSubWindow* window);
 
       // Tab management.
       void AddTextTreeTab(const TreeCommandsPtr& newTree);
@@ -77,7 +77,8 @@ namespace TreeReaderApp
       void UpdateTextTreeTab();
 
       // Current tab.
-      TextTreeSubWindow* GetCurrentTextSubWindow();
+      TextTreeSubWindow* GetCurrentSubWindow();
+      std::vector<TextTreeSubWindow*> GetAllSubWindows();
 
       // Main window state.
       void SaveState();

@@ -277,7 +277,7 @@ namespace TreeReaderApp
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
       {
-         self->SaveFilteredTree();
+         self->SaveFilteredTree(self->GetCurrentSubWindow());
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ namespace TreeReaderApp
 
       _filterEditor->FilterChanged = [self=this](const TreeFilterPtr& filter)
       {
-         auto window = self->GetCurrentTextSubWindow();
+         auto window = self->GetCurrentSubWindow();
          if (!window)
             return;
 
@@ -345,7 +345,7 @@ namespace TreeReaderApp
 
    void MainWindow::FillFilterEditorUI()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
@@ -450,22 +450,20 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
-      // TODO: will have to save all tabs!!!
-      auto window = GetCurrentTextSubWindow();
-      if (!window)
-         return true;
-
-      if (window->Tree->GetFilteredTree() && !window->Tree->IsFilteredTreeSaved())
+      for (auto window : GetAllSubWindows())
       {
-         YesNoCancel answer = AskYesNoCancel(
-            tr("Unsaved Text Tree Warning"),
-            QString(tr("The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + QString(tr("?")),
-            this);
-         if (answer == YesNoCancel::Cancel)
-            return false;
-         else if (answer == YesNoCancel::Yes)
-            if (!SaveFilteredTree())
+         if (window->Tree->GetFilteredTree() && !window->Tree->IsFilteredTreeSaved())
+         {
+            YesNoCancel answer = AskYesNoCancel(
+               tr("Unsaved Text Tree Warning"),
+               QString(tr("The current filtered tree has not been saved.\nDo you want to save it before ")) + actioning + QString(tr("?")),
+               this);
+            if (answer == YesNoCancel::Cancel)
                return false;
+            else if (answer == YesNoCancel::Yes)
+               if (!SaveFilteredTree(window))
+                  return false;
+         }
       }
 
       return true;
@@ -479,10 +477,8 @@ namespace TreeReaderApp
       AddTextTreeTab(newTree);
    }
 
-   bool MainWindow::SaveFilteredTree()
+   bool MainWindow::SaveFilteredTree(TextTreeSubWindow* window)
    {
-      // TODO: pass in the sub-window to save.
-      auto window = GetCurrentTextSubWindow();
       if (!window)
          return true;
 
@@ -522,7 +518,7 @@ namespace TreeReaderApp
 
    void MainWindow::UpdateTextTreeTab()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
@@ -533,7 +529,7 @@ namespace TreeReaderApp
       }
       else
       {
-         newTree = window->Tree->GetCurrentTree();
+         newTree = window->Tree->GetOriginalTree();
       }
 
       window->UpdateShownModel(newTree);
@@ -545,9 +541,20 @@ namespace TreeReaderApp
    //
    // Current tab.
 
-   TextTreeSubWindow* MainWindow::GetCurrentTextSubWindow()
+   TextTreeSubWindow* MainWindow::GetCurrentSubWindow()
    {
       return dynamic_cast<TextTreeSubWindow*>(_tabs->currentSubWindow());
+   }
+
+   vector<TextTreeSubWindow*> MainWindow::GetAllSubWindows()
+   {
+      vector<TextTreeSubWindow*> subs;
+
+      for (auto window : _tabs->subWindowList())
+         if (auto treeWindow = dynamic_cast<TextTreeSubWindow*>(window))
+            subs.push_back(treeWindow);
+
+      return subs;
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -556,13 +563,13 @@ namespace TreeReaderApp
 
    void MainWindow::FilterTree()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
       window->Tree->SetFilter(_filterEditor->GetEdited());
 
-      if (window->Tree->GetCurrentTree() == nullptr)
+      if (window->Tree->GetOriginalTree() == nullptr)
          return;
 
       window->Tree->ApplyFilterToTreeAsync();
@@ -571,7 +578,7 @@ namespace TreeReaderApp
 
    void MainWindow::VerifyAsyncFiltering()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
@@ -587,17 +594,13 @@ namespace TreeReaderApp
 
    void MainWindow::AbortAsyncFiltering()
    {
-      // TODO: will have to abort all tabs!!!
-      auto window = GetCurrentTextSubWindow();
-      if (!window)
-         return;
-
-      window->Tree->AbortAsyncFilter();
+      for (auto window : GetAllSubWindows())
+         window->Tree->AbortAsyncFilter();
    }
 
    void MainWindow::SearchInTree(const QString& text)
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
@@ -607,7 +610,7 @@ namespace TreeReaderApp
 
    void MainWindow::PushFilter()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 
@@ -617,7 +620,7 @@ namespace TreeReaderApp
 
    void MainWindow::UpdateCreateTabAction()
    {
-      auto window = GetCurrentTextSubWindow();
+      auto window = GetCurrentSubWindow();
       if (!window)
          return;
 

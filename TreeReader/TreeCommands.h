@@ -36,8 +36,8 @@ namespace TreeReader
 
       // Tree.
 
-      TextTreePtr GetCurrentTree() const;
-      std::wstring GetCurrentTreeFileName() const;
+      TextTreePtr GetOriginalTree() const;
+      std::wstring GetOriginalTreeFileName() const;
 
       // Filtered tree.
 

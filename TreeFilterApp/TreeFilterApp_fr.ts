@@ -83,19 +83,19 @@
         <translation>fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="461"/>
+        <location filename="MainWindow.cpp" line="458"/>
         <source>Unsaved Text Tree Warning</source>
         <translation>Arbre filtré non sauvegardé</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="462"/>
+        <location filename="MainWindow.cpp" line="459"/>
         <source>The current filtered tree has not been saved.
 Do you want to save it before </source>
         <translation>L&apos;arbre actuel n&apos;a pas été sauvegardé.
 Voulez-vous le sauvegarder avant de </translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="462"/>
+        <location filename="MainWindow.cpp" line="459"/>
         <source>?</source>
         <translation>?</translation>
     </message>
@@ -108,22 +108,22 @@ Voulez-vous le sauvegarder avant de </translation>
         <translation type="vanished">lire un nouvel arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="476"/>
+        <location filename="MainWindow.cpp" line="474"/>
         <source>Load Text Tree</source>
         <translation>Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="492"/>
+        <location filename="MainWindow.cpp" line="488"/>
         <source>Save Filtered Text Tree</source>
         <translation>Sauver l&apos;arbre filtré</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="639"/>
+        <location filename="MainWindow.cpp" line="642"/>
         <source>Name a filter</source>
         <translation>Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="639"/>
+        <location filename="MainWindow.cpp" line="642"/>
         <source>Filter Name</source>
         <translation>Nom du filtre</translation>
     </message>

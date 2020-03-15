@@ -189,12 +189,12 @@ namespace TreeReader
       }
    }
 
-   TextTreePtr TreeCommands::GetCurrentTree() const
+   TextTreePtr TreeCommands::GetOriginalTree() const
    {
       return Tree;
    }
 
-   std::wstring TreeCommands::GetCurrentTreeFileName() const
+   std::wstring TreeCommands::GetOriginalTreeFileName() const
    {
       return TreeFileName;
    }

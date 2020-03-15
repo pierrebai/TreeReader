@@ -16,6 +16,8 @@ namespace TreeReader
       bool IsInteractive = false;
       bool Debug = false;
 
+      TreeCommandsPtr CurrentTree;
+
       // Help.
 
       std::wstring GetHelp() const;
