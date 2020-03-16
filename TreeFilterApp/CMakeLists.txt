@@ -52,70 +52,13 @@ add_custom_command(TARGET TreeFilterApp POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy "${qmFiles}" "$<TARGET_FILE_DIR:TreeFilterApp>"
 )
 
-install(TARGETS TreeFilterApp
-   DESTINATION programs
-   COMPONENT application
-)
-
-get_target_property(Qt5CoreDll Qt5::Core LOCATION)
-get_target_property(Qt5WidgetsDll Qt5::Widgets LOCATION)
-get_target_property(Qt5GuiDll Qt5::Gui LOCATION)
-get_target_property(Qt5WinExtrasDll Qt5::WinExtras LOCATION)
-get_filename_component(Qt5DllDir "${Qt5CoreDll}" DIRECTORY)
-
 install(
-   FILES
-   "${Qt5DllDir}/../plugins/iconengines/qsvgicon.dll"
-   DESTINATION programs
+   DIRECTORY
+   "$<TARGET_FILE_DIR:TreeFilterApp>/"
+   DESTINATION .
    COMPONENT application
-)
-
-install(
-   FILES
-   "${Qt5DllDir}/../plugins/imageformats/qgif.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qicns.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qico.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qjpeg.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qsvg.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qtga.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qtiff.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qwbmp.dll"
-   "${Qt5DllDir}/../plugins/imageformats/qwebp.dll"
-   DESTINATION programs
-   COMPONENT application
-)
-
-install(
-   FILES
-   "${Qt5DllDir}/../plugins/platforms/qwindows.dll"
-   DESTINATION programs
-   COMPONENT application
-)
-
-install(
-   FILES
-   "${Qt5DllDir}/../plugins/styles/qwindowsvistastyle.dll"
-   DESTINATION programs
-   COMPONENT application
-)
-
-install(
-   FILES
-   "${Qt5DllDir}/../translations/qt_en.qm"
-   "${Qt5DllDir}/../translations/qt_fr.qm"
-   DESTINATION programs
-   COMPONENT application
-)
-
-install(
-   FILES
-   "${qmFiles}"
-   "${Qt5CoreDll}"
-   "${Qt5WidgetsDll}"
-   "${Qt5GuiDll}"
-   "${Qt5WinExtrasDll}"
-   DESTINATION programs
-   COMPONENT application
+   PATTERN "*.pdb" EXCLUDE 
+   PATTERN "*.ilk" EXCLUDE 
 )
 
 set(CPACK_GENERATOR NSIS)
