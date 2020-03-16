@@ -1,5 +1,5 @@
 #include "TreeCommands.h"
-#include "TreeFilterCommands.h" // For options...
+#include "GlobalCommands.h" // For options...
 #include "TreeFilterMaker.h"
 #include "TreeReaderHelpers.h"
 #include "SimpleTreeWriter.h"

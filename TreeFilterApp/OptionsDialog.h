@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TreeFilterCommands.h"
+#include "GlobalCommands.h"
 
 #include <QtWidgets/qdialog.h>
 

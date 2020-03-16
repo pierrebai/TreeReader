@@ -4,7 +4,7 @@
 #include "TreeFilterListWidget.h"
 #include "QWidgetScrollListWidget.h"
 
-#include "TreeFilterCommands.h"
+#include "GlobalCommands.h"
 
 #include <QtWidgets/qmainwindow.h>
 
@@ -28,7 +28,7 @@ namespace TreeReaderApp
    using TreeFilter = TreeReader::TreeFilter;
    using TreeFilterPtr = TreeReader::TreeFilterPtr;
    using TextTreePtr = TreeReader::TextTreePtr;
-   using CommandsContext = TreeReader::CommandsContext;
+   using GlobalCommands = TreeReader::GlobalCommands;
    using UndoStack = TreeReader::UndoStack;
    using TreeCommandsPtr = std::shared_ptr<TreeReader::TreeCommands>;
 
@@ -102,7 +102,7 @@ namespace TreeReaderApp
       void OpenOptions();
 
       // Data.
-      CommandsContext _data;
+      GlobalCommands _data;
 
       // Toolbar buttons.
       QAction* _undoAction = nullptr;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TreeFilterCommands.h"
+#include "GlobalCommands.h"
 
 namespace TreeReader
 {
@@ -8,7 +8,7 @@ namespace TreeReader
    //
    // Extra data used in teh command-line program.
 
-   struct CommandLine : CommandsContext
+   struct CommandLine : GlobalCommands
    {
       // Options.
 

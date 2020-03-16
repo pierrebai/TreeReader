@@ -1,4 +1,4 @@
-#include "TreeFilterCommands.h"
+#include "GlobalCommands.h"
 
 #include "CppUnitTest.h"
 
@@ -16,7 +16,7 @@ namespace TreeReaderTests
 		
 		TEST_METHOD(SaveLoadOptions)
 		{
-         CommandsContext ctx;
+         GlobalCommands ctx;
 
          ctx.Options.OutputLineIndent = L"abc";
          ctx.Options.ReadOptions.InputFilter = L"def";
@@ -27,7 +27,7 @@ namespace TreeReaderTests
          ctx.SaveOptions(ostream);
 
          wistringstream istream(ostream.str());
-         CommandsContext ctx2;
+         GlobalCommands ctx2;
          ctx2.LoadOptions(istream);
 
          Assert::AreEqual(L"abc", ctx2.Options.OutputLineIndent.c_str());

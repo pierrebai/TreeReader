@@ -35,16 +35,17 @@ namespace TreeReader
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // The command context.
+   // The global commands.
+   //
    // These are commands that can be used in the application.
    //
    // Put here to isolate views from data and data from views.
 
-   struct CommandsContext
+   struct GlobalCommands
    {
-      // Context constructor.
+      // Global commands constructor.
 
-      CommandsContext();
+      GlobalCommands();
 
       // Options.
 
@@ -55,13 +56,17 @@ namespace TreeReader
       void LoadOptions(const std::filesystem::path& filename);
       void LoadOptions(std::wistream& stream);
 
-      // Tree loading and saving.
+      // Tree loading and saving options.
 
       void SetInputFilter(const std::wstring& filterRegex);
       void SetInputIndent(const std::wstring& indentText);
       void SetOutputIndent(const std::wstring& indentText);
 
+      // Tree loading, removing and creation of derived tree.
+
       TreeCommandsPtr LoadTree(const std::filesystem::path& filename);
+      void RemoveTree(const TreeCommandsPtr& tree);
+      TreeCommandsPtr CreateTreeFromFiltered(const TreeCommandsPtr& tree);
 
       // Named filters management.
 
@@ -73,14 +78,6 @@ namespace TreeReader
       void SaveNamedFilters(const std::filesystem::path& filename);
       void LoadNamedFilters(const std::filesystem::path& filename);
 
-      // Current text tree.
-
-      void RemoveTree(const TreeCommandsPtr& tree);
-
-      // Current filtered tree.
-
-      TreeCommandsPtr CreateTreeFromFiltered(const TreeCommandsPtr& tree);
-
       // Undo / redo.
 
       void ClearUndoStack();
@@ -88,7 +85,7 @@ namespace TreeReader
 
    protected:
 
-      // A stack of tree being filtered.
+      // The known trees being filtered.
       std::vector<TreeCommandsPtr> _trees;
 
       // Known named filters.
