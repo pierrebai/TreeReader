@@ -376,34 +376,6 @@ namespace TreeReader
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that reference a named filter.
-   //
-   // Note: this is not a delegate filter because we don't want
-   //       its sub-filters visible to other code.
-
-   struct NamedFilters;
-
-   struct NamedTreeFilter : TreeFilter
-   {
-      TreeFilterPtr Filter;
-      std::wstring Name;
-
-      NamedTreeFilter() = default;
-
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
-
-   private:
-      NamedTreeFilter(const std::wstring & name) : Name(name) { }
-      NamedTreeFilter(const TreeFilterPtr & filter, const std::wstring & name) : Filter(filter), Name(name) { }
-
-      friend struct NamedFilters;
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   //
    // Functions to create filters.
 
    inline std::shared_ptr<AcceptTreeFilter> Accept() { return std::make_shared<AcceptTreeFilter>(); }

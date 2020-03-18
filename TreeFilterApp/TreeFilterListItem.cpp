@@ -2,6 +2,8 @@
 #include "TreeFilterListWidget.h"
 #include "QtUtilities.h"
 
+#include "NamedFilters.h"
+
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>

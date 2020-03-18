@@ -1,18 +1,22 @@
 #pragma once
 
-#include "TreeFilter.h"
-#include "UndoStack.h"
-
 #include <QtWidgets/qwidget>
 
 #include <memory>
 #include <functional>
 
+namespace TreeReader
+{
+   struct TreeFilter;
+   struct NamedFilters;
+   class UndoStack;
+}
+
 namespace TreeReaderApp
 {
    class FiltersEditorUI;
    using TreeFilter = TreeReader::TreeFilter;
-   using TreeFilterPtr = TreeReader::TreeFilterPtr;
+   using TreeFilterPtr = std::shared_ptr<TreeFilter>;
    using UndoStack = TreeReader::UndoStack;
    using NamedFilters = TreeReader::NamedFilters;
 

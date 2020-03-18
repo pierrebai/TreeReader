@@ -185,17 +185,17 @@ Voulez-vous le sauvegarder avant de </translation>
 <context>
     <name>TreeReaderApp::TreeFilterListItem</name>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="216"/>
+        <location filename="TreeFilterListItem.cpp" line="218"/>
         <source>Edit this filter</source>
         <translation>Éditer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="231"/>
+        <location filename="TreeFilterListItem.cpp" line="233"/>
         <source>Delete this filter</source>
         <translation>Effacer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="244"/>
+        <location filename="TreeFilterListItem.cpp" line="246"/>
         <source>Include self</source>
         <translation>Inclure soi-même</translation>
     </message>

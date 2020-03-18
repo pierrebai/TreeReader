@@ -2,6 +2,7 @@
 #include "TreeFiltering.h"
 #include "TreeFilterHelpers.h"
 #include "TextTreeVisitor.h"
+#include "NamedFilters.h"
 
 #include <sstream>
 

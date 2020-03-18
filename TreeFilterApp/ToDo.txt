@@ -4,3 +4,5 @@ Make named filters have open slot (text or sub-filters)
 
 Use undo/redo from github.
 Use QWidgetListWidget from github.
+
+Write more tests: global commands, tree commands, buffers text holder.

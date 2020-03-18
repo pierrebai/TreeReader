@@ -3,6 +3,9 @@
 #include "QtUtilities.h"
 #include "QWidgetScrollListWidget.h"
 
+#include "TreeFilter.h"
+#include "NamedFilters.h"
+#include "UndoStack.h"
 #include "TreeFilterHelpers.h"
 #include "TreeFilterMaker.h"
 
