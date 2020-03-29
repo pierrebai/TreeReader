@@ -1,14 +1,16 @@
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
-#include "QtUtilities.h"
-#include "QWidgetScrollListWidget.h"
+
+#include "dak/QtAdditions/QtUtilities.h"
+#include "dak/QtAdditions/QWidgetScrollListWidget.h"
 
 #include "dak/tree_reader/tree_filter.h"
 #include "dak/tree_reader/tree_filter_helpers.h"
 #include "dak/tree_reader/named_filters.h"
+#include "dak/tree_reader/tree_filter_maker.h"
+
 #include "dak/utility/undo_stack.h"
 #include "dak/utility/exceptions.h"
-#include "dak/tree_reader/tree_filter_maker.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qgridlayout.h>

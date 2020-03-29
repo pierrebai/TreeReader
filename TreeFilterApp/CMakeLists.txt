@@ -44,11 +44,7 @@ target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 
 target_include_directories(TreeFilterApp PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
-<<<<<<< Updated upstream
    "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
-=======
-   "${PROJECT_SOURCE_DIR}/Qtadditions"
->>>>>>> Stashed changes
 )
 
 add_custom_command(TARGET TreeFilterApp POST_BUILD

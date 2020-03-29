@@ -11,7 +11,7 @@
 <context>
     <name>Qtadditions::QWidgetListWidget</name>
     <message>
-        <location filename="../QtAdditions/QWidgetListWidget.cpp" line="43"/>
+        <location filename="../QtAdditions/src/QWidgetListWidget.cpp" line="43"/>
         <source>drop items here.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -181,82 +181,82 @@ Voulez-vous le sauvegarder avant de </translation>
 <context>
     <name>dak::tree_reader::app::MainWindow</name>
     <message>
-        <location filename="MainWindow.cpp" line="116"/>
+        <location filename="MainWindow.cpp" line="117"/>
         <source>Load Tree</source>
         <translation type="unfinished">Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="120"/>
+        <location filename="MainWindow.cpp" line="121"/>
         <source>Save Tree</source>
         <translation type="unfinished">Sauver un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="124"/>
+        <location filename="MainWindow.cpp" line="125"/>
         <source>filter Tree</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="128"/>
+        <location filename="MainWindow.cpp" line="129"/>
         <source>Name filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="132"/>
+        <location filename="MainWindow.cpp" line="133"/>
         <source>Use Filtered</source>
         <translation type="unfinished">Nouvel Arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="138"/>
+        <location filename="MainWindow.cpp" line="139"/>
         <source>undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="143"/>
+        <location filename="MainWindow.cpp" line="144"/>
         <source>redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="150"/>
+        <location filename="MainWindow.cpp" line="151"/>
         <source>options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="159"/>
+        <location filename="MainWindow.cpp" line="160"/>
         <source>Tree filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="179"/>
+        <location filename="MainWindow.cpp" line="180"/>
         <source>Tree Text Search</source>
         <translation type="unfinished">Recherche rapide</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="190"/>
+        <location filename="MainWindow.cpp" line="191"/>
         <source>Edit Search filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="435"/>
+        <location filename="MainWindow.cpp" line="436"/>
         <source>close the window</source>
         <translation type="unfinished">fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="435"/>
+        <location filename="MainWindow.cpp" line="436"/>
         <source>closing the window</source>
         <translation type="unfinished">fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="461"/>
+        <location filename="MainWindow.cpp" line="462"/>
         <source>Load Text Tree</source>
         <translation type="unfinished">Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="632"/>
+        <location filename="MainWindow.cpp" line="633"/>
         <source>Name a filter</source>
         <translation type="unfinished">Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="632"/>
+        <location filename="MainWindow.cpp" line="633"/>
         <source>filter Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -322,17 +322,17 @@ Voulez-vous le sauvegarder avant de </translation>
 <context>
     <name>dak::tree_reader::app::TreeFilterListItem</name>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="218"/>
+        <location filename="TreeFilterListItem.cpp" line="219"/>
         <source>Edit this filter</source>
         <translation type="unfinished">Éditer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="233"/>
+        <location filename="TreeFilterListItem.cpp" line="234"/>
         <source>Delete this filter</source>
         <translation type="unfinished">Effacer ce filtre</translation>
     </message>
     <message>
-        <location filename="TreeFilterListItem.cpp" line="246"/>
+        <location filename="TreeFilterListItem.cpp" line="247"/>
         <source>Include self</source>
         <translation type="unfinished">Inclure soi-même</translation>
     </message>

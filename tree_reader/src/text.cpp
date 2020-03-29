@@ -1,23 +1,24 @@
-#include "TreeReaderHelpers.h"
+#include "dak/utility/text.h"
 
 #include <sstream>
+#include <functional>
 
-namespace TreeReader
+namespace dak::utility
 {
    using namespace std;
 
-   vector<wstring> Split(const wstring& text, wchar_t delimiter, SplitOptions options)
+   vector<wstring> split(const wstring& text, wchar_t delimiter, split_options options)
    {
       vector<wstring> result;
       wistringstream sstream(text);
       wstring item;
       while (getline(sstream, item, delimiter))
-         if (!item.empty() || options == SplitOptions::KeepEmpty)
+         if (!item.empty() || options == split_options::keep_empty)
             result.emplace_back(item);
       return result;
    }
 
-   wstring Join(const vector<wstring>& parts, wchar_t delimiter)
+   wstring join(const vector<wstring>& parts, wchar_t delimiter)
    {
       wstring result;
 
@@ -37,7 +38,7 @@ namespace TreeReader
       return result;
    }
 
-   void WithNoExceptions(const std::function<void()>& func)
+   void with_no_exceptions(const std::function<void()>& func)
    {
       try
       {

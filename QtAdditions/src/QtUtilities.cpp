@@ -1,4 +1,4 @@
-#include "QtUtilities.h"
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include <QtWinExtras/qwinfunctions.h>
 

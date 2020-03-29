@@ -1,7 +1,7 @@
 #pragma once
 
 #include "dak/tree_reader/tree_filter.h"
-#include "QWidgetListItem.h"
+#include "dak/QtAdditions/QWidgetListItem.h"
 
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qscrollarea.h>

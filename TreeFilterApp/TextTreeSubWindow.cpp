@@ -3,7 +3,7 @@
 
 #include "dak/tree_reader/tree_commands.h"
 
-#include "QtUtilities.h"
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include "dak/utility/exceptions.h"
 

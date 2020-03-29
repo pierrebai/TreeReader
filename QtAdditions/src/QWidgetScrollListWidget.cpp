@@ -1,6 +1,6 @@
-#include "QWidgetScrollListWidget.h"
-#include "QWidgetListMimeData.h"
-#include "QtUtilities.h"
+#include "dak/QtAdditions/QWidgetScrollListWidget.h"
+#include "dak/QtAdditions/QWidgetListMimeData.h"
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollarea.h>

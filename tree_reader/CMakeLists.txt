@@ -17,12 +17,13 @@ add_library(tree_reader
    src/tree_filter_command_line.cpp  inc/dak/tree_reader/tree_filter_command_line.h
    src/named_filters.cpp             inc/dak/tree_reader/named_filters.h
 
-   src/tree_reader_helpers.cpp       inc/dak/utility/exceptions.h inc/dak/utility/text.h
+   src/text.cpp                      inc/dak/utility/text.h
+                                     inc/dak/utility/exceptions.h 
    src/undo_stack.cpp                inc/dak/utility/undo_stack.h
 )
 
 target_include_directories(tree_reader PUBLIC
-   "${PROJECT_SOURCE_DIR}/tree_reader/inc")
+   inc)
 
 target_compile_features(tree_reader PUBLIC cxx_std_20)
 

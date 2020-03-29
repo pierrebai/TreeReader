@@ -1,79 +1,79 @@
 #pragma once
 
-#include "TreeFilter.h"
+#include "dak/tree_reader/tree_filter.h"
 
 #include <string>
 #include <map>
 #include <filesystem>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter with a name that encapsulate another filter.
+   // filter with a name that encapsulate another filter.
    //
-   // Note: this is not a delegate filter because we don't want
+   // note: this is not a delegate filter because we don't want
    //       its sub-filter visible to other code. That's the point
    //       of named filter: to hide complexity.
 
-   struct NamedFilters;
+   struct named_filters;
 
-   struct NamedTreeFilter : TreeFilter
+   struct named_tree_filter : tree_filter
    {
-      TreeFilterPtr Filter;
+      tree_filter_ptr filter;
       std::wstring Name;
 
-      NamedTreeFilter() = default;
+      named_tree_filter() = default;
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
 
    private:
-      NamedTreeFilter(const std::wstring& name) : Name(name) { }
-      NamedTreeFilter(const TreeFilterPtr& filter, const std::wstring& name) : Filter(filter), Name(name) { }
+      named_tree_filter(const std::wstring& name) : Name(name) { }
+      named_tree_filter(const tree_filter_ptr& filter, const std::wstring& name) : filter(filter), Name(name) { }
 
-      friend struct NamedFilters;
+      friend struct named_filters;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Manages a dictionary of named filters.
 
-   typedef std::shared_ptr<NamedTreeFilter> NamedFilterPtr;
+   typedef std::shared_ptr<named_tree_filter> named_filter_ptr;
 
-   struct NamedFilters
+   struct named_filters
    {
-      // Add and remove named filters. Add creates a new named filter from
+      // add and remove named filters. add creates a new named filter from
       // a name and the filter to encapsulate.
 
-      NamedFilterPtr Add(const std::wstring& name, const TreeFilterPtr& filter);
-      bool Remove(const std::wstring& name);
+      named_filter_ptr add(const std::wstring& name, const tree_filter_ptr& filter);
+      bool remove(const std::wstring& name);
 
       // Retrieve one or all named filters.
 
-      NamedFilterPtr Get(const std::wstring& name) const;
-      TreeFilterPtr GetDefinition(const std::wstring& name) const;
-      const std::map<std::wstring, NamedFilterPtr>& All() const { return _filters; }
+      named_filter_ptr get(const std::wstring& name) const;
+      tree_filter_ptr get_definition(const std::wstring& name) const;
+      const std::map<std::wstring, named_filter_ptr>& all() const { return _filters; }
 
-      // Merge a set of named filters with another.
+      // merge a set of named filters with another.
 
-      void Merge(const NamedFilters& other);
+      void merge(const named_filters& other);
       
    private:
-      std::map<std::wstring, NamedFilterPtr> _filters;
+      std::map<std::wstring, named_filter_ptr> _filters;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Saved and load the named filters into a file.
 
-   void WriteNamedFilters(const std::filesystem::path& path, const NamedFilters& filters);
-   void WriteNamedFilters(std::wostream& stream, const NamedFilters& filters);
+   void save_named_filters(const std::filesystem::path& path, const named_filters& filters);
+   void save_named_filters(std::wostream& stream, const named_filters& filters);
 
-   NamedFilters ReadNamedFilters(const std::filesystem::path& path);
-   NamedFilters ReadNamedFilters(std::wistream& stream);
+   named_filters load_named_filters(const std::filesystem::path& path);
+   named_filters load_named_filters(std::wistream& stream);
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -87,6 +87,6 @@ namespace TreeReader
    // text format. They need to be provided after converting from text. This
    // is what this function does.
 
-   void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named);
+   void update_named_filters(const tree_filter_ptr& filter, const named_filters& named);
 }
 

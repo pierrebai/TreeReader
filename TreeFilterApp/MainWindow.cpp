@@ -3,11 +3,12 @@
 #include "TextTreeSubWindow.h"
 #include "OptionsDialog.h"
 
-#include "QtUtilities.h"
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include "dak/tree_reader/tree_filter_maker.h"
-#include "dak/utility/exceptions.h"
 #include "dak/tree_reader/tree_commands.h"
+
+#include "dak/utility/exceptions.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>

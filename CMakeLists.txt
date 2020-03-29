@@ -9,11 +9,7 @@ add_definitions(-D_UNICODE)
 
 add_subdirectory(tree_reader)
 add_subdirectory(tree_reader_tests)
-<<<<<<< Updated upstream
 add_subdirectory(QtAdditions)
-=======
-add_subdirectory(Qtadditions)
->>>>>>> Stashed changes
 add_subdirectory(tree_filter)
 add_subdirectory(TreeFilterApp)
 

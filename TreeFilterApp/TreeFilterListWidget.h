@@ -1,8 +1,8 @@
 #pragma once
 
 #include "dak/tree_reader/tree_filter.h"
+#include "dak/QtAdditions/QWidgetListWidget.h"
 #include "TreeFilterListItem.h"
-#include "QWidgetListWidget.h"
 
 class QDragEnterEvent;
 class QDropEvent;

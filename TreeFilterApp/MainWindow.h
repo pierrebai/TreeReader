@@ -2,7 +2,8 @@
 
 #include "FilterEditor.h"
 #include "TreeFilterListWidget.h"
-#include "QWidgetScrollListWidget.h"
+
+#include "dak/QtAdditions/QWidgetScrollListWidget.h"
 
 #include "dak/tree_reader/global_commands.h"
 

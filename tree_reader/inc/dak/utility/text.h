@@ -2,21 +2,17 @@
 
 #include <string>
 #include <vector>
-#include <functional>
 
-namespace TreeReader
+namespace dak::utility
 {
-   enum class SplitOptions
+   enum class split_options
    {
-      KeepEmpty, RemoveEmpty
+      keep_empty, remove_empty
    };
 
-   // Split text into parts using the given delimiter.
-   std::vector<std::wstring> Split(const std::wstring& text, wchar_t delimiter = L' ', SplitOptions options = SplitOptions::RemoveEmpty);
+   // split text into parts using the given delimiter.
+   std::vector<std::wstring> split(const std::wstring& text, wchar_t delimiter = L' ', split_options options = split_options::remove_empty);
 
-   // Join multiple text parts into one using the given delimiter.
-   std::wstring Join(const std::vector<std::wstring>& parts, wchar_t delimiter = L' ');
-
-   // Call the function and catch all exceptions.
-   void WithNoExceptions(const std::function<void()>& func);
+   // join multiple text parts into one using the given delimiter.
+   std::wstring join(const std::vector<std::wstring>& parts, wchar_t delimiter = L' ');
 }

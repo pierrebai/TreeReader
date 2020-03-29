@@ -1,6 +1,7 @@
 #include "TreeFilterListItem.h"
 #include "TreeFilterListWidget.h"
-#include "QtUtilities.h"
+
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include "dak/tree_reader/named_filters.h"
 

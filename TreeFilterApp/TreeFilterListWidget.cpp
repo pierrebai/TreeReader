@@ -1,5 +1,6 @@
 #include "TreeFilterListWidget.h"
-#include "QtUtilities.h"
+
+#include "dak/QtAdditions/QtUtilities.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollarea.h>

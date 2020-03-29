@@ -4,38 +4,38 @@
 #include <vector>
 #include <functional>
 
-namespace TreeReader
+namespace dak::utility
 {
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Data kept in an undo Transaction.
+   // Data kept in an undo transaction.
 
-   class UndoData
+   class undo_data
    {
    public:
       // The data.
-      std::any Data;
+      std::any data;
 
       // Remove non-essential data that can be recreated.
       // Called during commit to put the data to sleep.
-      std::function<void(std::any&)> Deaden;
+      std::function<void(std::any&)> deaden;
 
       // Recreate the non-essential data and emplace the data in the application.
       // Called during undo or redo to awaken the data.
-      std::function<void(const std::any&)> Awaken;
+      std::function<void(const std::any&)> awaken;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // An object tracking data changing Transactions and undo / redo stack.
+   // An object tracking data changing transactions and undo / redo stack.
    //
    // You initially commit the data that you want to be able to undo back
-   // to a Transaction object.
+   // to a transaction object.
    //
    // ***  You cannot undo if the stack is empty, so don't forget  ***
    // ***  that initial commit!                                    ***
    //
-   // Call commit with a Transaction filled with the new data in order
+   // Call commit with a transaction filled with the new data in order
    // to commit that data to the undo stack.
    //
    // The undo function awakens the data that was saved before
@@ -44,56 +44,56 @@ namespace TreeReader
    // The redo function awakens the data that was saved. It does nothing
    // if the top the stack is reached.
 
-   class UndoStack
+   class undo_stack
    {
    public:
       // The undo/redo transactions kept in the stack.
-      typedef UndoData Transaction;
-      typedef std::vector<Transaction> Transactions;
+      typedef undo_data transaction;
+      typedef std::vector<transaction> transactions;
 
       // The function called when teh undo stack changed (clear, undo or redo called).
-      std::function<void(UndoStack &)> Changed;
+      std::function<void(undo_stack &)> changed;
 
       // Create an empty undo stack.
-      UndoStack();
+      undo_stack();
 
-      // Clear the undo stack.
-      void Clear();
+      // clear the undo stack.
+      void clear();
 
-      // Commit the given modified data to the undo stack.
-      // Deaden the Transaction data.
-      void Commit(const Transaction& tr);
+      // commit the given modified data to the undo stack.
+      // deaden the transaction data.
+      void commit(const transaction& tr);
 
-      // Undo awakens the previous Transaction data. (The one before the last commit.)
+      // undo awakens the previous transaction data. (The one before the last commit.)
       // Does nothing if at the start of the undo stack.
-      void Undo();
+      void undo();
 
-      // Redo awakens the next Transaction data that was commited.
+      // redo awakens the next transaction data that was commited.
       // Does nothing if at the end of the undo stack.
-      void Redo();
+      void redo();
 
       // Verify if there is anything to undo.
-      bool HasUndo() const { return _top != _undos.begin(); }
+      bool has_undo() const { return _top != _undos.begin(); }
 
       // Verify if there is anything to redo.
-      bool HasRedo() const { return _top != _undos.end() && _top != _undos.end() - 1; }
+      bool has_redo() const { return _top != _undos.end() && _top != _undos.end() - 1; }
 
       // Verify if an commit/undo/redo operation is underway.
-      bool IsUndoing() const { return _isUndoing; }
+      bool IsUndoing() const { return _is_undoing; }
 
       // Return the current full contents of the undo stack.
-      const Transactions& Contents() const { return _undos; }
+      const transactions& Contents() const { return _undos; }
 
    private:
-      // Deaden the current top Transaction data.
-      void DeadenTop();
+      // deaden the current top transaction data.
+      void deaden_top();
 
-      // Awaken the current top Transaction data.
-      void AwakenTop() const;
+      // awaken the current top transaction data.
+      void awaken_top() const;
 
-      Transactions _undos;
-      Transactions::iterator _top;
-      bool _isUndoing = false;
+      transactions _undos;
+      transactions::iterator _top;
+      bool _is_undoing = false;
    };
 }
 

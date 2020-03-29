@@ -6,7 +6,7 @@ add_library(tree_reader_tests SHARED
    text_tree_visitor_tests.cpp
    tree_filter_maker_tests.cpp
    tree_filter_tests.cpp
-   tree_reader_helpers_tests.cpp
+   text_tests.cpp
    tree_reader_test_helpers.cpp
    undo_stack_tests.cpp
    tree_filter_commands_tests.cpp
