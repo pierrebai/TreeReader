@@ -1,24 +1,28 @@
 
-add_library(TreeReader
-   TreeReader.h
+add_library(tree_reader
+   inc/dak/tree_reader/tree_reader.h
 
-   BuffersTextHolder.cpp      BuffersTextHolder.h TextLinesTextHolder.h
-   SimpleTreeReader.cpp       SimpleTreeReader.h
-   SimpleTreeWriter.cpp       SimpleTreeWriter.h
-   TextTree.cpp               TextTree.h
-   TextTreeVisitor.cpp        TextTreeVisitor.h
-   TreeFilter.cpp             TreeFilter.h
-   TreeFiltering.cpp          TreeFiltering.h
-   TreeFilterHelpers.cpp      TreeFilterHelpers.h
-   TreeFilterMaker.cpp        TreeFilterMaker.h
-   SimpleTreeFilterMaker.cpp
-   GlobalCommands.cpp         GlobalCommands.h
-   TreeCommands.cpp           TreeCommands.h
-   TreeFilterCommandLine.cpp  TreeFilterCommandLine.h
-   TreeReaderHelpers.cpp      TreeReaderHelpers.h
-   NamedFilters.cpp           NamedFilters.h
-   UndoStack.cpp              UndoStack.h
+   src/buffers_text_holder.cpp       inc/dak/tree_reader/buffers_text_holder.h inc/dak/tree_reader/text_lines_text_holder.h
+   src/simple_tree_reader.cpp        inc/dak/tree_reader/simple_tree_reader.h
+   src/simple_tree_writer.cpp        inc/dak/tree_reader/simple_tree_writer.h
+   src/text_tree.cpp                 inc/dak/tree_reader/text_tree.h
+   src/text_tree_visitor.cpp         inc/dak/tree_reader/text_tree_visitor.h
+   src/tree_filter.cpp               inc/dak/tree_reader/tree_filter.h
+   src/tree_filtering.cpp            inc/dak/tree_reader/tree_filtering.h
+   src/tree_filter_helpers.cpp       inc/dak/tree_reader/tree_filter_helpers.h
+   src/tree_filter_maker.cpp         inc/dak/tree_reader/tree_filter_maker.h
+   src/simple_tree_filter_maker.cpp
+   src/global_commands.cpp           inc/dak/tree_reader/global_commands.h
+   src/tree_commands.cpp             inc/dak/tree_reader/tree_commands.h
+   src/tree_filter_command_line.cpp  inc/dak/tree_reader/tree_filter_command_line.h
+   src/named_filters.cpp             inc/dak/tree_reader/named_filters.h
+
+   src/tree_reader_helpers.cpp       inc/dak/utility/exceptions.h inc/dak/utility/text.h
+   src/undo_stack.cpp                inc/dak/utility/undo_stack.h
 )
 
-target_compile_features(TreeReader PUBLIC cxx_std_20)
+target_include_directories(tree_reader PUBLIC
+   "${PROJECT_SOURCE_DIR}/tree_reader/inc")
+
+target_compile_features(tree_reader PUBLIC cxx_std_20)
 

@@ -1,12 +1,12 @@
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
 #include <QtCore/qabstractitemmodel.h>
 
 #include <memory>
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using TextTreePtr = TreeReader::TextTreePtr;
+   using text_tree_ptr = tree_reader::text_tree_ptr;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -14,8 +14,8 @@ namespace TreeReaderApp
 
    struct TextTreeModel : QAbstractItemModel
    {
-      TextTreePtr Tree;
-      void Reset();
+      text_tree_ptr Tree;
+      void reset();
 
       QVariant data(const QModelIndex& index, int role) const override;
       QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

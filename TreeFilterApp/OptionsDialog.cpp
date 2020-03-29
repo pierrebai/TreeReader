@@ -8,10 +8,10 @@
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
    // Create the options dialog.
-   OptionsDialog::OptionsDialog(CommandsOptions& options, QWidget* parent)
+   OptionsDialog::OptionsDialog(commands_options& options, QWidget* parent)
    : QDialog(parent), _options(options)
    {
       BuildUI();
@@ -61,19 +61,19 @@ namespace TreeReaderApp
    // Fill the UI with the intial data.
    void OptionsDialog::FillUI()
    {
-      _outputLineIndentEdit->setText(QString::fromStdWString(_options.OutputLineIndent));
-      _inputIndentEdit->setText(QString::fromStdWString(_options.ReadOptions.InputIndent));
-      _inputFilterEdit->setText(QString::fromStdWString(_options.ReadOptions.InputFilter));
-      _tabSizeEdit->setText(QString().setNum(_options.ReadOptions.TabSize));
+      _outputLineIndentEdit->setText(QString::fromStdWString(_options.output_line_indent));
+      _inputIndentEdit->setText(QString::fromStdWString(_options.read_options.input_indent));
+      _inputFilterEdit->setText(QString::fromStdWString(_options.read_options.input_filter));
+      _tabSizeEdit->setText(QString().setNum(_options.read_options.tab_size));
    }
 
    // Fill the data from the UI.
    void OptionsDialog::SaveUI()
    {
-      _options.OutputLineIndent = _outputLineIndentEdit->text().toStdWString();
-      _options.ReadOptions.InputIndent = _inputIndentEdit->text().toStdWString();
-      _options.ReadOptions.InputFilter = _inputFilterEdit->text().toStdWString();
-      _options.ReadOptions.TabSize = _tabSizeEdit->text().toUInt();
+      _options.output_line_indent = _outputLineIndentEdit->text().toStdWString();
+      _options.read_options.input_indent = _inputIndentEdit->text().toStdWString();
+      _options.read_options.input_filter = _inputFilterEdit->text().toStdWString();
+      _options.read_options.tab_size = _tabSizeEdit->text().toUInt();
    }
 }
 

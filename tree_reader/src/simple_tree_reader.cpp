@@ -1,50 +1,50 @@
-#include "SimpleTreeReader.h"
-#include "BuffersTextHolder.h"
+#include "dak/tree_reader/simple_tree_reader.h"
+#include "dak/tree_reader/buffers_text_holder.h"
 
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <list>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
    using namespace std::filesystem;
-   using Node = TextTree::Node;
+   using node = text_tree::node;
 
-   struct BuffersTextHolderWithFilteredLines : BuffersTextHolder
+   struct buffersTextholderWithFilteredlines : buffers_text_holder
    {
-      list<wstring> FilteredLines;
+      list<wstring> Filteredlines;
    };
 
-   TextTree ReadSimpleTextTree(const path& path, const ReadSimpleTextTreeOptions& options)
+   text_tree load_simple_text_tree(const path& path, const load_simple_text_tree_options& options)
    {
       wifstream stream(path);
-      return ReadSimpleTextTree(stream, options);
+      return load_simple_text_tree(stream, options);
    }
 
-   static std::pair<size_t, size_t> GetIndent(const wchar_t* line, size_t count, const ReadSimpleTextTreeOptions& options)
+   static std::pair<size_t, size_t> getIndent(const wchar_t* line, size_t count, const load_simple_text_tree_options& options)
    {
-      const size_t textIndex = wcsspn(line, options.InputIndent.c_str());
+      const size_t textIndex = wcsspn(line, options.input_indent.c_str());
       size_t indent = textIndex;
       for (size_t i = 0; i < textIndex; ++i)
          if (line[i] == L'\t')
-            indent += options.TabSize - 1;
+            indent += options.tab_size - 1;
       return make_pair(indent, textIndex);
 }
 
-   TextTree ReadSimpleTextTree(wistream& stream, const ReadSimpleTextTreeOptions& options)
+   text_tree load_simple_text_tree(wistream& stream, const load_simple_text_tree_options& options)
    {
-      BuffersTextHolderReader reader;
+      buffers_text_holder_reader reader;
 
-      // Reset the text holder for this private version that can hold extra filtered lines.
-      shared_ptr<BuffersTextHolderWithFilteredLines> holder;
+      // reset the text holder for this private version that can hold extra filtered lines.
+      shared_ptr<buffersTextholderWithFilteredlines> holder;
       wregex inputFilter;
-      const bool inputFilterUsed = !options.InputFilter.empty();
+      const bool inputFilterUsed = !options.input_filter.empty();
       if (inputFilterUsed)
       {
-         inputFilter = wregex(options.InputFilter);
-         reader.Holder = holder = make_shared<BuffersTextHolderWithFilteredLines>();
+         inputFilter = wregex(options.input_filter);
+         reader.holder = holder = make_shared<buffersTextholderWithFilteredlines>();
       }
 
       vector<size_t> indents;
@@ -52,7 +52,7 @@ namespace TreeReader
       {
          while (true)
          {
-            auto result = reader.ReadLine(stream);
+            auto result = reader.read_line(stream);
             wchar_t* line = result.first;
             size_t count = result.second;
             if (count <= 0)
@@ -72,31 +72,31 @@ namespace TreeReader
                const size_t cleanedCount = cleanedLine.size();
                if (cleanedCount < count)
                {
-                  holder->FilteredLines.emplace_back(move(cleanedLine));
-                  line = holder->FilteredLines.back().data();
+                  holder->Filteredlines.emplace_back(move(cleanedLine));
+                  line = holder->Filteredlines.back().data();
                   count = cleanedCount;
                }
             }
 
-            const auto [indent, textIndex] = GetIndent(line, count, options);
+            const auto [indent, textIndex] = getIndent(line, count, options);
 
             lines.emplace_back(line + textIndex);
             indents.emplace_back(indent);
          }
       }
 
-      TextTree tree;
+      text_tree tree;
 
-      tree.SourceTextLines = reader.Holder;
+      tree.source_text_lines = reader.holder;
 
       if (indents.empty())
          return tree;
 
       vector<size_t> previousIndents;
-      vector<Node *> previousNodes;
+      vector<node *> previousnodes;
 
       previousIndents.emplace_back(indents[0]);
-      previousNodes.emplace_back(nullptr);
+      previousnodes.emplace_back(nullptr);
 
       for (size_t i = 0; i < indents.size(); ++i)
       {
@@ -106,16 +106,16 @@ namespace TreeReader
          while (newIndent < previousIndent)
          {
             previousIndents.pop_back();
-            previousNodes.pop_back();
+            previousnodes.pop_back();
             previousIndent = previousIndents.back();
          }
 
          const wchar_t* newText = lines[i];
-         Node* addUnder = (newIndent > previousIndent) ? previousNodes.back()
-                        : previousNodes.back() ? previousNodes.back()->Parent : nullptr;
-         Node * newNode = tree.AddChild(addUnder, newText);
+         node* addUnder = (newIndent > previousIndent) ? previousnodes.back()
+                        : previousnodes.back() ? previousnodes.back()->parent : nullptr;
+         node * newnode = tree.add_child(addUnder, newText);
          previousIndents.emplace_back(newIndent);
-         previousNodes.emplace_back(newNode);
+         previousnodes.emplace_back(newnode);
       }
 
       return tree;

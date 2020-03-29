@@ -1,11 +1,12 @@
-#include "TreeReaderHelpers.h"
+#include "dak/utility/text.h"
+
 #include "CppUnitTest.h"
 
 #include <iomanip>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
-using namespace TreeReader;
+using namespace dak::utility;
 
 namespace Microsoft::VisualStudio::CppUnitTestFramework
 {
@@ -18,28 +19,28 @@ namespace Microsoft::VisualStudio::CppUnitTestFramework
 	}
 }
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	TEST_CLASS(TreeReaderHelpersTests)
+	TEST_CLASS(tree_reader_helpers_tests)
 	{
 	public:
 
-		TEST_METHOD(SimpleSplit)
+		TEST_METHOD(simple_split)
 		{
-			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, Split(L"a b c"));
-			Assert::AreEqual(vector<wstring>{ L"aaa", L"bbb", L"ccc" }, Split(L"aaa bbb ccc"));
-			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, Split(L"a    b  c"));
-			Assert::AreEqual(vector<wstring>{ L"a", L"", L"", L"", L"b", L"", L"c" }, Split(L"a    b  c", L' ', SplitOptions::KeepEmpty));
-			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, Split(L"a,b,c", ','));
-			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, Split(L"a,b,,c", ','));
-			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"", L"c" }, Split(L"a,b,,c", ',', SplitOptions::KeepEmpty));
+			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, split(L"a b c"));
+			Assert::AreEqual(vector<wstring>{ L"aaa", L"bbb", L"ccc" }, split(L"aaa bbb ccc"));
+			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, split(L"a    b  c"));
+			Assert::AreEqual(vector<wstring>{ L"a", L"", L"", L"", L"b", L"", L"c" }, split(L"a    b  c", L' ', split_options::keep_empty));
+			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, split(L"a,b,c", ','));
+			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"c" }, split(L"a,b,,c", ','));
+			Assert::AreEqual(vector<wstring>{ L"a", L"b", L"", L"c" }, split(L"a,b,,c", ',', split_options::keep_empty));
 		}
 
-		TEST_METHOD(SimpleJoin)
+		TEST_METHOD(simple_join)
 		{
-			Assert::AreEqual(wstring(L"a b c"), Join(vector<wstring>{ L"a", L"b", L"c" }));
-			Assert::AreEqual(wstring(L"aaa bbb ccc"), Join(vector<wstring>{ L"aaa", L"bbb", L"ccc" }));
-			Assert::AreEqual(wstring(L"aaa,bbb,ccc"), Join(vector<wstring>{ L"aaa", L"bbb", L"ccc" }, L','));
+			Assert::AreEqual(wstring(L"a b c"), join(vector<wstring>{ L"a", L"b", L"c" }));
+			Assert::AreEqual(wstring(L"aaa bbb ccc"), join(vector<wstring>{ L"aaa", L"bbb", L"ccc" }));
+			Assert::AreEqual(wstring(L"aaa,bbb,ccc"), join(vector<wstring>{ L"aaa", L"bbb", L"ccc" }, L','));
 		}
 	};
 }

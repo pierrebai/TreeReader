@@ -1,28 +1,29 @@
-#include "SimpleTreeReader.h"
-#include "TreeReaderTestHelpers.h"
+#include "dak/tree_reader/simple_tree_reader.h"
+#include "tree_reader_test_helpers.h"
+
 #include "CppUnitTest.h"
 
 #include <sstream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
-using namespace TreeReader;
+using namespace dak::tree_reader;
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	TEST_CLASS(SimpleTreeReaderTests)
+	TEST_CLASS(simple_tree_reader_tests)
 	{
 	public:
 
-		TEST_METHOD(ReadSimpleTree)
+		TEST_METHOD(read_simple_tree)
 		{
 			wstringstream sstream;
-			sstream << CreateSimpleTree();
+			sstream << create_simple_tree();
 
 			sstream.flush();
 			sstream.seekg(0);
 
-			TextTree tree = ReadSimpleTextTree(sstream);
+			text_tree tree = load_simple_text_tree(sstream);
 
 			wostringstream sstream2;
 			sstream2 << tree;
@@ -39,18 +40,18 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream2.str().c_str());
 		}
 
-		TEST_METHOD(ReadSimpleTreeWithInputFilter)
+		TEST_METHOD(read_simple_tree_with_input_filter)
 		{
 			wstringstream sstream;
-			sstream << CreateSimpleTree();
+			sstream << create_simple_tree();
 
 			sstream.flush();
 			sstream.seekg(0);
 
-			ReadSimpleTextTreeOptions options;
-			options.InputFilter = L"([^bek]*)";
+			load_simple_text_tree_options options;
+			options.input_filter = L"([^bek]*)";
 
-			TextTree tree = ReadSimpleTextTree(sstream, options);
+			text_tree tree = load_simple_text_tree(sstream, options);
 
 			wostringstream sstream2;
 			sstream2 << tree;

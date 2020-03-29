@@ -5,9 +5,9 @@
 
 #include "QtUtilities.h"
 
-#include "TreeFilterMaker.h"
-#include "TreeReaderHelpers.h"
-#include "TreeCommands.h"
+#include "dak/tree_reader/tree_filter_maker.h"
+#include "dak/utility/exceptions.h"
+#include "dak/tree_reader/tree_commands.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qerrormessage.h>
@@ -32,15 +32,16 @@
 
 #include "resource.h"
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using namespace TreeReader;
-   using namespace QtAdditions;
+   using namespace dak::tree_reader;
+   using namespace dak::utility;
+   using namespace Qtadditions;
    using namespace std;
 
    namespace
    {
-      static filesystem::path GetLocalDataFileName(const QString& filename)
+      static filesystem::path getLocalDataFileName(const QString& filename)
       {
          auto path = QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, filename, QStandardPaths::LocateFile);
          if (!path.isEmpty())
@@ -57,19 +58,19 @@ namespace TreeReaderApp
          return dir / filesystem::path(filename.toStdWString());
       }
 
-      static filesystem::path GetNamedFiltersFileName()
+      static filesystem::path get_FiltersFileName()
       {
-         return GetLocalDataFileName("tree-reader-named-filters.txt");
+         return getLocalDataFileName("tree-reader-named-filters.txt");
       }
 
-      static filesystem::path GetOptionsFileName()
+      static filesystem::path getOptionsFileName()
       {
-         return GetLocalDataFileName("tree-reader-options.txt");
+         return getLocalDataFileName("tree-reader-options.txt");
       }
 
-      static filesystem::path GetMainWindowStateFileName()
+      static filesystem::path getMainWindowStateFileName()
       {
-         return GetLocalDataFileName("main-window-state.txt");
+         return getLocalDataFileName("main-window-state.txt");
       }
    }
 
@@ -120,11 +121,11 @@ namespace TreeReaderApp
       _saveTreeButton = CreateToolButton(_saveTreeAction);
       toolbar->addWidget(_saveTreeButton);
 
-      _applyFilterAction = CreateAction(tr("Filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
+      _applyFilterAction = CreateAction(tr("filter Tree"), IDB_FILTER_APPLY, QKeySequence(QKeySequence::StandardKey::Find));
       _applyFilterButton = CreateToolButton(_applyFilterAction);
       toolbar->addWidget(_applyFilterButton);
 
-      _nameFilterAction = CreateAction(tr("Name Filter"), IDB_FILTER_NAME);
+      _nameFilterAction = CreateAction(tr("Name filter"), IDB_FILTER_NAME);
       _nameFilterButton = CreateToolButton(_nameFilterAction);
       toolbar->addWidget(_nameFilterButton);
 
@@ -134,19 +135,19 @@ namespace TreeReaderApp
 
       toolbar->addSeparator();
 
-      _undoAction = CreateAction(tr("Undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
+      _undoAction = CreateAction(tr("undo"), IDB_UNDO, QKeySequence(QKeySequence::StandardKey::Undo));
       _undoButton = CreateToolButton(_undoAction);
       _undoAction->setEnabled(false);
       toolbar->addWidget(_undoButton);
 
-      _redoAction = CreateAction(tr("Redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
+      _redoAction = CreateAction(tr("redo"), IDB_REDO, QKeySequence(QKeySequence::StandardKey::Redo));
       _redoButton = CreateToolButton(_redoAction);
       _redoAction->setEnabled(false);
       toolbar->addWidget(_redoButton);
 
       toolbar->addSeparator();
 
-      _optionsAction = CreateAction(tr("Options"), IDB_OPTIONS);
+      _optionsAction = CreateAction(tr("options"), IDB_OPTIONS);
       _optionsButton = CreateToolButton(_optionsAction);
       toolbar->addWidget(_optionsButton);
 
@@ -155,8 +156,8 @@ namespace TreeReaderApp
 
    void MainWindow::BuildFiltersUI()
    {
-      auto filtersDock = new QDockWidget(tr("Tree Filter"));
-      filtersDock->setObjectName("Tree Filter");
+      auto filtersDock = new QDockWidget(tr("Tree filter"));
+      filtersDock->setObjectName("Tree filter");
       filtersDock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeature::DockWidgetMovable);
       auto filtersContainer = new QWidget();
       auto filtersLayout = new QHBoxLayout(filtersContainer);
@@ -165,7 +166,7 @@ namespace TreeReaderApp
       _scrollFiltersList = new QWidgetScrollListWidget(_availableFiltersList);
       filtersLayout->addWidget(_scrollFiltersList);
 
-      _filterEditor = new FilterEditor(_data.GetNamedFilters(), _data.UndoRedo(), filtersContainer);
+      _filterEditor = new FilterEditor(_data.get_Filters(), _data.undo_redo(), filtersContainer);
       filtersLayout->addWidget(_filterEditor);
 
       filtersDock->setWidget(filtersContainer);
@@ -186,7 +187,7 @@ namespace TreeReaderApp
 
       _editSearchButton = new QPushButton;
       _editSearchButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
-      _editSearchButton->setToolTip(tr("Edit Search Filter"));
+      _editSearchButton->setToolTip(tr("Edit Search filter"));
       _editSearchButton->setFlat(true);
       _editSearchButton->setMaximumSize(QSize(16, 16));
 
@@ -233,7 +234,7 @@ namespace TreeReaderApp
 
       _editSearchButton->connect(_editSearchButton, &QPushButton::clicked, [self = this]()
       {
-         auto filter = ConvertSimpleTextToFilters(self->_simpleSearch->text().toStdWString(), self->_data.GetNamedFilters());
+         auto filter = convert_simple_text_to_filter(self->_simpleSearch->text().toStdWString(), self->_data.get_Filters());
          if (filter)
          {
             self->_filterEditor->SetEdited(filter, L"");
@@ -242,26 +243,26 @@ namespace TreeReaderApp
 
       _simpleSearch->connect(_simpleSearch, &QLineEdit::textChanged, [self = this](const QString& text)
       {
-         self->SearchInTree(text);
+         self->search_in_tree(text);
       });
 
       /////////////////////////////////////////////////////////////////////////
       //
-      // Undo / redo actions.
+      // undo / redo actions.
 
-      _data.UndoRedo().Changed = [self = this](UndoStack&)
+      _data.undo_redo().changed = [self = this](undo_stack&)
       {
-         self->UpdateUndoRedoActions();
+         self->Updateundo_redoActions();
       };
 
       _undoAction->connect(_undoAction, &QAction::triggered, [self=this]()
       {
-         self->_data.UndoRedo().Undo();
+         self->_data.undo_redo().undo();
       });
 
       _redoAction->connect(_redoAction, &QAction::triggered, [self = this]()
       {
-         self->_data.UndoRedo().Redo();
+         self->_data.undo_redo().redo();
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -270,12 +271,12 @@ namespace TreeReaderApp
 
       _loadTreeAction->connect(_loadTreeAction, &QAction::triggered, [self=this]()
       {
-         self->LoadTree();
+         self->load_tree();
       });
 
       _saveTreeAction->connect(_saveTreeAction, &QAction::triggered, [self=this]()
       {
-         self->SaveFilteredTree(self->GetCurrentSubWindow());
+         self->save_filtered_tree(self->getCurrentSubWindow());
       });
 
       /////////////////////////////////////////////////////////////////////////
@@ -284,12 +285,12 @@ namespace TreeReaderApp
 
       _applyFilterAction->connect(_applyFilterAction, &QAction::triggered, [self = this]()
       {
-         self->FilterTree();
+         self->filter_tree();
       });
 
       _nameFilterAction->connect(_nameFilterAction, &QAction::triggered, [self = this]()
       {
-         self->NameFilter();
+         self->name_filter();
       });
 
       _pushFilterAction->connect(_pushFilterAction, &QAction::triggered, [self = this]()
@@ -306,13 +307,13 @@ namespace TreeReaderApp
       //
       // The filter list UI call-backs.
 
-      _filterEditor->FilterChanged = [self=this](const TreeFilterPtr& filter)
+      _filterEditor->FilterChanged = [self=this](const tree_filter_ptr& filter)
       {
-         auto window = self->GetCurrentSubWindow();
+         auto window = self->getCurrentSubWindow();
          if (!window)
             return;
 
-         window->Tree->SetFilter(self->_filterEditor->GetEdited());
+         window->Tree->set_filter(self->_filterEditor->getEdited());
       };
 
       /////////////////////////////////////////////////////////////////////////
@@ -331,60 +332,60 @@ namespace TreeReaderApp
 
    void MainWindow::FillUI()
    {
-      WithNoExceptions([self = this]() { self->_data.LoadNamedFilters(GetNamedFiltersFileName()); });
-      WithNoExceptions([self = this]() { self->_data.LoadOptions(GetOptionsFileName()); });
-      WithNoExceptions([self = this]() { self->LoadState(); });
+      with_no_exceptions([self = this]() { self->_data.load_named_filters(get_FiltersFileName()); });
+      with_no_exceptions([self = this]() { self->_data.load_options(getOptionsFileName()); });
+      with_no_exceptions([self = this]() { self->LoadState(); });
 
       UpdateCreateTabAction();
-      UpdateUndoRedoActions();
+      Updateundo_redoActions();
 
       FillAvailableFiltersUI();
    }
 
    void MainWindow::FillFilterEditorUI()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      _filterEditor->SetEdited(window->Tree->GetFilter(), window->Tree->GetFilterName());
+      _filterEditor->SetEdited(window->Tree->get_filter(), window->Tree->get_filter_name());
    }
 
    void MainWindow::FillAvailableFiltersUI()
    {
-      for (const auto& [name, filter] : _data.GetNamedFilters().All())
-         AddNamedFilterToAvailable(filter);
+      for (const auto& [name, filter] : _data.get_Filters().all())
+         addNamedFilterToAvailable(filter);
 
-      _availableFiltersList->AddTreeFilter(Accept());
-      _availableFiltersList->AddTreeFilter(Stop());
-      _availableFiltersList->AddTreeFilter(StopWhenKept(nullptr));
-      _availableFiltersList->AddTreeFilter(Until(nullptr));
-      _availableFiltersList->AddTreeFilter(Contains(L""));
-      _availableFiltersList->AddTreeFilter(Regex(L""));
-      _availableFiltersList->AddTreeFilter(Unique());
-      _availableFiltersList->AddTreeFilter(Not(nullptr));
-      _availableFiltersList->AddTreeFilter(Any(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilter(All(vector<TreeFilterPtr>()));
-      _availableFiltersList->AddTreeFilter(Under(nullptr));
-      _availableFiltersList->AddTreeFilter(NoChild(nullptr));
-      _availableFiltersList->AddTreeFilter(LevelRange(0, 100));
-      _availableFiltersList->AddTreeFilter(IfSubTree(nullptr));
-      _availableFiltersList->AddTreeFilter(IfSibling(nullptr));
+      _availableFiltersList->addTreeFilter(accept());
+      _availableFiltersList->addTreeFilter(stop());
+      _availableFiltersList->addTreeFilter(stop_when_kept(nullptr));
+      _availableFiltersList->addTreeFilter(until(nullptr));
+      _availableFiltersList->addTreeFilter(contains(L""));
+      _availableFiltersList->addTreeFilter(regex(L""));
+      _availableFiltersList->addTreeFilter(unique());
+      _availableFiltersList->addTreeFilter(not(nullptr));
+      _availableFiltersList->addTreeFilter(Any(vector<tree_filter_ptr>()));
+      _availableFiltersList->addTreeFilter(all(vector<tree_filter_ptr>()));
+      _availableFiltersList->addTreeFilter(under(nullptr));
+      _availableFiltersList->addTreeFilter(no_child(nullptr));
+      _availableFiltersList->addTreeFilter(level_range(0, 100));
+      _availableFiltersList->addTreeFilter(if_subtree(nullptr));
+      _availableFiltersList->addTreeFilter(if_sibling(nullptr));
    }
 
-   void MainWindow::AddNamedFilterToAvailable(const TreeFilterPtr& filter)
+   void MainWindow::addNamedFilterToAvailable(const tree_filter_ptr& filter)
    {
       auto delCallback = [self = this](TreeFilterListItem* panel)
       {
          if (!panel)
             return;
 
-         if (!panel->Filter)
+         if (!panel->filter)
             return;
 
-         if (self->_data.RemoveNamedFilter(panel->Filter->GetName()))
+         if (self->_data.remove_Filter(panel->filter->get_name()))
          {
-            self->_availableFiltersList->RemoveItem(panel);
+            self->_availableFiltersList->removeItem(panel);
          }
       };
 
@@ -393,16 +394,16 @@ namespace TreeReaderApp
          if (!panel)
             return;
 
-         if (auto named = dynamic_pointer_cast<NamedTreeFilter>(panel->Filter))
+         if (auto named = dynamic_pointer_cast<named_tree_filter>(panel->filter))
          {
-            if (named->Filter)
+            if (named->filter)
             {
-               self->_filterEditor->SetEdited(named->Filter->Clone(), named->Name, true);
+               self->_filterEditor->SetEdited(named->filter->clone(), named->Name, true);
             }
          }
       };
 
-      _availableFiltersList->AddTreeFilter(filter, delCallback, editCallback);
+      _availableFiltersList->addTreeFilter(filter, delCallback, editCallback);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -411,14 +412,14 @@ namespace TreeReaderApp
 
    void MainWindow::SaveState()
    {
-      ofstream stream(GetMainWindowStateFileName());
+      ofstream stream(getMainWindowStateFileName());
       QByteArray state = saveState();
       stream << state.toBase64().toStdString();
    }
 
    void MainWindow::LoadState()
    {
-      ifstream stream(GetMainWindowStateFileName());
+      ifstream stream(getMainWindowStateFileName());
       string text;
       stream >> text;
       QByteArray state = QByteArray::fromBase64(QByteArray::fromStdString(text));
@@ -433,10 +434,10 @@ namespace TreeReaderApp
    {
       if (SaveIfRequired(tr("close the window"), tr("closing the window")))
       {
-         WithNoExceptions([self = this]() { self->_data.SaveNamedFilters(GetNamedFiltersFileName()); });
-         WithNoExceptions([self = this]() { self->_data.SaveOptions(GetOptionsFileName()); });
-         WithNoExceptions([self = this]() { self->SaveState(); });
-         WithNoExceptions([self = this]() { self->AbortAsyncFiltering(); });
+         with_no_exceptions([self = this]() { self->_data.save_named_filters(get_FiltersFileName()); });
+         with_no_exceptions([self = this]() { self->_data.save_options(getOptionsFileName()); });
+         with_no_exceptions([self = this]() { self->SaveState(); });
+         with_no_exceptions([self = this]() { self->abort_async_filtering(); });
 
          QWidget::closeEvent(ev);
       }
@@ -448,72 +449,72 @@ namespace TreeReaderApp
 
    bool MainWindow::SaveIfRequired(const QString& action, const QString& actioning)
    {
-      for (auto window : GetAllSubWindows())
+      for (auto window : getallSubWindows())
          if (!window->SaveIfRequired(action, actioning))
             return false;
 
       return true;
    }
 
-   void MainWindow::LoadTree()
+   void MainWindow::load_tree()
    {
-      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(TreeCommands::TreeFileTypes), this);
-      auto newTree = _data.LoadTree(path);
-      AddTextTreeTab(newTree);
-      SearchInTree();
+      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(tree_commands::tree_file_types), this);
+      auto newTree = _data.load_tree(path);
+      addTextTreeTab(newTree);
+      search_in_tree();
    }
 
-   bool MainWindow::SaveFilteredTree(TextTreeSubWindow* window)
+   bool MainWindow::save_filtered_tree(TextTreeSubWindow* window)
    {
       if (!window)
          return true;
 
-      return window->SaveFilteredTree(_data.Options);
+      return window->save_filtered_tree(_data.options);
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Tab management.
 
-   void MainWindow::AddTextTreeTab(const TreeCommandsPtr& newTree)
+   void MainWindow::addTextTreeTab(const tree_commands_ptr& newTree)
    {
       if (!newTree)
          return;
 
-      auto subWindow = new TextTreeSubWindow(newTree, _data.Options);
+      auto subWindow = new TextTreeSubWindow(newTree, _data.options);
       _tabs->addSubWindow(subWindow);
       subWindow->showMaximized();
 
       FillFilterEditorUI();
-      SearchInTree();
+      search_in_tree();
 
       UpdateCreateTabAction();
    }
 
    void MainWindow::UpdateActiveTab()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
       FillFilterEditorUI();
-      SearchInTree();
+      search_in_tree();
    }
 
    void MainWindow::UpdateTextTreeTab()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      TextTreePtr newTree;
-      if (window->Tree->GetFilteredTree())
+      text_tree_ptr newTree;
+      if (window->Tree->get_filtered_tree())
       {
-         newTree = window->Tree->GetFilteredTree();
+         newTree = window->Tree->get_filtered_tree();
       }
       else
       {
-         newTree = window->Tree->GetOriginalTree();
+         newTree = window->Tree->get_original_tree();
       }
 
       window->UpdateShownModel(newTree);
@@ -525,12 +526,12 @@ namespace TreeReaderApp
    //
    // Current tab.
 
-   TextTreeSubWindow* MainWindow::GetCurrentSubWindow()
+   TextTreeSubWindow* MainWindow::getCurrentSubWindow()
    {
       return dynamic_cast<TextTreeSubWindow*>(_tabs->currentSubWindow());
    }
 
-   vector<TextTreeSubWindow*> MainWindow::GetAllSubWindows()
+   vector<TextTreeSubWindow*> MainWindow::getallSubWindows()
    {
       vector<TextTreeSubWindow*> subs;
 
@@ -545,28 +546,28 @@ namespace TreeReaderApp
    //
    // Tree filtering.
 
-   void MainWindow::FilterTree()
+   void MainWindow::filter_tree()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      window->Tree->SetFilter(_filterEditor->GetEdited());
+      window->Tree->set_filter(_filterEditor->getEdited());
 
-      if (window->Tree->GetOriginalTree() == nullptr)
+      if (window->Tree->get_original_tree() == nullptr)
          return;
 
-      window->Tree->ApplyFilterToTreeAsync();
+      window->Tree->apply_filter_to_tree_async();
       _filteringTimer->start(10);
    }
 
    void MainWindow::VerifyAsyncFiltering()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      if (window->Tree->IsAsyncFilterReady())
+      if (window->Tree->is_async_filter_ready())
       {
          UpdateTextTreeTab();
       }
@@ -576,83 +577,83 @@ namespace TreeReaderApp
       }
    }
 
-   void MainWindow::AbortAsyncFiltering()
+   void MainWindow::abort_async_filtering()
    {
-      for (auto window : GetAllSubWindows())
-         window->Tree->AbortAsyncFilter();
+      for (auto window : getallSubWindows())
+         window->Tree->abort_async_filter();
    }
 
-   void MainWindow::SearchInTree()
+   void MainWindow::search_in_tree()
    {
-      SearchInTree(_simpleSearch->text());
+      search_in_tree(_simpleSearch->text());
    }
 
-   void MainWindow::SearchInTree(const QString& text)
+   void MainWindow::search_in_tree(const QString& text)
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      window->Tree->SearchInTreeAsync(text.toStdWString());
+      window->Tree->search_in_tree_async(text.toStdWString());
       _filteringTimer->start(10);
    }
 
    void MainWindow::PushFilter()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      auto newTree = _data.CreateTreeFromFiltered(window->Tree);
-      AddTextTreeTab(newTree);
+      auto newTree = _data.create_tree_from_filtered(window->Tree);
+      addTextTreeTab(newTree);
    }
 
    void MainWindow::UpdateCreateTabAction()
    {
-      auto window = GetCurrentSubWindow();
+      auto window = getCurrentSubWindow();
       if (!window)
          return;
 
-      _pushFilterAction->setEnabled(window->Tree->CanCreateTreeFromFiltered());
+      _pushFilterAction->setEnabled(window->Tree->can_create_tree_from_filtered());
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Filter naming.
+   // filter naming.
 
-   void MainWindow::NameFilter()
+   void MainWindow::name_filter()
    {
-      auto filter = _filterEditor->GetEdited();
+      auto filter = _filterEditor->getEdited();
       if (!filter)
          return;
 
-      wstring filterName = _filterEditor->GetEditedName();
+      wstring filterName = _filterEditor->getEditedName();
 
-      filterName = AskForText(tr("Name a filter"), tr("Filter Name"), QString::fromStdWString(filterName), this);
+      filterName = AskForText(tr("Name a filter"), tr("filter Name"), QString::fromStdWString(filterName), this);
       if (filterName.empty())
          return;
 
-      auto namedFilter = _data.NameFilter(filterName, filter->Clone());
-      AddNamedFilterToAvailable(namedFilter);
+      auto namedFilter = _data.name_filter(filterName, filter->clone());
+      addNamedFilterToAvailable(namedFilter);
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Options.
+   // options.
 
    void MainWindow::OpenOptions()
    {
-      auto dialog = new OptionsDialog(_data.Options, this);
+      auto dialog = new OptionsDialog(_data.options, this);
       dialog->exec();
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Undo/redo.
-   void MainWindow::UpdateUndoRedoActions()
+   // undo/redo.
+   void MainWindow::Updateundo_redoActions()
    {
-      _undoAction->setEnabled(_data.UndoRedo().HasUndo());
-      _redoAction->setEnabled(_data.UndoRedo().HasRedo());
+      _undoAction->setEnabled(_data.undo_redo().has_undo());
+      _redoAction->setEnabled(_data.undo_redo().has_redo());
    }
 
 }

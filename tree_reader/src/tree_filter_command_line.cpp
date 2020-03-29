@@ -1,15 +1,15 @@
-#include "TreeFilterCommandLine.h"
-#include "TreeCommands.h"
-#include "TreeFilterMaker.h"
-#include "TreeReaderHelpers.h"
+#include "dak/tree_reader/tree_filter_command_line.h"
+#include "dak/tree_reader/tree_commands.h"
+#include "dak/tree_reader/tree_filter_maker.h"
+#include "dak/utility/text.h"
 
 #include <sstream>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
-   wstring CommandLine::GetHelp() const
+   wstring command_line::get_help() const
    {
       wostringstream stream;
 
@@ -39,193 +39,193 @@ namespace TreeReader
       return stream.str();
    }
 
-   void CommandLine::AppendFilterText(const std::wstring& text)
+   void command_line::append_filter_text(const std::wstring& text)
    {
-      if (!FilterText.empty())
-         FilterText += L' ';
-      FilterText += text;
+      if (!filter_text.empty())
+         filter_text += L' ';
+      filter_text += text;
    }
 
-   void CommandLine::ClearFilterText()
+   void command_line::clear_filter_text()
    {
-      FilterText = L"";
+      filter_text = L"";
    }
 
-   wstring CommandLine::CreateFilter()
+   wstring command_line::create_filter()
    {
-      return CreateFilter(FilterText);
+      return create_filter(filter_text);
    }
 
-   wstring CommandLine::CreateFilter(const wstring& filterText)
+   wstring command_line::create_filter(const wstring& filterText)
    {
-      if (!CurrentTree)
+      if (!current_tree)
          return L"";
 
       wostringstream stream;
 
-      CurrentTree->SetFilter(UseV1
-               ? ConvertTextToFilters(filterText, *_knownFilters)
-               : ConvertSimpleTextToFilters(filterText, *_knownFilters));
+      current_tree->set_filter(use_v1
+               ? convert_text_to_filter(filterText, *_known_filters)
+               : convert_simple_text_to_filter(filterText, *_known_filters));
 
-      if (Debug)
+      if (debug)
       {
          auto& ctx = _trees.back();
 
-         if (CurrentTree->GetFilter())
-            stream << L"Filters: " << ConvertFiltersToText(CurrentTree->GetFilter()) << endl;
+         if (current_tree->get_filter())
+            stream << L"named_filters: " << convert_filter_to_text(current_tree->get_filter()) << endl;
          else
             stream << L"Invalid filter: " << filterText << endl;
       }
       return stream.str();
    }
 
-   wstring CommandLine::ListNamedFilters()
+   wstring command_line::list_filters()
    {
       wostringstream sstream;
-      for (const auto& [name, filter] : _knownFilters->All())
+      for (const auto& [name, filter] : _known_filters->all())
          sstream << name << endl;
       return sstream.str();
    }
 
-   wstring CommandLine::ParseCommands(const wstring& cmdText)
+   wstring command_line::parse_commands(const wstring& cmdText)
    {
-      return ParseCommands(Split(cmdText));
+      return parse_commands(utility::split(cmdText));
    }
 
-   wstring CommandLine::ParseCommands(const vector<wstring>& cmds)
+   wstring command_line::parse_commands(const vector<wstring>& cmds)
    {
       wstring result;
 
       // Backup current settings to detect changes.
-      const CommandsOptions previousOptions = Options;
-      auto previousFilterText = FilterText;
-      auto previousTreeFileName = CurrentTree ? CurrentTree->GetOriginalTreeFileName() : wstring();
-      auto previousFilter = CurrentTree ? CurrentTree->GetFilter() : TreeFilterPtr();
-      auto previousCtx = CurrentTree;
+      const commands_options previousOptions = options;
+      auto previousFilterText = filter_text;
+      auto previousTreeFileName = current_tree ? current_tree->get_original_tree_filename() : wstring();
+      auto previousFilter = current_tree ? current_tree->get_filter() : tree_filter_ptr();
+      auto previousCtx = current_tree;
 
-      FilterText = L"";
+      filter_text = L"";
 
       for (size_t i = 0; i < cmds.size(); ++i)
       {
          const wstring& cmd = cmds[i];
          if (cmd == L"v1")
          {
-            UseV1 = true;
+            use_v1 = true;
          }
          if (cmd == L"no-v1")
          {
-            UseV1 = false;
+            use_v1 = false;
          }
          else if (cmd == L"interactive")
          {
-            IsInteractive = true;
+            is_interactive = true;
          }
          else if (cmd == L"no-interactive")
          {
-            IsInteractive = false;
+            is_interactive = false;
          }
          else if (cmd == L"help")
          {
-            result += GetHelp();
+            result += get_help();
          }
          else if (cmd == L"-d" || cmd == L"debug")
          {
-            Debug = true;
+            debug = true;
          }
          else if (cmd == L"no-debug")
          {
-            Debug = false;
+            debug = false;
          }
          else if (cmd == L"input-filter" && i + 1 < cmds.size())
          {
-            SetInputFilter(cmds[++i]);
+            set_input_filter(cmds[++i]);
          }
          else if (cmd == L"input-indent" && i + 1 < cmds.size())
          {
-            SetInputIndent(cmds[++i]);
+            set_input_indentation(cmds[++i]);
          }
          else if (cmd == L"output-indent" && i + 1 < cmds.size())
          {
-            SetOutputIndent(cmds[++i]);
+            set_output_indentation(cmds[++i]);
          }
          else if (cmd == L"load" && i + 1 < cmds.size())
          {
-            CurrentTree = LoadTree(cmds[++i]);
+            current_tree = load_tree(cmds[++i]);
          }
          else if (cmd == L"save" && i + 1 < cmds.size())
          {
-            if (CurrentTree)
-               CurrentTree->SaveFilteredTree(cmds[++i], Options);
+            if (current_tree)
+               current_tree->save_filtered_tree(cmds[++i], options);
          }
          else if (cmd == L"filter" && i + 1 < cmds.size())
          {
-            AppendFilterText(cmds[++i]);
+            append_filter_text(cmds[++i]);
          }
          else if (cmd == L"push-filtered")
          {
-            if (CurrentTree)
-              CurrentTree = CreateTreeFromFiltered(CurrentTree);
+            if (current_tree)
+              current_tree = create_tree_from_filtered(current_tree);
          }
          else if (cmd == L"pop-tree")
          {
-            RemoveTree(CurrentTree);
+            remove_tree(current_tree);
             // TODO: would need to recover old context.
-            CurrentTree = nullptr;
+            current_tree = nullptr;
          }
          else if (cmd == L"then")
          {
-            if (CurrentTree)
+            if (current_tree)
             {
-               result += CreateFilter();
-               CurrentTree->ApplyFilterToTree();
-               CurrentTree = CreateTreeFromFiltered(CurrentTree);
-               ClearFilterText();
+               result += create_filter();
+               current_tree->apply_filter_to_tree();
+               current_tree = create_tree_from_filtered(current_tree);
+               clear_filter_text();
                previousFilterText = L"";
             }
          }
          else if (cmd == L"name" && i + 1 < cmds.size())
          {
-            if (CurrentTree)
+            if (current_tree)
             {
-               result += CreateFilter();
-               NameFilter(cmds[++i], CurrentTree);
+               result += create_filter();
+               name_filter(cmds[++i], current_tree);
             }
          }
          else if (cmd == L"save-filters" && i + 1 < cmds.size())
          {
-            SaveNamedFilters(cmds[++i]);
+            save_named_filters(cmds[++i]);
          }
          else if (cmd == L"load-filters" && i + 1 < cmds.size())
          {
-            LoadNamedFilters(cmds[++i]);
+            load_named_filters(cmds[++i]);
          }
          else if (cmd == L"list-filters")
          {
-            result += ListNamedFilters();
+            result += list_filters();
          }
          else
          {
-            AppendFilterText(cmd);
+            append_filter_text(cmd);
          }
       }
 
-      if (FilterText.empty())
-         FilterText = previousFilterText;
+      if (filter_text.empty())
+         filter_text = previousFilterText;
 
-      const bool filterTextChanged = (previousFilterText != FilterText);
+      const bool filterTextChanged = (previousFilterText != filter_text);
       if (filterTextChanged)
-         result += CreateFilter();
+         result += create_filter();
 
-      if (CurrentTree)
+      if (current_tree)
       {
-         const bool optionsChanged = (previousOptions != Options);
-         const bool readOptionsChanged = (previousOptions.ReadOptions != Options.ReadOptions);
-         const bool fileChanged = (previousTreeFileName != CurrentTree->GetOriginalTreeFileName());
-         const bool filterChanged = (filterTextChanged || previousFilter != CurrentTree->GetFilter());
-         const bool treeChanged = (previousCtx != CurrentTree);
+         const bool optionsChanged = (previousOptions != options);
+         const bool readOptionsChanged = (previousOptions.read_options != options.read_options);
+         const bool fileChanged = (previousTreeFileName != current_tree->get_original_tree_filename());
+         const bool filterChanged = (filterTextChanged || previousFilter != current_tree->get_filter());
+         const bool treeChanged = (previousCtx != current_tree);
 
          if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
-            CurrentTree->ApplyFilterToTree();
+            current_tree->apply_filter_to_tree();
       }
 
       return result;

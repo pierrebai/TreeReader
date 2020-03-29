@@ -12,7 +12,7 @@ class QDropEvent;
 class QMouseEvent;
 class QVBoxLayout;
 
-namespace QtAdditions
+namespace Qtadditions
 {
    /////////////////////////////////////////////////////////////////////////
    //
@@ -21,25 +21,25 @@ namespace QtAdditions
    struct QWidgetListWidget : public QFrame
    {
       // Callback signature when the list was modified: added or removed an item.
-      using ListModifiedCallbackFunction = std::function<void(QWidgetListWidget * list)>;;
+      using ListModifiedCallbackfunction = std::function<void(QWidgetListWidget * list)>;;
 
       // Create a widget list widget.
-      QWidgetListWidget(ListModifiedCallbackFunction modifCallback = {}, bool stretch = true, QWidget * parent = nullptr);
+      QWidgetListWidget(ListModifiedCallbackfunction modifCallback = {}, bool stretch = true, QWidget * parent = nullptr);
 
       // Clears the list panel of all items.
-      void Clear();
+      void clear();
 
-      // Add a widget item.
-      QWidgetListItem* AddItem(QWidgetListItem* item, int index = -1);
+      // add a widget item.
+      QWidgetListItem* addItem(QWidgetListItem* item, int index = -1);
 
-      // Remove a widget item.
-      void RemoveItem(QWidgetListItem* item);
+      // remove a widget item.
+      void removeItem(QWidgetListItem* item);
 
       // Retrieve all widget items kept directly in this list widget.
-      std::vector<QWidgetListItem*> GetItems() const;
+      std::vector<QWidgetListItem*> getItems() const;
 
    protected:
-      virtual QWidgetListItem* CloneItem(QWidgetListItem*) const;
+      virtual QWidgetListItem* cloneItem(QWidgetListItem*) const;
 
       void dragEnterEvent(QDragEnterEvent* event) override;
       void dragLeaveEvent(QDragLeaveEvent* event) override;
@@ -53,7 +53,7 @@ namespace QtAdditions
       void UpdateDropHereLabel();
       void PropagateMinimumWidth();
 
-      ListModifiedCallbackFunction _modifCallback;
+      ListModifiedCallbackfunction _modifCallback;
       QVBoxLayout* _layout = nullptr;
       QLabel* _dropHere = nullptr;
 

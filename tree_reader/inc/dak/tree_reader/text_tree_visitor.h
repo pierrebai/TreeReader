@@ -1,122 +1,122 @@
 #pragma once
 
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
 #include <functional>
 #include <memory>
 #include <atomic>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
    // A visitor that access each node of a tree one by one.
 
-   struct TreeVisitor
+   struct tree_visitor
    {
       // Possible result of visiting a node: stop or not, skip children or not.
 
-      struct Result
+      struct result
       {
-         bool Stop = false;
-         bool SkipChildren = false;
+         bool stop = false;
+         bool skip_children = false;
       };
 
       // Called when going deeper in the tree. (Before visitin gthe deeper nodes.)
-      virtual Result GoDeeper(size_t deeperLevel) = 0;
+      virtual result go_deeper(size_t deeperLevel) = 0;
 
       // Called when going higher in the tree. (Before visitin gthe higher nodes.)
-      virtual Result GoHigher(size_t higherLevel) = 0;
+      virtual result go_higher(size_t higherLevel) = 0;
 
       // Called when visiting a node.
-      virtual Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
+      virtual result visit(const text_tree& tree, const text_tree::node& node, size_t level) = 0;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Simple visitor that doesn't need to know that it is going deeper or higher.
 
-   struct SimpleTreeVisitor : TreeVisitor
+   struct simple_tree_visitor : tree_visitor
    {
-      Result GoDeeper(size_t deeperLevel) override;
-      Result GoHigher(size_t higherLevel) override;
+      result go_deeper(size_t deeperLevel) override;
+      result go_higher(size_t higherLevel) override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // A visitor that calls another visitor.
    //
-   // Allows adding behavior to another existing visitor.
+   // allows adding behavior to another existing visitor.
 
-   struct DelegateTreeVisitor : SimpleTreeVisitor
+   struct delegate_tree_visitor : simple_tree_visitor
    {
-      std::shared_ptr<TreeVisitor> Visitor;
+      std::shared_ptr<tree_visitor> visitor;
 
-      DelegateTreeVisitor() = default;
-      DelegateTreeVisitor(const std::shared_ptr<TreeVisitor>& visitor) : Visitor(visitor) {}
+      delegate_tree_visitor() = default;
+      delegate_tree_visitor(const std::shared_ptr<tree_visitor>& visitor) : visitor(visitor) {}
 
-      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+      result visit(const text_tree& tree, const text_tree::node& node, size_t level) override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // A visitor that delegates to a function when visiting each node.
 
-   typedef std::function<TreeVisitor::Result(const TextTree & tree, const TextTree::Node & node, size_t level)> NodeVisitFunction;
+   typedef std::function<tree_visitor::result(const text_tree & tree, const text_tree::node & node, size_t level)> node_visit_function;
 
-   struct FunctionTreeVisitor : SimpleTreeVisitor
+   struct function_tree_visitor : simple_tree_visitor
    {
-      NodeVisitFunction Func;
+      node_visit_function func;
 
-      FunctionTreeVisitor() = default;
-      FunctionTreeVisitor(NodeVisitFunction f) : Func(f) {}
+      function_tree_visitor() = default;
+      function_tree_visitor(node_visit_function f) : func(f) {}
 
-      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+      result visit(const text_tree& tree, const text_tree::node& node, size_t level) override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // A delegate visitor that can be aborted from another thread.
 
-   struct CanAbortTreeVisitor : DelegateTreeVisitor
+   struct can_abort_tree_visitor : delegate_tree_visitor
    {
-      std::atomic<bool> Abort = false;
+      std::atomic<bool> abort = false;
 
-      CanAbortTreeVisitor() = default;
-      CanAbortTreeVisitor(const std::shared_ptr<TreeVisitor> & visitor) : DelegateTreeVisitor(visitor) {}
+      can_abort_tree_visitor() = default;
+      can_abort_tree_visitor(const std::shared_ptr<tree_visitor> & visitor) : delegate_tree_visitor(visitor) {}
 
-      Result Visit(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+      result visit(const text_tree& tree, const text_tree::node& node, size_t level) override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Visits each node of a tree in order.
+   // visits each node of a tree in order.
    //
    // That is, visit each node before its children and visits its children before its siblings.
    //
-   // Allows starting from an arbitrary node and not visiting the siblings of that initial node.
-   // (Not visiting siblings also skip the initial node too.)
+   // allows starting from an arbitrary node and not visiting the siblings of that initial node.
+   // (not visiting siblings also skip the initial node too.)
 
-   void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, TreeVisitor& visitor);
-   void VisitInOrder(const TextTree& tree, const TextTree::Node* node, bool siblings, const NodeVisitFunction& func);
+   void visit_in_order(const text_tree& tree, const text_tree::node* node, bool siblings, tree_visitor& visitor);
+   void visit_in_order(const text_tree& tree, const text_tree::node* node, bool siblings, const node_visit_function& func);
 
-   inline void VisitInOrder(const TextTree& tree, const TextTree::Node* node, TreeVisitor& visitor)
+   inline void visit_in_order(const text_tree& tree, const text_tree::node* node, tree_visitor& visitor)
    {
-      VisitInOrder(tree, node, true, visitor);
+      visit_in_order(tree, node, true, visitor);
    }
 
-   inline void VisitInOrder(const TextTree& tree, const TextTree::Node* node, const NodeVisitFunction& func)
+   inline void visit_in_order(const text_tree& tree, const text_tree::node* node, const node_visit_function& func)
    {
-      VisitInOrder(tree, node, true, func);
+      visit_in_order(tree, node, true, func);
    }
 
-   inline void VisitInOrder(const TextTree& tree, TreeVisitor& visitor)
+   inline void visit_in_order(const text_tree& tree, tree_visitor& visitor)
    {
-      VisitInOrder(tree, nullptr, true, visitor);
+      visit_in_order(tree, nullptr, true, visitor);
    }
 
-   inline void VisitInOrder(const TextTree& tree, const NodeVisitFunction& func)
+   inline void visit_in_order(const text_tree& tree, const node_visit_function& func)
    {
-      VisitInOrder(tree, nullptr, true, func);
+      visit_in_order(tree, nullptr, true, func);
    }
 }

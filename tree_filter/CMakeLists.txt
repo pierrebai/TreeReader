@@ -1,9 +1,9 @@
-add_executable(TreeFilter TreeFilter.cpp)
+add_executable(tree_filter tree_filter.cpp)
 
-target_link_libraries(TreeFilter PUBLIC TreeReader)
+target_link_libraries(tree_filter PUBLIC tree_reader)
 
-target_compile_features(TreeFilter PUBLIC cxx_std_20)
+target_compile_features(tree_filter PUBLIC cxx_std_20)
 
-target_include_directories(TreeFilter PUBLIC
-   "${PROJECT_SOURCE_DIR}/TreeReader")
+target_include_directories(tree_filter PUBLIC
+   "${PROJECT_SOURCE_DIR}/tree_reader/inc")
 

@@ -4,38 +4,40 @@
 <context>
     <name>QtAdditions::QWidgetListWidget</name>
     <message>
-        <location filename="../QtAdditions/QWidgetListWidget.cpp" line="43"/>
         <source>Drop items here.</source>
-        <translation>Glisser des items ici.</translation>
+        <translation type="vanished">Glisser des items ici.</translation>
+    </message>
+</context>
+<context>
+    <name>Qtadditions::QWidgetListWidget</name>
+    <message>
+        <location filename="../QtAdditions/QWidgetListWidget.cpp" line="43"/>
+        <source>drop items here.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TreeReaderApp::MainWindow</name>
     <message>
-        <location filename="MainWindow.cpp" line="115"/>
         <source>Load Tree</source>
-        <translation>Lire un arbre</translation>
+        <translation type="vanished">Lire un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="119"/>
         <source>Save Tree</source>
-        <translation>Sauver un arbre</translation>
+        <translation type="vanished">Sauver un arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="123"/>
         <source>Filter Tree</source>
-        <translation>Filtrer</translation>
+        <translation type="vanished">Filtrer</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="127"/>
         <source>Name Filter</source>
-        <translation>Nommer le filtre</translation>
+        <translation type="vanished">Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="131"/>
         <source>Use Filtered</source>
         <oldsource>Filtered Tree</oldsource>
-        <translation>Nouvel Arbre</translation>
+        <translation type="vanished">Nouvel Arbre</translation>
     </message>
     <message>
         <source>Forget Tree</source>
@@ -43,44 +45,36 @@
         <translation type="vanished">Oublier l&apos;arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="137"/>
         <source>Undo</source>
-        <translation>Annuler</translation>
+        <translation type="vanished">Annuler</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="142"/>
         <source>Redo</source>
-        <translation>Rétablir</translation>
+        <translation type="vanished">Rétablir</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="149"/>
         <source>Options</source>
-        <translation>Options</translation>
+        <translation type="vanished">Options</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="158"/>
         <source>Tree Filter</source>
-        <translation>Filtres</translation>
+        <translation type="vanished">Filtres</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="178"/>
         <source>Tree Text Search</source>
-        <translation>Recherche rapide</translation>
+        <translation type="vanished">Recherche rapide</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="189"/>
         <source>Edit Search Filter</source>
-        <translation>Éditer le filtre de recherche</translation>
+        <translation type="vanished">Éditer le filtre de recherche</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="434"/>
         <source>close the window</source>
-        <translation>fermer la fenêtre</translation>
+        <translation type="vanished">fermer la fenêtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="434"/>
         <source>closing the window</source>
-        <translation>fermer la fenêtre</translation>
+        <translation type="vanished">fermer la fenêtre</translation>
     </message>
     <message>
         <source>Unsaved Text Tree Warning</source>
@@ -105,99 +99,242 @@ Voulez-vous le sauvegarder avant de </translation>
         <translation type="vanished">lire un nouvel arbre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="460"/>
         <source>Load Text Tree</source>
-        <translation>Lire un arbre</translation>
+        <translation type="vanished">Lire un arbre</translation>
     </message>
     <message>
         <source>Save Filtered Text Tree</source>
         <translation type="vanished">Sauver l&apos;arbre filtré</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="631"/>
         <source>Name a filter</source>
-        <translation>Nommer le filtre</translation>
+        <translation type="vanished">Nommer le filtre</translation>
     </message>
     <message>
-        <location filename="MainWindow.cpp" line="631"/>
         <source>Filter Name</source>
-        <translation>Nom du filtre</translation>
+        <translation type="vanished">Nom du filtre</translation>
     </message>
 </context>
 <context>
     <name>TreeReaderApp::OptionsDialog</name>
     <message>
-        <location filename="OptionsDialog.cpp" line="39"/>
         <source>Output indentation</source>
-        <translation>Indentation de sortie</translation>
+        <translation type="vanished">Indentation de sortie</translation>
     </message>
     <message>
-        <location filename="OptionsDialog.cpp" line="42"/>
         <source>Input indentation</source>
-        <translation>Indentation d&apos;entrée</translation>
+        <translation type="vanished">Indentation d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="OptionsDialog.cpp" line="45"/>
         <source>Input line filter</source>
-        <translation>Filtre de ligne en entrée</translation>
+        <translation type="vanished">Filtre de ligne en entrée</translation>
     </message>
     <message>
-        <location filename="OptionsDialog.cpp" line="48"/>
         <source>Tab size</source>
-        <translation>Largeur de tabulation</translation>
+        <translation type="vanished">Largeur de tabulation</translation>
     </message>
 </context>
 <context>
     <name>TreeReaderApp::TextTreeSubWindow</name>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="53"/>
         <source>close the tab</source>
-        <translation>fermer l&apos;onglet</translation>
+        <translation type="vanished">fermer l&apos;onglet</translation>
     </message>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="53"/>
         <source>closing the tab</source>
-        <translation>fermer l&apos;onglet</translation>
+        <translation type="vanished">fermer l&apos;onglet</translation>
     </message>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="70"/>
         <source>Unsaved Text Tree Warning</source>
-        <translation>Arbre filtré non sauvegardé</translation>
+        <translation type="vanished">Arbre filtré non sauvegardé</translation>
     </message>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="71"/>
         <source>The current filtered tree has not been saved.
 Do you want to save it before </source>
-        <translation>L&apos;arbre actuel n&apos;a pas été sauvegardé.
+        <translation type="vanished">L&apos;arbre actuel n&apos;a pas été sauvegardé.
 Voulez-vous le sauvegarder avant de </translation>
     </message>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="71"/>
         <source>?</source>
-        <translation>?</translation>
+        <translation type="vanished">?</translation>
     </message>
     <message>
-        <location filename="TextTreeSubWindow.cpp" line="88"/>
         <source>Save Filtered Text Tree</source>
-        <translation>Sauver l&apos;arbre filtré</translation>
+        <translation type="vanished">Sauver l&apos;arbre filtré</translation>
     </message>
 </context>
 <context>
     <name>TreeReaderApp::TreeFilterListItem</name>
     <message>
+        <source>Edit this filter</source>
+        <translation type="vanished">Éditer ce filtre</translation>
+    </message>
+    <message>
+        <source>Delete this filter</source>
+        <translation type="vanished">Effacer ce filtre</translation>
+    </message>
+    <message>
+        <source>Include self</source>
+        <translation type="vanished">Inclure soi-même</translation>
+    </message>
+</context>
+<context>
+    <name>dak::tree_reader::app::MainWindow</name>
+    <message>
+        <location filename="MainWindow.cpp" line="116"/>
+        <source>Load Tree</source>
+        <translation type="unfinished">Lire un arbre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="120"/>
+        <source>Save Tree</source>
+        <translation type="unfinished">Sauver un arbre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="124"/>
+        <source>filter Tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="128"/>
+        <source>Name filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="132"/>
+        <source>Use Filtered</source>
+        <translation type="unfinished">Nouvel Arbre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="138"/>
+        <source>undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="143"/>
+        <source>redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="150"/>
+        <source>options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="159"/>
+        <source>Tree filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="179"/>
+        <source>Tree Text Search</source>
+        <translation type="unfinished">Recherche rapide</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="190"/>
+        <source>Edit Search filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="435"/>
+        <source>close the window</source>
+        <translation type="unfinished">fermer la fenêtre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="435"/>
+        <source>closing the window</source>
+        <translation type="unfinished">fermer la fenêtre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="461"/>
+        <source>Load Text Tree</source>
+        <translation type="unfinished">Lire un arbre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="632"/>
+        <source>Name a filter</source>
+        <translation type="unfinished">Nommer le filtre</translation>
+    </message>
+    <message>
+        <location filename="MainWindow.cpp" line="632"/>
+        <source>filter Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>dak::tree_reader::app::OptionsDialog</name>
+    <message>
+        <location filename="OptionsDialog.cpp" line="39"/>
+        <source>Output indentation</source>
+        <translation type="unfinished">Indentation de sortie</translation>
+    </message>
+    <message>
+        <location filename="OptionsDialog.cpp" line="42"/>
+        <source>Input indentation</source>
+        <translation type="unfinished">Indentation d&apos;entrée</translation>
+    </message>
+    <message>
+        <location filename="OptionsDialog.cpp" line="45"/>
+        <source>Input line filter</source>
+        <translation type="unfinished">Filtre de ligne en entrée</translation>
+    </message>
+    <message>
+        <location filename="OptionsDialog.cpp" line="48"/>
+        <source>Tab size</source>
+        <translation type="unfinished">Largeur de tabulation</translation>
+    </message>
+</context>
+<context>
+    <name>dak::tree_reader::app::TextTreeSubWindow</name>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="55"/>
+        <source>close the tab</source>
+        <translation type="unfinished">fermer l&apos;onglet</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="55"/>
+        <source>closing the tab</source>
+        <translation type="unfinished">fermer l&apos;onglet</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="72"/>
+        <source>Unsaved Text Tree Warning</source>
+        <translation type="unfinished">Arbre filtré non sauvegardé</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="73"/>
+        <source>The current filtered tree has not been saved.
+Do you want to save it before </source>
+        <translation type="unfinished">L&apos;arbre actuel n&apos;a pas été sauvegardé.
+Voulez-vous le sauvegarder avant de </translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="73"/>
+        <source>?</source>
+        <translation type="unfinished">?</translation>
+    </message>
+    <message>
+        <location filename="TextTreeSubWindow.cpp" line="90"/>
+        <source>Save Filtered Text Tree</source>
+        <translation type="unfinished">Sauver l&apos;arbre filtré</translation>
+    </message>
+</context>
+<context>
+    <name>dak::tree_reader::app::TreeFilterListItem</name>
+    <message>
         <location filename="TreeFilterListItem.cpp" line="218"/>
         <source>Edit this filter</source>
-        <translation>Éditer ce filtre</translation>
+        <translation type="unfinished">Éditer ce filtre</translation>
     </message>
     <message>
         <location filename="TreeFilterListItem.cpp" line="233"/>
         <source>Delete this filter</source>
-        <translation>Effacer ce filtre</translation>
+        <translation type="unfinished">Effacer ce filtre</translation>
     </message>
     <message>
         <location filename="TreeFilterListItem.cpp" line="246"/>
         <source>Include self</source>
-        <translation>Inclure soi-même</translation>
+        <translation type="unfinished">Inclure soi-même</translation>
     </message>
 </context>
 </TS>

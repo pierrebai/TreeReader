@@ -1,59 +1,59 @@
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
-   void TextTree::Reset()
+   void text_tree::reset()
    {
-      Roots.clear();
+      roots.clear();
       _nodes.clear();
    }
 
-   TextTree::Node* TextTree::AddChild(Node* underNode, const wchar_t* text)
+   text_tree::node* text_tree::add_child(node* undernode, const wchar_t* text)
    {
-      _nodes.emplace_back(text, underNode);
-      Node* newNode = &_nodes.back();
-      if (!underNode)
+      _nodes.emplace_back(text, undernode);
+      node* newnode = &_nodes.back();
+      if (!undernode)
       {
-         newNode->IndexInParent = Roots.size();
-         Roots.emplace_back(newNode);
+         newnode->index_in_parent = roots.size();
+         roots.emplace_back(newnode);
       }
       else
       {
-         newNode->IndexInParent = underNode->Children.size();
-         underNode->Children.emplace_back(newNode);
+         newnode->index_in_parent = undernode->children.size();
+         undernode->children.emplace_back(newnode);
       }
-      return newNode;
+      return newnode;
    }
 
-   size_t TextTree::CountSiblings(const Node* node) const
+   size_t text_tree::count_siblings(const node* node) const
    {
       if (!node)
          return 0;
 
-      return CountChildren(node->Parent);
+      return count_children(node->parent);
    }
 
-   size_t TextTree::CountChildren(const Node* node) const
+   size_t text_tree::count_children(const node* node) const
    {
       if (!node)
-         return Roots.size();
+         return roots.size();
 
-      return node->Children.size();
+      return node->children.size();
    }
 
-   size_t TextTree::CountAncestors(const Node* node) const
+   size_t text_tree::count_ancestors(const node* node) const
    {
       if (!node)
          return 0;
 
       size_t count = 0;
 
-      while (node->Parent)
+      while (node->parent)
       {
          count += 1;
-         node = node->Parent;
+         node = node->parent;
       }
 
       return count;

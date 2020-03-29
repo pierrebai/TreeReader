@@ -1,35 +1,35 @@
 #pragma once
 
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
 #include <filesystem>
 #include <regex>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Options controling how the text is read and its indentation calculated.
+   // options controling how the text is read and its indentation calculated.
 
-   struct ReadSimpleTextTreeOptions
+   struct load_simple_text_tree_options
    {
       // How many characters a tab represent to calculate line indentation.
-      size_t TabSize = 8;
+      size_t tab_size = 8;
 
       // Characters that are considered indentation for input lines.
-      std::wstring InputIndent = L" \t";
+      std::wstring input_indent = L" \t";
 
       // Optional input regular expression to filter input lines.
       // It is applied before indentation calculations.
       // Only captured text will be kept for further processing.
       // This allows cleaning up input lines.
-      std::wstring InputFilter;
+      std::wstring input_filter;
 
-      bool operator!=(const ReadSimpleTextTreeOptions& other) const
+      bool operator!=(const load_simple_text_tree_options& other) const
       {
-         return TabSize != other.TabSize
-             || InputIndent != other.InputIndent
-             || InputFilter != other.InputFilter;
+         return tab_size     != other.tab_size
+             || input_indent != other.input_indent
+             || input_filter != other.input_filter;
 
       }
    };
@@ -39,6 +39,6 @@ namespace TreeReader
    // Read a simple flat text file, using initial white-space indentation
    // to determine the tree structure.
 
-   TextTree ReadSimpleTextTree(const std::filesystem::path& path, const ReadSimpleTextTreeOptions& options = ReadSimpleTextTreeOptions());
-   TextTree ReadSimpleTextTree(std::wistream& stream, const ReadSimpleTextTreeOptions& options = ReadSimpleTextTreeOptions());
+   text_tree load_simple_text_tree(const std::filesystem::path& path, const load_simple_text_tree_options& options = load_simple_text_tree_options());
+   text_tree load_simple_text_tree(std::wistream& stream, const load_simple_text_tree_options& options = load_simple_text_tree_options());
 }

@@ -1,24 +1,24 @@
 #pragma once
 
-#include "GlobalCommands.h"
+#include "dak/tree_reader/global_commands.h"
 
 #include <QtWidgets/qdialog.h>
 
 class QLineEdit;
 class QDialogButtonBox;
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using CommandsOptions = TreeReader::CommandsOptions;
+   using commands_options = tree_reader::commands_options;
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Options dialog.
+   // options dialog.
 
    struct OptionsDialog : QDialog
    {
       // Create the options dialog.
-      OptionsDialog(CommandsOptions& options, QWidget* parent = nullptr);
+      OptionsDialog(commands_options& options, QWidget* parent = nullptr);
 
       void accept() override;
 
@@ -35,8 +35,8 @@ namespace TreeReaderApp
       // Fill the data from the UI.
       void SaveUI();
 
-      // Data.
-      CommandsOptions& _options;
+      // data.
+      commands_options& _options;
 
       QLineEdit* _outputLineIndentEdit = nullptr;
       QLineEdit* _inputIndentEdit = nullptr;

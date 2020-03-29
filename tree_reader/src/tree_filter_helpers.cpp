@@ -1,10 +1,10 @@
-#include "TreeFilterHelpers.h"
+#include "dak/tree_reader/tree_filter_helpers.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
-   bool VisitFilters(const TreeFilterPtr& filter, bool includeSelf, FilterVisitFunction func)
+   bool visit_filters(const tree_filter_ptr& filter, bool includeSelf, filter_visit_function func)
    {
       if (!filter)
          return true;
@@ -12,16 +12,16 @@ namespace TreeReader
       if (includeSelf && !func(filter))
          return false;
 
-      if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+      if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
       {
-         if (!VisitFilters(delegate->Filter, func))
+         if (!visit_filters(delegate->filter, func))
             return false;
       }
-      else if (auto combined = dynamic_pointer_cast<CombineTreeFilter>(filter))
+      else if (auto combined = dynamic_pointer_cast<combine_tree_filter>(filter))
       {
-         for (auto& child : combined->Filters)
+         for (auto& child : combined->named_filters)
          {
-            if (!VisitFilters(child, func))
+            if (!visit_filters(child, func))
                return false;
          }
       }

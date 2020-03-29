@@ -1,246 +1,246 @@
-#include "TreeCommands.h"
-#include "GlobalCommands.h" // For options...
-#include "TreeFilterMaker.h"
-#include "TreeReaderHelpers.h"
-#include "SimpleTreeWriter.h"
+#include "dak/tree_reader/tree_commands.h"
+#include "dak/tree_reader/global_commands.h" // For options...
+#include "dak/tree_reader/tree_filter_maker.h"
+#include "dak/utility/text.h"
+#include "dak/tree_reader/simple_tree_writer.h"
 
 #include <sstream>
 #include <fstream>
 #include <iomanip>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
-   TreeCommands::TreeCommands(TextTreePtr tree, wstring name, shared_ptr<NamedFilters> knownFilters, shared_ptr<UndoStack> undoRedo)
-   : Tree(move(tree)), TreeFileName(move(name)), _knownFilters(move(knownFilters)), _undoRedo(move(undoRedo))
+   tree_commands::tree_commands(text_tree_ptr tree, wstring name, shared_ptr<named_filters> knownFilters, shared_ptr<undo_stack> undoRedo)
+   : Tree(move(tree)), _tree_filename(move(name)), _known_filters(move(knownFilters)), _undo_redo(move(undoRedo))
    {
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Filtered tree save.
+   // _filtered tree save.
 
-   void TreeCommands::SaveFilteredTree(const filesystem::path& filename, const CommandsOptions& options)
+   void tree_commands::save_filtered_tree(const filesystem::path& filename, const commands_options& options)
    {
-      if (Filtered)
+      if (_filtered)
       {
-         WriteSimpleTextTree(filename, *Filtered, options.OutputLineIndent);
-         FilteredFileName = filename;
-         FilteredWasSaved = true;
+         save_simple_text_tree(filename, *_filtered, options.output_line_indent);
+         _filtered_filename = filename;
+         _filtered_was_saved = true;
       }
    }
 
-   bool TreeCommands::IsFilteredTreeSaved() const
+   bool tree_commands::is_filtered_tree_saved() const
    {
-      return FilteredWasSaved;
+      return _filtered_was_saved;
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Current filter.
 
-   void TreeCommands::SetFilter(const TreeFilterPtr& filter)
+   void tree_commands::set_filter(const tree_filter_ptr& a_filter)
    {
-      Filter = filter;
-      CommitFilterToUndo();
+      _filter = a_filter;
+      commit_filter_to_undo();
    }
 
-   const TreeFilterPtr& TreeCommands::GetFilter() const
+   const tree_filter_ptr& tree_commands::get_filter() const
    {
-      return Filter;
+      return _filter;
    }
 
-   const std::wstring& TreeCommands::GetFilterName() const
+   const std::wstring& tree_commands::get_filter_name() const
    {
-      return FilterName;
+      return _filter_name;
    }
 
-   void TreeCommands::SetFilterName(const std::wstring& name)
+   void tree_commands::set_filter_name(const std::wstring& name)
    {
-      FilterName = name;
+      _filter_name = name;
    }
 
-   void TreeCommands::ApplyFilterToTree(bool async)
+   void tree_commands::apply_filter_to_tree(bool async)
    {
-      AbortAsyncFilter();
+      abort_async_filter();
 
-      if (Filter)
+      if (_filter)
       {
          if (async)
          {
-            _asyncFiltering = move(FilterTreeAsync(Tree, Filter));
+            _async_filtering = move(filter_tree_async(Tree, _filter));
          }
          else
          {
-            Filtered = make_shared<TextTree>();
-            FilterTree(*Tree, *Filtered, *Filter);
-            FilteredWasSaved = false;
-            ApplySearchInTree(async);
+            _filtered = make_shared<text_tree>();
+            filter_tree(*Tree, *_filtered, *_filter);
+            _filtered_was_saved = false;
+            apply_search_in_tree(async);
          }
       }
       else
       {
-         Filtered = make_shared<TextTree>(*Tree);
-         // Note: pure copy of input tree are considered to have been saved.
-         FilteredWasSaved = true;
-         ApplySearchInTree(async);
+         _filtered = make_shared<text_tree>(*Tree);
+         // note: pure copy of input tree are considered to have been saved.
+         _filtered_was_saved = true;
+         apply_search_in_tree(async);
       }
    }
 
-   void TreeCommands::AbortAsyncFilter()
+   void tree_commands::abort_async_filter()
    {
-      if (_asyncFiltering.second)
-         _asyncFiltering.second->Abort = true;
-      _asyncFiltering = AsyncFilterTreeResult();
+      if (_async_filtering.second)
+         _async_filtering.second->abort = true;
+      _async_filtering = async_filter_tree_result();
 
-      AbortAsyncSearch();
+      abort_async_search();
    }
 
-   bool TreeCommands::IsAsyncFilterReady()
+   bool tree_commands::is_async_filter_ready()
    {
-      if (_asyncFiltering.first.valid())
+      if (_async_filtering.first.valid())
       {
-         if (_asyncFiltering.first.wait_for(1us) != future_status::ready)
+         if (_async_filtering.first.wait_for(1us) != future_status::ready)
             return false;
 
-         Filtered = make_shared<TextTree>(_asyncFiltering.first.get());
-         FilteredWasSaved = false;
-         _asyncFiltering = AsyncFilterTreeResult();
+         _filtered = make_shared<text_tree>(_async_filtering.first.get());
+         _filtered_was_saved = false;
+         _async_filtering = async_filter_tree_result();
 
-         ApplySearchInTree(true);
+         apply_search_in_tree(true);
       }
 
-      return IsAsyncSearchReady();
+      return is_async_search_ready();
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Text search.
 
-   void TreeCommands::AbortAsyncSearch()
+   void tree_commands::abort_async_search()
    {
-      if (_asyncSearching.second)
-         _asyncSearching.second->Abort = true;
-      _asyncSearching = AsyncFilterTreeResult();
+      if (_async_searching.second)
+         _async_searching.second->abort = true;
+      _async_searching = async_filter_tree_result();
    }
 
-   bool TreeCommands::IsAsyncSearchReady()
+   bool tree_commands::is_async_search_ready()
    {
-      if (_asyncSearching.first.valid())
+      if (_async_searching.first.valid())
       {
-         if (_asyncSearching.first.wait_for(1us) != future_status::ready)
+         if (_async_searching.first.wait_for(1us) != future_status::ready)
             return false;
 
-         _searched = make_shared<TextTree>(_asyncSearching.first.get());
-         _asyncSearching = AsyncFilterTreeResult();
+         _searched = make_shared<text_tree>(_async_searching.first.get());
+         _async_searching = async_filter_tree_result();
       }
 
       return true;
    }
 
-   void TreeCommands::SearchInTree(const std::wstring& text)
+   void tree_commands::search_in_tree(const std::wstring& text)
    {
-      if (_searchedText == text)
+      if (_searched_text == text)
          return;
 
-      _searchedText = text;
+      _searched_text = text;
 
-      ApplySearchInTree(false);
+      apply_search_in_tree(false);
    }
 
-   void TreeCommands::SearchInTreeAsync(const std::wstring& text)
+   void tree_commands::search_in_tree_async(const std::wstring& text)
    {
-      if (_searchedText == text)
+      if (_searched_text == text)
          return;
 
-      _searchedText = text;
+      _searched_text = text;
 
-      ApplySearchInTree(true);
+      apply_search_in_tree(true);
    }
 
-   void TreeCommands::ApplySearchInTree(bool async)
+   void tree_commands::apply_search_in_tree(bool async)
    {
-      if (_searchedText.empty())
+      if (_searched_text.empty())
       {
          _searched = nullptr;
          return;
       }
 
-      TextTreePtr applyTo = Filtered ? Filtered : Tree;
+      text_tree_ptr applyTo = _filtered ? _filtered : Tree;
 
       if (!applyTo)
          return;
 
-      auto filter = ConvertSimpleTextToFilters(_searchedText, *_knownFilters);
-      if (!filter)
+      auto _filter = convert_simple_text_to_filter(_searched_text, *_known_filters);
+      if (!_filter)
          return;
 
-      AbortAsyncSearch();
+      abort_async_search();
 
       if (async)
       {
-         _asyncSearching = move(FilterTreeAsync(applyTo, filter));
+         _async_searching = move(filter_tree_async(applyTo, _filter));
       }
       else
       {
-         _searched = make_shared<TextTree>();
-         FilterTree(*applyTo, *_searched, *filter);
+         _searched = make_shared<text_tree>();
+         filter_tree(*applyTo, *_searched, *_filter);
       }
    }
 
-   TextTreePtr TreeCommands::GetOriginalTree() const
+   text_tree_ptr tree_commands::get_original_tree() const
    {
       return Tree;
    }
 
-   std::wstring TreeCommands::GetOriginalTreeFileName() const
+   std::wstring tree_commands::get_original_tree_filename() const
    {
-      return TreeFileName;
+      return _tree_filename;
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Current filtered tree.
 
-   TextTreePtr TreeCommands::GetFilteredTree() const
+   text_tree_ptr tree_commands::get_filtered_tree() const
    {
-      return _searched ? _searched : Filtered;
+      return _searched ? _searched : _filtered;
    }
 
-   std::wstring TreeCommands::GetFilteredTreeFileName() const
+   std::wstring tree_commands::get_filtered_tree_filename() const
    {
-      return FilteredFileName;
+      return _filtered_filename;
    }
 
-   bool TreeCommands::CanCreateTreeFromFiltered() const
+   bool tree_commands::can_create_tree_from_filtered() const
    {
-      return Filtered != nullptr;
+      return _filtered != nullptr;
    }
 
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Undo / redo.
+   // undo / redo.
 
-   void TreeCommands::DeadedFilters(any& data)
+   void tree_commands::deaden_filters(any& data)
    {
-      data = ConvertFiltersToText(Filter);
+      data = convert_filter_to_text(_filter);
    }
 
-   void TreeCommands::AwakenFilters(const any& data)
+   void tree_commands::awaken_filters(const any& data)
    {
-      // Note: do not call SetFilter as it would put it in undo/redo...
-      Filter = ConvertTextToFilters(any_cast<wstring>(data), *_knownFilters);;
+      // note: do not call set_filter as it would put it in undo/redo...
+      _filter = convert_text_to_filter(any_cast<wstring>(data), *_known_filters);;
    }
 
-   void TreeCommands::CommitFilterToUndo()
+   void tree_commands::commit_filter_to_undo()
    {
-      _undoRedo->Commit(
+      _undo_redo->commit(
       {
-         ConvertFiltersToText(Filter),
-         [self = this](any& data) { self->DeadedFilters(data); },
-         [self = this](const any& data) { self->AwakenFilters(data); }
+         convert_filter_to_text(_filter),
+         [self = this](any& data) { self->deaden_filters(data); },
+         [self = this](const any& data) { self->awaken_filters(data); }
       });
    }
 

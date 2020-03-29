@@ -17,7 +17,7 @@
 
 #include <algorithm>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    using namespace std;
 
@@ -25,7 +25,7 @@ namespace QtAdditions
    //
    // Widget list panel.
 
-   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackFunction modifCallback, bool stretch, QWidget* parent)
+   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackfunction modifCallback, bool stretch, QWidget* parent)
    : QFrame(parent), _modifCallback(modifCallback)
    {
       setBackgroundRole(QPalette::ColorRole::Base);
@@ -40,7 +40,7 @@ namespace QtAdditions
       _layout->setSpacing(0);
       setLayout(_layout);
 
-      _dropHere = new QLabel(tr("Drop items here."));
+      _dropHere = new QLabel(tr("drop items here."));
       _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
       _layout->addWidget(_dropHere);
 
@@ -62,7 +62,7 @@ namespace QtAdditions
          {
             if (auto list = dynamic_cast<QWidgetListWidget*>(scroll->widget()))
             {
-               auto items = list->GetItems();
+               auto items = list->getItems();
                auto maxMinWidthPos = max_element(items.begin(), items.end(), [](const QWidgetListItem* lhs, const QWidgetListItem* rhs)
                {
                   return lhs->sizeHint().width() < rhs->sizeHint().width();
@@ -83,16 +83,16 @@ namespace QtAdditions
    //
    // Items management.
 
-   void QWidgetListWidget::Clear()
+   void QWidgetListWidget::clear()
    {
-      for (auto child : GetItems())
+      for (auto child : getItems())
          delete child;
 
       if (_modifCallback)
          _modifCallback(this);
    }
 
-   QWidgetListItem* QWidgetListWidget::AddItem(QWidgetListItem* item, int index)
+   QWidgetListItem* QWidgetListWidget::addItem(QWidgetListItem* item, int index)
    {
       if (!item)
          return nullptr;
@@ -115,7 +115,7 @@ namespace QtAdditions
       return item;
    }
 
-   void QWidgetListWidget::RemoveItem(QWidgetListItem* item)
+   void QWidgetListWidget::removeItem(QWidgetListItem* item)
    {
       item->setParent(nullptr);
       _layout->removeWidget(item);
@@ -125,7 +125,7 @@ namespace QtAdditions
          _modifCallback(this);
    }
 
-   vector<QWidgetListItem*> QWidgetListWidget::GetItems() const
+   vector<QWidgetListItem*> QWidgetListWidget::getItems() const
    {
       vector<QWidgetListItem*> widgets;
 
@@ -141,12 +141,12 @@ namespace QtAdditions
    //
    // Drag and drop.
 
-   QWidgetListItem* QWidgetListWidget::CloneItem(QWidgetListItem* item) const
+   QWidgetListItem* QWidgetListWidget::cloneItem(QWidgetListItem* item) const
    {
       if (!item)
          return nullptr;
 
-      return item->Clone();
+      return item->clone();
    }
 
    void QWidgetListWidget::dragEnterEvent(QDragEnterEvent* event)
@@ -197,7 +197,7 @@ namespace QtAdditions
 
       if (sameSource || event->proposedAction() == Qt::MoveAction)
       {
-         // Remove panel and insert it at correct position in list.
+         // remove panel and insert it at correct position in list.
          auto movedWidget = mime->Widget;
          if (movedWidget && movedWidget != dropOn)
          {
@@ -206,18 +206,18 @@ namespace QtAdditions
             const int newIndex = dropOnIndex + dropIndexOffset - dropAdjust;
             movedWidget->setParent(nullptr);
             _layout->removeWidget(movedWidget);
-            AddItem(movedWidget, newIndex);
+            addItem(movedWidget, newIndex);
          }
          event->setDropAction(Qt::MoveAction);
          event->accept();
       }
       else
       {
-         auto newWidget = CloneItem(mime->Widget);
+         auto newWidget = cloneItem(mime->Widget);
          if (newWidget)
          {
             const int newIndex = dropOnIndex + dropIndexOffset;
-            AddItem(newWidget, newIndex);
+            addItem(newWidget, newIndex);
          }
          event->acceptProposedAction();
       }
@@ -278,7 +278,7 @@ namespace QtAdditions
       if (!_dropHere)
          return;
 
-      _dropHere->setVisible(GetItems().size() <= 0);
+      _dropHere->setVisible(getItems().size() <= 0);
    }
 }
 

@@ -1,76 +1,76 @@
-#include "TreeFiltering.h"
-#include "TreeFilter.h"
+#include "dak/tree_reader/tree_filtering.h"
+#include "dak/tree_reader/tree_filter.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
-   using Result = TreeFilter::Result;
-   using Node = TextTree::Node;
+   using result = tree_filter::result;
+   using node = text_tree::node;
 
-   FilterTreeVisitor::FilterTreeVisitor(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
-      : FilteredTree(filteredTree), Filter(filter)
+   filter_tree_visitor::filter_tree_visitor(const text_tree& sourceTree, text_tree& filteredTree, tree_filter& filter)
+      : filtered_tree(filteredTree), filter(filter)
    {
-      filteredTree.Reset();
-      filteredTree.SourceTextLines = sourceTree.SourceTextLines;
+      filteredTree.reset();
+      filteredTree.source_text_lines = sourceTree.source_text_lines;
 
       // To make the algorithm work the same way for the first node
       // we pretend that we've seen a preceeding sibling of the level
       // zero and did not keep it.
       //
       // So the current filtered branch for level zero is null.
-      _filteredBranchNodes.push_back(nullptr);
-      _fillChildren.push_back(false);
+      _filtered_branch_nodes.push_back(nullptr);
+      _fill_children.push_back(false);
    }
 
-   TreeVisitor::Result FilterTreeVisitor::Visit(const TextTree& tree, const Node& sourceNode, const size_t sourceLevel)
+   tree_visitor::result filter_tree_visitor::visit(const text_tree& tree, const node& sourcenode, const size_t sourceLevel)
    {
-      _filteredBranchNodes.resize(sourceLevel + 1, nullptr);
-      _fillChildren.resize(sourceLevel + 1, false);
+      _filtered_branch_nodes.resize(sourceLevel + 1, nullptr);
+      _fill_children.resize(sourceLevel + 1, false);
 
       // Either the index of the newly created filtered node if kept, or -1 if not kept.
-      Node* filteredNode = nullptr;
+      node* filterednode = nullptr;
 
-      const TreeFilter::Result result = Filter.IsKept(tree, sourceNode, sourceLevel);
-      if (result.Keep)
+      const tree_filter::result result = filter.is_kept(tree, sourcenode, sourceLevel);
+      if (result.keep)
       {
          // Connect to the nearest node in the branch.
-         Node* addUnder = nullptr;
-         for (size_t level = sourceLevel; level < _filteredBranchNodes.size(); --level)
+         node* addUnder = nullptr;
+         for (size_t level = sourceLevel; level < _filtered_branch_nodes.size(); --level)
          {
-            if (_filteredBranchNodes[level])
+            if (_filtered_branch_nodes[level])
             {
                // If the node is at the same level, do not add as a child.
-               addUnder = (level < sourceLevel && _fillChildren[level]) ? _filteredBranchNodes[level] : _filteredBranchNodes[level]->Parent;
+               addUnder = (level < sourceLevel && _fill_children[level]) ? _filtered_branch_nodes[level] : _filtered_branch_nodes[level]->parent;
                break;
             }
          }
 
-         filteredNode = FilteredTree.AddChild(addUnder, sourceNode.TextPtr);
+         filterednode = filtered_tree.add_child(addUnder, sourcenode.text_ptr);
       }
 
       // If kept, this node is the new active node for this level.
       // If not kept, do not over-write a sibling node that may exists at this level.
-      _filteredBranchNodes.resize(sourceLevel + 1, nullptr);
-      if (filteredNode)
-         _filteredBranchNodes[sourceLevel] = filteredNode;
+      _filtered_branch_nodes.resize(sourceLevel + 1, nullptr);
+      if (filterednode)
+         _filtered_branch_nodes[sourceLevel] = filterednode;
 
       // If the node is kept, start to add sub-node as children.
       // If not kept, make any existing singling node begin to add node as sibling instead
       // of children.
-      _fillChildren.resize(sourceLevel + 1, false);
-      _fillChildren[sourceLevel] = (filteredNode != nullptr);
+      _fill_children.resize(sourceLevel + 1, false);
+      _fill_children[sourceLevel] = (filterednode != nullptr);
 
-      // Note: we really do want to slice the result down to the TreeVisitor::Result type.
-      return TreeVisitor::Result(result);
+      // note: we really do want to slice the result down to the tree_visitor::result type.
+      return tree_visitor::result(result);
    }
 
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, TreeFilter& filter)
+   void filter_tree(const text_tree& sourceTree, text_tree& filteredTree, tree_filter& filter)
    {
-      FilterTreeVisitor visitor(sourceTree, filteredTree, filter);
-      VisitInOrder(sourceTree, visitor);
+      filter_tree_visitor visitor(sourceTree, filteredTree, filter);
+      visit_in_order(sourceTree, visitor);
    }
 
-   void FilterTree(const TextTree& sourceTree, TextTree& filteredTree, const TreeFilterPtr& filter)
+   void filter_tree(const text_tree& sourceTree, text_tree& filteredTree, const tree_filter_ptr& filter)
    {
       if (!filter)
       {
@@ -78,20 +78,20 @@ namespace TreeReader
          return;
       }
 
-      FilterTree(sourceTree, filteredTree, *filter);
+      filter_tree(sourceTree, filteredTree, *filter);
    }
 
-   AsyncFilterTreeResult FilterTreeAsync(const TextTreePtr& sourceTree, const TreeFilterPtr& filter)
+   async_filter_tree_result filter_tree_async(const text_tree_ptr& sourceTree, const tree_filter_ptr& filter)
    {
       if (!filter)
          return {};
 
-      auto abort = make_shared<CanAbortTreeVisitor>();
+      auto abort = make_shared<can_abort_tree_visitor>();
       auto fut = async(launch::async, [sourceTree, filter, abort]()
       {
-         TextTree filtered;
-         abort->Visitor = make_shared<FilterTreeVisitor>(*sourceTree, filtered, *filter);
-         VisitInOrder(*sourceTree, *abort);
+         text_tree filtered;
+         abort->visitor = make_shared<filter_tree_visitor>(*sourceTree, filtered, *filter);
+         visit_in_order(*sourceTree, *abort);
          return filtered;
       });
 

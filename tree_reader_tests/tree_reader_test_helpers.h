@@ -1,8 +1,8 @@
-#include "TextTree.h"
-#include "TextLinesTextHolder.h"
+#include "dak/tree_reader/text_tree.h"
+#include "dak/tree_reader/text_lines_text_holder.h"
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	std::shared_ptr<TreeReader::TextLinesTextHolder> CreateTextLines();
-	TreeReader::TextTree CreateSimpleTree();
+	std::shared_ptr<tree_reader::text_lines_text_holder> Createtext_lines();
+	tree_reader::text_tree create_simple_tree();
 }

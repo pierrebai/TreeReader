@@ -44,7 +44,11 @@ target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 
 target_include_directories(TreeFilterApp PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
+<<<<<<< Updated upstream
    "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
+=======
+   "${PROJECT_SOURCE_DIR}/Qtadditions"
+>>>>>>> Stashed changes
 )
 
 add_custom_command(TARGET TreeFilterApp POST_BUILD
@@ -64,18 +68,18 @@ install(
 set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_NAME "TreeFilterApp")
 set(CPACK_PACKAGE_VENDOR "Pierre Baillargeon")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Tree Filter App - An application to filter trees of text.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Tree filter App - An application to filter trees of text.")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Tree Filter App")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Tree filter App")
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
 set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/TreeFilterApp/icon.ico")
 set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/TreeFilterApp/icon.ico")
 set(CPACK_NSIS_INSTALLED_ICON_NAME "TreeFilterApp.exe")
-set(CPACK_NSIS_DISPLAY_NAME "Tree Filter App")
+set(CPACK_NSIS_DISPLAY_NAME "Tree filter App")
 
 INCLUDE(CPack)
 

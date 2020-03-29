@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TreeFilter.h"
+#include "dak/tree_reader/tree_filter.h"
 #include "QWidgetListItem.h"
 
 #include <QtWidgets/qwidget.h>
@@ -10,32 +10,32 @@ class QDragEnterEvent;
 class QDropEvent;
 class QMouseEvent;
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using TreeFilterPtr = TreeReader::TreeFilterPtr;
-   using QWidgetListItem = QtAdditions::QWidgetListItem;
+   using tree_filter_ptr = tree_reader::tree_filter_ptr;
+   using QWidgetListItem = Qtadditions::QWidgetListItem;
 
    struct TreeFilterListWidget;
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Item in the tree filter list widget. Contains a tree filter.
+   // Item in the tree filter list widget. contains a tree filter.
 
    struct TreeFilterListItem : QWidgetListItem
    {
-      TreeFilterPtr Filter;
+      tree_filter_ptr filter;
       TreeFilterListWidget* SubList = nullptr;
 
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      using CallbackFunction = std::function<void(TreeFilterListItem * item)>;
-      using DeleteCallbackFunction = CallbackFunction;
-      using EditCallbackFunction = CallbackFunction;
+      using Callbackfunction = std::function<void(TreeFilterListItem * item)>;
+      using DeleteCallbackfunction = Callbackfunction;
+      using EditCallbackfunction = Callbackfunction;
 
       TreeFilterListItem(
-         const TreeFilterPtr& filter,
-         DeleteCallbackFunction delFunc,
-         EditCallbackFunction editFunc,
+         const tree_filter_ptr& filter,
+         DeleteCallbackfunction delfunc,
+         EditCallbackfunction editfunc,
          std::wstring* textContent = nullptr,
          bool* includeSelf = nullptr,
          size_t* count = nullptr,
@@ -43,12 +43,12 @@ namespace TreeReaderApp
 
       // Create a filter panel UI, with an optional deletion callback.
       static TreeFilterListItem* Create(
-         const TreeFilterPtr& filter,
-         DeleteCallbackFunction delFunc,
-         EditCallbackFunction editFunc);
+         const tree_filter_ptr& filter,
+         DeleteCallbackfunction delfunc,
+         EditCallbackfunction editfunc);
 
-      TreeFilterListItem* Clone() const override;
-      TreeFilterListItem* Clone(DeleteCallbackFunction delFunc, EditCallbackFunction editFunc) const;
+      TreeFilterListItem* clone() const override;
+      TreeFilterListItem* clone(DeleteCallbackfunction delfunc, EditCallbackfunction editfunc) const;
 
       Q_OBJECT;
    };

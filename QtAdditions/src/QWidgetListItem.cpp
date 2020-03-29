@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    using namespace std;
 
@@ -37,7 +37,7 @@ namespace QtAdditions
          _HighlightedItems.erase(pos);
    }
 
-   QWidgetListItem* QWidgetListItem::Clone() const
+   QWidgetListItem* QWidgetListItem::clone() const
    {
       return new QWidgetListItem;
    }

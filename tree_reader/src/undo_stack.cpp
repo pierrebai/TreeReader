@@ -1,17 +1,17 @@
-#include "UndoStack.h"
+#include "dak/utility/undo_stack.h"
 
-namespace TreeReader
+namespace dak::utility
 {
    namespace
    {
-      struct Undoing
+      struct undoing
       {
-         Undoing(bool& f) : _f(f)
+         undoing(bool& f) : _f(f)
          {
             _f = true;
          }
 
-         ~Undoing()
+         ~undoing()
          {
             _f = false;
          }
@@ -22,87 +22,87 @@ namespace TreeReader
    }
 
    // Create an empty undo stack.
-   UndoStack::UndoStack()
+   undo_stack::undo_stack()
    : _top(_undos.end())
    {
    }
 
-   // Clear the undo stack.
-   void UndoStack::Clear()
+   // clear the undo stack.
+   void undo_stack::clear()
    {
       _undos.clear();
       _top = _undos.end();
 
-      if (Changed)
-         Changed(*this);
+      if (changed)
+         changed(*this);
    }
 
-   // Deaden the current top Transaction data.
-   void UndoStack::DeadenTop()
+   // deaden the current top transaction data.
+   void undo_stack::deaden_top()
    {
-      if (_top->Deaden)
-         _top->Deaden(_top->Data);
+      if (_top->deaden)
+         _top->deaden(_top->data);
    }
 
-   // Awaken the current top Transaction data.
-   void UndoStack::AwakenTop() const
+   // awaken the current top transaction data.
+   void undo_stack::awaken_top() const
    {
-      if (_top->Awaken)
-         _top->Awaken(_top->Data);
+      if (_top->awaken)
+         _top->awaken(_top->data);
    }
 
-   // Commit the given modified data to the undo stack.
-   // Deaden the Transaction data.
-   void UndoStack::Commit(const Transaction& tr)
+   // commit the given modified data to the undo stack.
+   // deaden the transaction data.
+   void undo_stack::commit(const transaction& tr)
    {
       // Refuse to commit during undo/redo/commit.
-      if (_isUndoing)
+      if (_is_undoing)
          return;
 
-      // If there were undone Transactions, erase them now that we're commiting a new timeline.
-      if (HasRedo())
+      // If there were undone transactions, erase them now that we're commiting a new timeline.
+      if (has_redo())
          _undos.erase(_top + 1, _undos.end());
 
-      Undoing undoing(_isUndoing);
+      undoing undoing(_is_undoing);
 
       _undos.emplace_back(tr);
       _top = _undos.end() - 1;
-      DeadenTop();
+      deaden_top();
 
-      if (Changed)
-         Changed(*this);
+      if (changed)
+         changed(*this);
    }
 
-   // Undo awakens the previous Transaction data. (The one before the last commit.)
+   // undo awakens the previous transaction data. (The one before the last commit.)
    // Does nothing if at the start of the undo stack.
-   void UndoStack::Undo()
+   void undo_stack::undo()
    {
-      if (!HasUndo())
+      if (!has_undo())
          return;
 
-      Undoing undoing(_isUndoing);
+      undoing undoing(_is_undoing);
 
       --_top;
-      AwakenTop();
+      awaken_top();
 
-      if (Changed)
-         Changed(*this);
+      if (changed)
+         changed(*this);
    }
 
-   // Redo awakens the next Transaction data that was commited.
+   // redo awakens the next transaction data that was commited.
    // Does nothing if at the end of the undo stack.
-   void UndoStack::Redo()
+   void undo_stack::redo()
    {
-      if (!HasRedo())
+      if (!has_redo())
          return;
 
-      Undoing undoing(_isUndoing);
+      undoing undoing(_is_undoing);
 
       ++_top;
-      AwakenTop();
+      awaken_top();
 
-      if (Changed)
-         Changed(*this);
+      if (changed)
+         changed(*this);
    }
 }
 

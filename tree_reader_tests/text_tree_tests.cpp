@@ -1,66 +1,67 @@
-#include "TextTree.h"
-#include "TreeReaderTestHelpers.h"
+#include "dak/tree_reader/text_tree.h"
+#include "tree_reader_test_helpers.h"
+
 #include "CppUnitTest.h"
 
 #include <sstream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
-using namespace TreeReader;
+using namespace dak::tree_reader;
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	TEST_CLASS(TextTreeTests)
+	TEST_CLASS(text_tree_tests)
 	{
 	public:
 
-		TEST_METHOD(PrintEmptyTree)
+		TEST_METHOD(print_empty_tree)
 		{
 			wostringstream sstream;
-			sstream << TextTree();
+			sstream << text_tree();
 
 			const wchar_t expectedOutput[] = L"";
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(CountSimpleTree)
+		TEST_METHOD(count_simple_tree)
 		{
-			const TextTree tree = CreateSimpleTree();
+			const text_tree tree = create_simple_tree();
 
-         Assert::AreEqual<size_t>(1, tree.Roots.size());
+         Assert::AreEqual<size_t>(1, tree.roots.size());
 
-			Assert::AreEqual<size_t>(2, tree.CountChildren(tree.Roots[0]));
-			Assert::AreEqual<size_t>(1, tree.CountChildren(tree.Roots[0]->Children[0]));
-         Assert::AreEqual<size_t>(0, tree.CountChildren(tree.Roots[0]->Children[0]->Children[0]));
-         Assert::AreEqual<size_t>(1, tree.CountChildren(tree.Roots[0]->Children[1]));
-			Assert::AreEqual<size_t>(2, tree.CountChildren(tree.Roots[0]->Children[1]->Children[0]));
-			Assert::AreEqual<size_t>(0, tree.CountChildren(tree.Roots[0]->Children[1]->Children[0]->Children[0]));
-			Assert::AreEqual<size_t>(1, tree.CountChildren(tree.Roots[0]->Children[1]->Children[0]->Children[1]));
-			Assert::AreEqual<size_t>(0, tree.CountChildren(tree.Roots[0]->Children[1]->Children[0]->Children[1]->Children[0]));
+			Assert::AreEqual<size_t>(2, tree.count_children(tree.roots[0]));
+			Assert::AreEqual<size_t>(1, tree.count_children(tree.roots[0]->children[0]));
+         Assert::AreEqual<size_t>(0, tree.count_children(tree.roots[0]->children[0]->children[0]));
+         Assert::AreEqual<size_t>(1, tree.count_children(tree.roots[0]->children[1]));
+			Assert::AreEqual<size_t>(2, tree.count_children(tree.roots[0]->children[1]->children[0]));
+			Assert::AreEqual<size_t>(0, tree.count_children(tree.roots[0]->children[1]->children[0]->children[0]));
+			Assert::AreEqual<size_t>(1, tree.count_children(tree.roots[0]->children[1]->children[0]->children[1]));
+			Assert::AreEqual<size_t>(0, tree.count_children(tree.roots[0]->children[1]->children[0]->children[1]->children[0]));
 
-			Assert::AreEqual<size_t>(1, tree.CountSiblings(tree.Roots[0]));
-         Assert::AreEqual<size_t>(2, tree.CountSiblings(tree.Roots[0]->Children[0]));
-         Assert::AreEqual<size_t>(1, tree.CountSiblings(tree.Roots[0]->Children[0]->Children[0]));
-         Assert::AreEqual<size_t>(2, tree.CountSiblings(tree.Roots[0]->Children[1]));
-         Assert::AreEqual<size_t>(1, tree.CountSiblings(tree.Roots[0]->Children[1]->Children[0]));
-         Assert::AreEqual<size_t>(2, tree.CountSiblings(tree.Roots[0]->Children[1]->Children[0]->Children[0]));
-         Assert::AreEqual<size_t>(2, tree.CountSiblings(tree.Roots[0]->Children[1]->Children[0]->Children[1]));
-         Assert::AreEqual<size_t>(1, tree.CountSiblings(tree.Roots[0]->Children[1]->Children[0]->Children[1]->Children[0]));
+			Assert::AreEqual<size_t>(1, tree.count_siblings(tree.roots[0]));
+         Assert::AreEqual<size_t>(2, tree.count_siblings(tree.roots[0]->children[0]));
+         Assert::AreEqual<size_t>(1, tree.count_siblings(tree.roots[0]->children[0]->children[0]));
+         Assert::AreEqual<size_t>(2, tree.count_siblings(tree.roots[0]->children[1]));
+         Assert::AreEqual<size_t>(1, tree.count_siblings(tree.roots[0]->children[1]->children[0]));
+         Assert::AreEqual<size_t>(2, tree.count_siblings(tree.roots[0]->children[1]->children[0]->children[0]));
+         Assert::AreEqual<size_t>(2, tree.count_siblings(tree.roots[0]->children[1]->children[0]->children[1]));
+         Assert::AreEqual<size_t>(1, tree.count_siblings(tree.roots[0]->children[1]->children[0]->children[1]->children[0]));
 
-         Assert::AreEqual<size_t>(0, tree.CountAncestors(tree.Roots[0]));
-         Assert::AreEqual<size_t>(1, tree.CountAncestors(tree.Roots[0]->Children[0]));
-         Assert::AreEqual<size_t>(2, tree.CountAncestors(tree.Roots[0]->Children[0]->Children[0]));
-         Assert::AreEqual<size_t>(1, tree.CountAncestors(tree.Roots[0]->Children[1]));
-         Assert::AreEqual<size_t>(2, tree.CountAncestors(tree.Roots[0]->Children[1]->Children[0]));
-         Assert::AreEqual<size_t>(3, tree.CountAncestors(tree.Roots[0]->Children[1]->Children[0]->Children[0]));
-         Assert::AreEqual<size_t>(3, tree.CountAncestors(tree.Roots[0]->Children[1]->Children[0]->Children[1]));
-         Assert::AreEqual<size_t>(4, tree.CountAncestors(tree.Roots[0]->Children[1]->Children[0]->Children[1]->Children[0]));
+         Assert::AreEqual<size_t>(0, tree.count_ancestors(tree.roots[0]));
+         Assert::AreEqual<size_t>(1, tree.count_ancestors(tree.roots[0]->children[0]));
+         Assert::AreEqual<size_t>(2, tree.count_ancestors(tree.roots[0]->children[0]->children[0]));
+         Assert::AreEqual<size_t>(1, tree.count_ancestors(tree.roots[0]->children[1]));
+         Assert::AreEqual<size_t>(2, tree.count_ancestors(tree.roots[0]->children[1]->children[0]));
+         Assert::AreEqual<size_t>(3, tree.count_ancestors(tree.roots[0]->children[1]->children[0]->children[0]));
+         Assert::AreEqual<size_t>(3, tree.count_ancestors(tree.roots[0]->children[1]->children[0]->children[1]));
+         Assert::AreEqual<size_t>(4, tree.count_ancestors(tree.roots[0]->children[1]->children[0]->children[1]->children[0]));
       }
 
-		TEST_METHOD(PrintSimpleTree)
+		TEST_METHOD(print_simple_tree)
 		{
 			wostringstream sstream;
-			sstream << CreateSimpleTree();
+			sstream << create_simple_tree();
 
 			const wchar_t expectedOutput[] =
 				L"abc\n"
@@ -74,10 +75,10 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithDotDotIndent)
+		TEST_METHOD(print_simple_tree_with_dot_dot_indent)
 		{
 			wostringstream sstream;
-			PrintTree(sstream, CreateSimpleTree(), L"..");
+			print_tree(sstream, create_simple_tree(), L"..");
 
 			const wchar_t expectedOutput[] =
 				L"abc\n"

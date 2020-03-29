@@ -7,7 +7,7 @@
 
 static HINSTANCE appInstance;
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
    using namespace std;
 
@@ -34,7 +34,7 @@ namespace TreeReaderApp
 
 int main(int argc, char** argv)
 {
-   return TreeReaderApp::App(argc, argv);
+   return dak::tree_reader::app::App(argc, argv);
 }
 
 int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)

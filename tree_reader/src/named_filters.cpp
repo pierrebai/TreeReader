@@ -1,25 +1,26 @@
-#include "NamedFilters.h"
-#include "TreeFilterMaker.h"
-#include "TreeFilterHelpers.h"
+#include "dak/tree_reader/named_filters.h"
+#include "dak/tree_reader/tree_filter_maker.h"
+#include "dak/tree_reader/tree_filter_helpers.h"
+#include "dak/utility/text.h"
 
 #include <fstream>
 #include <iomanip>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
-   NamedFilterPtr NamedFilters::Add(const std::wstring& name, const TreeFilterPtr& filter)
+   named_filter_ptr named_filters::add(const std::wstring& name, const tree_filter_ptr& filter)
    {
       if (name.empty())
          return {};
 
-      NamedFilterPtr named(new NamedTreeFilter(filter, name));
+      named_filter_ptr named(new named_tree_filter(filter, name));
       _filters[name] = named;
       return named;
    }
 
-   bool NamedFilters::Remove(const wstring& name)
+   bool named_filters::remove(const wstring& name)
    {
       const auto pos = _filters.find(name);
       if (pos == _filters.end())
@@ -29,12 +30,12 @@ namespace TreeReader
       return true;
    }
 
-   void NamedFilters::Merge(const NamedFilters& other)
+   void named_filters::merge(const named_filters& other)
    {
-      _filters.insert(other.All().begin(), other.All().end());
+      _filters.insert(other.all().begin(), other.all().end());
    }
 
-   NamedFilterPtr NamedFilters::Get(const wstring& name) const
+   named_filter_ptr named_filters::get(const wstring& name) const
    {
       const auto pos = _filters.find(name);
       if (pos == _filters.end())
@@ -43,37 +44,37 @@ namespace TreeReader
       return pos->second;
    }
 
-   TreeFilterPtr NamedFilters::GetDefinition(const std::wstring& name) const
+   tree_filter_ptr named_filters::get_definition(const std::wstring& name) const
    {
-      auto named = dynamic_pointer_cast<NamedTreeFilter>(Get(name));
+      auto named = dynamic_pointer_cast<named_tree_filter>(get(name));
       if (!named)
          return {};
 
-      return named->Filter;
+      return named->filter;
    }
 
-   void WriteNamedFilters(const filesystem::path& path, const NamedFilters& filters)
+   void save_named_filters(const filesystem::path& path, const named_filters& filters)
    {
       wofstream stream(path);
-      WriteNamedFilters(stream, filters);
+      save_named_filters(stream, filters);
    }
 
-   void WriteNamedFilters(wostream& stream, const NamedFilters& filters)
+   void save_named_filters(wostream& stream, const named_filters& filters)
    {
-      for (const auto& [name, filter] : filters.All())
+      for (const auto& [name, filter] : filters.all())
          if (filter)
-            stream << quoted(name) << L" : " << quoted(ConvertFiltersToText(filter->Filter)) << endl;
+            stream << quoted(name) << L" : " << quoted(convert_filter_to_text(filter->filter)) << endl;
    }
 
-   NamedFilters ReadNamedFilters(const filesystem::path& path)
+   named_filters load_named_filters(const filesystem::path& path)
    {
       wifstream stream(path);
-      return ReadNamedFilters(stream);
+      return load_named_filters(stream);
    }
 
-   NamedFilters ReadNamedFilters(wistream& stream)
+   named_filters load_named_filters(wistream& stream)
    {
-      NamedFilters filters;
+      named_filters filters;
 
       while (stream)
       {
@@ -82,26 +83,26 @@ namespace TreeReader
          wchar_t column;
          stream >> skipws >> quoted(name) >> skipws >> column >> skipws >> quoted(filterText);
 
-         TreeFilterPtr filter = ConvertTextToFilters(filterText, filters);
+         tree_filter_ptr filter = convert_text_to_filter(filterText, filters);
 
-         filters.Add(name, filter);
+         filters.add(name, filter);
       }
 
-      for (auto& [name, filter] : filters.All())
-         UpdateNamedFilters(filter, filters);
+      for (auto& [name, filter] : filters.all())
+         update_named_filters(filter, filters);
 
       return filters;
    }
 
-   void UpdateNamedFilters(const TreeFilterPtr& filter, const NamedFilters& named)
+   void update_named_filters(const tree_filter_ptr& filter, const named_filters& named)
    {
-      VisitFilters(filter, [&named](const TreeFilterPtr& filter)
+      visit_filters(filter, [&named](const tree_filter_ptr& filter)
       {
-         if (auto namedFilter = dynamic_pointer_cast<NamedTreeFilter>(filter))
+         if (auto namedFilter = dynamic_pointer_cast<named_tree_filter>(filter))
          {
-            auto targetFilter = named.GetDefinition(namedFilter->Name);
-            if (targetFilter)
-               namedFilter->Filter = targetFilter;
+            auto target_filter = named.get_definition(namedFilter->Name);
+            if (target_filter)
+               namedFilter->filter = target_filter;
          }
          return true;
       });

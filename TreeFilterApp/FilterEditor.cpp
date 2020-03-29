@@ -3,11 +3,12 @@
 #include "QtUtilities.h"
 #include "QWidgetScrollListWidget.h"
 
-#include "TreeFilter.h"
-#include "NamedFilters.h"
-#include "UndoStack.h"
-#include "TreeFilterHelpers.h"
-#include "TreeFilterMaker.h"
+#include "dak/tree_reader/tree_filter.h"
+#include "dak/tree_reader/tree_filter_helpers.h"
+#include "dak/tree_reader/named_filters.h"
+#include "dak/utility/undo_stack.h"
+#include "dak/utility/exceptions.h"
+#include "dak/tree_reader/tree_filter_maker.h"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qgridlayout.h>
@@ -20,10 +21,10 @@
 #include <algorithm>
 #include <typeindex>
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using namespace TreeReader;
-   using namespace QtAdditions;
+   using namespace dak::tree_reader;
+   using namespace Qtadditions;
    using namespace std;
 
    ////////////////////////////////////////////////////////////////////////////
@@ -33,25 +34,25 @@ namespace TreeReaderApp
    class FiltersEditorUI
    {
    public:
-      FiltersEditorUI(const NamedFilters& known, UndoStack& undoRedo, FilterEditor& parent)
-      : _knownFilters(known), _undoRedo(undoRedo), _editor(parent)
+      FiltersEditorUI(const named_filters& known, undo_stack& undoRedo, FilterEditor& parent)
+      : _known_filters(known), _undo_redo(undoRedo), _editor(parent)
       {
          BuildUI(parent);
          ConnectUI();
       }
 
-      TreeFilterPtr GetEdited()
+      tree_filter_ptr getEdited()
       {
          UpdateEditedFromUI();
          return _edited;
       }
 
-      wstring GetEditedName() const
+      wstring getEditedName() const
       {
          return _filterName;
       }
 
-      void SetEdited(const TreeFilterPtr& ed, const wstring& name, bool forced)
+      void SetEdited(const tree_filter_ptr& ed, const wstring& name, bool forced)
       {
          if (ed == _edited && !forced)
             return;
@@ -80,7 +81,7 @@ namespace TreeReaderApp
             // When a filter gets deleted, update the edited filter if it is no
             // longer the root.
             delete panel;
-            auto filters = self->_filterList->GetTreeFilters();
+            auto filters = self->_filterList->getTreeFilters();
             if (filters.size() > 0)
                self->_edited = filters.back();
             else
@@ -102,28 +103,28 @@ namespace TreeReaderApp
          _scrollFilterList = new QWidgetScrollListWidget(_filterList);
          layout->addWidget(_scrollFilterList);
 
-         // Note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-         _undoRedo.Commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
+         // note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
+         _undo_redo.commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
       }
 
       void ConnectUI()
       {
       }
 
-      static bool IsUnder(const TreeFilterPtr& filter, const TreeFilterPtr& child)
+      static bool IsUnder(const tree_filter_ptr& filter, const tree_filter_ptr& child)
       {
          if (filter == child)
             return true;
 
-         if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+         if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
          {
-            for (const auto& c : combine->Filters)
+            for (const auto& c : combine->named_filters)
                if (IsUnder(c, child))
                   return true;
          }
-         else if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         else if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
-            return IsUnder(delegate->Filter, child);
+            return IsUnder(delegate->filter, child);
          }
 
          return false;
@@ -133,30 +134,30 @@ namespace TreeReaderApp
       {
          DisableFeedback df(_filterList, _disableFeedback);
 
-         deque<pair<shared_ptr<CombineTreeFilter>, TreeFilterListWidget*>> combineFilters;
+         deque<pair<shared_ptr<combine_tree_filter>, TreeFilterListWidget*>> combineFilters;
 
-         _filterList->Clear();
-         TreeReader::VisitFilters(_edited, true, [self = this, &combineFilters](const TreeFilterPtr& filter) -> bool
+         _filterList->clear();
+         dak::tree_reader::visit_filters(_edited, true, [self = this, &combineFilters](const tree_filter_ptr& filter) -> bool
          {
             QWidgetListItem* widget = nullptr;
             for (auto& [combineFilter, combineWidget] : combineFilters)
             {
                if (IsUnder(combineFilter, filter))
                {
-                  widget = combineWidget->AddTreeFilter(filter);
+                  widget = combineWidget->addTreeFilter(filter);
                   break;
                }
             }
 
 
             if (!widget)
-               widget = self->_filterList->AddTreeFilter(filter);
+               widget = self->_filterList->addTreeFilter(filter);
 
             if (TreeFilterListItem* filterWidget = dynamic_cast<TreeFilterListItem*>(widget))
             {
                if (filterWidget->SubList)
                {
-                  if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+                  if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
                   {
                      combineFilters.emplace_front(combine, filterWidget->SubList);
                   }
@@ -171,30 +172,30 @@ namespace TreeReaderApp
       //
       // Transfer from UI to data.
 
-      static TreeFilterPtr DisconnectFilter(TreeFilterPtr filter)
+      static tree_filter_ptr DisconnectFilter(tree_filter_ptr filter)
       {
-         if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(filter))
+         if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
-            delegate->Filter = nullptr;
+            delegate->filter = nullptr;
          }
-         else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(filter))
+         else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
          {
-            combine->Filters.clear();
+            combine->named_filters.clear();
          }
          return filter;
       }
 
-      static void FillFiltersFromUI(const std::vector<QWidgetListItem*>& widgets, TreeFilterPtr& root, vector<TreeFilterPtr>& previous)
+      static void FillFiltersFromUI(const std::vector<QWidgetListItem*>& widgets, tree_filter_ptr& root, vector<tree_filter_ptr>& previous)
       {
          for (auto& widget : widgets)
          {
             auto tfw = dynamic_cast<TreeFilterListItem*>(widget);
             if (!tfw)
                continue;
-            if (!tfw->Filter)
+            if (!tfw->filter)
                continue;
 
-            auto filter = DisconnectFilter(tfw->Filter->Clone());
+            auto filter = DisconnectFilter(tfw->filter->clone());
 
             if (!root)
             {
@@ -205,18 +206,18 @@ namespace TreeReaderApp
                bool placed = false;
                while (previous.size() > 0)
                {
-                  if (auto delegate = dynamic_pointer_cast<DelegateTreeFilter>(previous.back()))
+                  if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(previous.back()))
                   {
-                     if (!delegate->Filter)
+                     if (!delegate->filter)
                      {
-                        delegate->Filter = filter;
+                        delegate->filter = filter;
                         placed = true;
                         break;
                      }
                   }
-                  else if (auto combine = dynamic_pointer_cast<CombineTreeFilter>(previous.back()))
+                  else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(previous.back()))
                   {
-                     combine->Filters.push_back(filter);
+                     combine->named_filters.push_back(filter);
                      placed = true;
                      break;
                   }
@@ -226,7 +227,7 @@ namespace TreeReaderApp
 
                if (!placed)
                {
-                  auto newRoot = And(root, filter);
+                  auto newRoot = and(root, filter);
                   root = newRoot;
                   previous.push_back(root);
                }
@@ -234,11 +235,11 @@ namespace TreeReaderApp
 
             if (tfw->SubList)
             {
-               vector<TreeFilterPtr> subPrevious;
+               vector<tree_filter_ptr> subPrevious;
                subPrevious.push_back(filter);
-               FillFiltersFromUI(tfw->SubList->GetItems(), filter, subPrevious);
+               FillFiltersFromUI(tfw->SubList->getItems(), filter, subPrevious);
 
-               // Note: when we have an explicit sub-list, we don't use it as
+               // note: when we have an explicit sub-list, we don't use it as
                //       the previous implicit combine to put other filters not
                //       under it in.
                //
@@ -254,15 +255,15 @@ namespace TreeReaderApp
 
       void UpdateEditedFromUI()
       {
-         vector<TreeFilterPtr> previous;
-         TreeFilterPtr root;
-         FillFiltersFromUI(_filterList->GetItems(), root, previous);
+         vector<tree_filter_ptr> previous;
+         tree_filter_ptr root;
+         FillFiltersFromUI(_filterList->getItems(), root, previous);
          _edited = root;
       }
 
       /////////////////////////////////////////////////////////////////////////
       //
-      // Undo/redo.
+      // undo/redo.
 
       void CommitFilterChangeToUndo()
       {
@@ -270,23 +271,23 @@ namespace TreeReaderApp
             return;
 
          UpdateEditedFromUI();
-         _undoRedo.Commit(
+         _undo_redo.commit(
             {
-               ConvertFiltersToText(_edited),
-               [self = this](any& data) { self->DeadedFilters(data); },
-               [self = this](const any& data) { self->AwakenFilters(data); }
+               convert_filter_to_text(_edited),
+               [self = this](any& data) { self->deaden_filters(data); },
+               [self = this](const any& data) { self->awaken_filters(data); }
             });
       }
 
-      void DeadedFilters(any& data)
+      void deaden_filters(any& data)
       {
          UpdateEditedFromUI();
-         data = ConvertFiltersToText(_edited);
+         data = convert_filter_to_text(_edited);
       }
 
-      void AwakenFilters(const any& data)
+      void awaken_filters(const any& data)
       {
-         _edited = ConvertTextToFilters(any_cast<wstring>(data), _knownFilters);
+         _edited = convert_text_to_filter(any_cast<wstring>(data), _known_filters);
          FillUI();
       }
 
@@ -299,12 +300,12 @@ namespace TreeReaderApp
 
       /////////////////////////////////////////////////////////////////////////
       //
-      // Data.
+      // data.
 
-      const NamedFilters& _knownFilters;
-      UndoStack& _undoRedo;
+      const named_filters& _known_filters;
+      undo_stack& _undo_redo;
       FilterEditor& _editor;
-      TreeFilterPtr _edited;
+      tree_filter_ptr _edited;
       wstring _filterName;
 
       TreeFilterListWidget* _filterList;
@@ -317,12 +318,12 @@ namespace TreeReaderApp
    //
    // A QWidget to select and order filters.
 
-   FilterEditor::FilterEditor(const NamedFilters& known, UndoStack& undoRedo, QWidget* parent)
+   FilterEditor::FilterEditor(const named_filters& known, undo_stack& undoRedo, QWidget* parent)
    : QWidget(parent), _ui(make_unique<FiltersEditorUI>(known, undoRedo, *this))
    {
    }
 
-   void FilterEditor::SetEdited(const TreeFilterPtr& edited, const wstring& name, bool forced)
+   void FilterEditor::SetEdited(const tree_filter_ptr& edited, const wstring& name, bool forced)
    {
       if (!_ui)
          return;
@@ -330,20 +331,20 @@ namespace TreeReaderApp
       _ui->SetEdited(edited, name, forced);
    }
 
-   TreeFilterPtr FilterEditor::GetEdited() const
+   tree_filter_ptr FilterEditor::getEdited() const
    {
       if (!_ui)
          return {};
 
-      return _ui->GetEdited();
+      return _ui->getEdited();
    }
 
-   wstring FilterEditor::GetEditedName() const
+   wstring FilterEditor::getEditedName() const
    {
       if (!_ui)
          return {};
 
-      return _ui->GetEditedName();
+      return _ui->getEditedName();
    }
 }
 

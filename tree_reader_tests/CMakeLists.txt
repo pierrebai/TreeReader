@@ -1,23 +1,23 @@
 
-add_library(TreeReaderTests SHARED
-   SimplerTreeReaderTests.cpp
-   NamedFiltersTests.cpp
-   TextTreeTests.cpp
-   TextTreeVisitorTests.cpp
-   TreeFilterMakerTests.cpp
-   TreeFilterTests.cpp
-   TreeReaderHelpersTests.cpp
-   TreeReaderTestHelpers.cpp
-   UndoStackTests.cpp
-   TreeFilterCommandsTests.cpp
+add_library(tree_reader_tests SHARED
+   simple_tree_reader_tests.cpp
+   named_filters_tests.cpp
+   text_tree_tests.cpp
+   text_tree_visitor_tests.cpp
+   tree_filter_maker_tests.cpp
+   tree_filter_tests.cpp
+   tree_reader_helpers_tests.cpp
+   tree_reader_test_helpers.cpp
+   undo_stack_tests.cpp
+   tree_filter_commands_tests.cpp
 
-   TreeReaderTestHelpers.h
+   tree_reader_test_helpers.h
 )
 
-target_link_libraries(TreeReaderTests PUBLIC TreeReader)
+target_link_libraries(tree_reader_tests PUBLIC tree_reader)
 
-target_compile_features(TreeReaderTests PUBLIC cxx_std_20)
+target_compile_features(tree_reader_tests PUBLIC cxx_std_20)
 
-target_include_directories(TreeReaderTests PUBLIC
-   "${PROJECT_SOURCE_DIR}/TreeReader")
+target_include_directories(tree_reader_tests PUBLIC
+   "${PROJECT_SOURCE_DIR}/tree_reader/inc")
 

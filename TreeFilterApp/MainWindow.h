@@ -4,7 +4,7 @@
 #include "TreeFilterListWidget.h"
 #include "QWidgetScrollListWidget.h"
 
-#include "GlobalCommands.h"
+#include "dak/tree_reader/global_commands.h"
 
 #include <QtWidgets/qmainwindow.h>
 
@@ -17,22 +17,22 @@ class QLineEdit;
 class QPushButton;
 class QMdiArea;
 
-namespace TreeReader
+namespace dak::tree_reader
 {
-   struct TextTree;
-   struct TreeCommands;
+   struct text_tree;
+   struct tree_commands;
 }
 
-namespace TreeReaderApp
+namespace dak::tree_reader::app
 {
-   using TreeFilter = TreeReader::TreeFilter;
-   using TreeFilterPtr = TreeReader::TreeFilterPtr;
-   using TextTreePtr = TreeReader::TextTreePtr;
-   using GlobalCommands = TreeReader::GlobalCommands;
-   using UndoStack = TreeReader::UndoStack;
-   using TreeCommandsPtr = std::shared_ptr<TreeReader::TreeCommands>;
+   using tree_filter = tree_reader::tree_filter;
+   using tree_filter_ptr = tree_reader::tree_filter_ptr;
+   using text_tree_ptr = tree_reader::text_tree_ptr;
+   using global_commands = tree_reader::global_commands;
+   using undo_stack = tree_reader::undo_stack;
+   using tree_commands_ptr = std::shared_ptr<tree_reader::tree_commands>;
 
-   using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
+   using QWidgetScrollListWidget = Qtadditions::QWidgetScrollListWidget;
 
    struct TextTreeSubWindow;
 
@@ -62,47 +62,47 @@ namespace TreeReaderApp
       void FillFilterEditorUI();
       void FillAvailableFiltersUI();
 
-      // Undo / redo tool-bar buttons.
-      void UpdateUndoRedoActions();
+      // undo / redo tool-bar buttons.
+      void Updateundo_redoActions();
 
       // Closing, loading and saving.
       void closeEvent(QCloseEvent* ev);
       bool SaveIfRequired(const QString& action, const QString& actioning);
-      void LoadTree();
-      bool SaveFilteredTree(TextTreeSubWindow* window);
+      void load_tree();
+      bool save_filtered_tree(TextTreeSubWindow* window);
 
       // Tab management.
-      void AddTextTreeTab(const TreeCommandsPtr& newTree);
+      void addTextTreeTab(const tree_commands_ptr& newTree);
       void UpdateActiveTab(); 
       void UpdateTextTreeTab();
 
       // Current tab.
-      TextTreeSubWindow* GetCurrentSubWindow();
-      std::vector<TextTreeSubWindow*> GetAllSubWindows();
+      TextTreeSubWindow* getCurrentSubWindow();
+      std::vector<TextTreeSubWindow*> getallSubWindows();
 
       // Main window state.
       void SaveState();
       void LoadState();
 
       // Tree filtering.
-      void FilterTree();
+      void filter_tree();
       void VerifyAsyncFiltering();
-      void AbortAsyncFiltering();
-      void SearchInTree(const QString& text);
-      void SearchInTree();
+      void abort_async_filtering();
+      void search_in_tree(const QString& text);
+      void search_in_tree();
 
       void PushFilter();
       void UpdateCreateTabAction();
 
-      // Filter naming.
-      void NameFilter();
-      void AddNamedFilterToAvailable(const TreeFilterPtr& filter);
+      // filter naming.
+      void name_filter();
+      void addNamedFilterToAvailable(const tree_filter_ptr& filter);
 
-      // Options.
+      // options.
       void OpenOptions();
 
-      // Data.
-      GlobalCommands _data;
+      // data.
+      global_commands _data;
 
       // Toolbar buttons.
       QAction* _undoAction = nullptr;

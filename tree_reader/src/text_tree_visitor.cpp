@@ -1,71 +1,71 @@
-#include "TextTreeVisitor.h"
+#include "dak/tree_reader/text_tree_visitor.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
-   using Result = TreeVisitor::Result;
-   using Node = TextTree::Node;
-   using Iter = vector<Node *>::const_iterator;
+   using result = tree_visitor::result;
+   using node = text_tree::node;
+   using Iter = vector<node *>::const_iterator;
    using IterPair = pair<Iter, Iter>;
-   constexpr Result ContinueVisit{ false, false };
-   constexpr Result StopVisit{ true, false };
+   constexpr result Continuevisit{ false, false };
+   constexpr result stopvisit{ true, false };
 
-   Result SimpleTreeVisitor::GoDeeper(size_t deeperLevel)
+   result simple_tree_visitor::go_deeper(size_t deeperLevel)
    {
-      return ContinueVisit;
+      return Continuevisit;
    }
 
-   Result SimpleTreeVisitor::GoHigher(size_t higherLevel)
+   result simple_tree_visitor::go_higher(size_t higherLevel)
    {
-      return ContinueVisit;
+      return Continuevisit;
    }
 
-   Result DelegateTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   result delegate_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
    {
-      if (!Visitor)
-         return StopVisit;
+      if (!visitor)
+         return stopvisit;
 
-      return Visitor->Visit(tree, node, level);
+      return visitor->visit(tree, node, level);
    }
 
-   Result FunctionTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   result function_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
    {
-      return Func(tree, node, level);
+      return func(tree, node, level);
    }
 
-   Result CanAbortTreeVisitor::Visit(const TextTree& tree, const TextTree::Node& node, size_t level)
+   result can_abort_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
    {
-      if (Abort)
-         return StopVisit;
+      if (abort)
+         return stopvisit;
 
-      return DelegateTreeVisitor::Visit(tree, node, level);
+      return delegate_tree_visitor::visit(tree, node, level);
    }
 
-   void VisitInOrder(const TextTree& tree, const Node* node, bool siblings, TreeVisitor& visitor)
+   void visit_in_order(const text_tree& tree, const node* a_node, bool siblings, tree_visitor& visitor)
    {
       IterPair pos;
-      if (node)
+      if (a_node)
       {
          if (siblings)
          {
-            if (node->Parent)
+            if (a_node->parent)
             {
-               pos = make_pair(node->Parent->Children.begin(), node->Parent->Children.end());
+               pos = make_pair(a_node->parent->children.begin(), a_node->parent->children.end());
             }
             else
             {
-               pos = make_pair(tree.Roots.begin(), tree.Roots.end());
+               pos = make_pair(tree.roots.begin(), tree.roots.end());
             }
-            pos.first += node->IndexInParent;
+            pos.first += a_node->index_in_parent;
          }
          else
          {
-            pos = make_pair(node->Children.begin(), node->Children.end());
+            pos = make_pair(a_node->children.begin(), a_node->children.end());
          }
       }
       else
       {
-         pos = make_pair(tree.Roots.begin(), tree.Roots.end());
+         pos = make_pair(tree.roots.begin(), tree.roots.end());
       }
 
       vector<IterPair> goBack;
@@ -75,17 +75,17 @@ namespace TreeReader
       {
          if (pos.first != pos.second)
          {
-            const Node& node = **pos.first;
-            const Result result = visitor.Visit(tree, node, level);
-            if (result.Stop)
+            const node& c_node = **pos.first;
+            const result result = visitor.visit(tree, c_node, level);
+            if (result.stop)
                break;
 
-            if (!result.SkipChildren && node.Children.size() > 0)
+            if (!result.skip_children && c_node.children.size() > 0)
             {
                goBack.push_back(pos);
-               pos = make_pair(node.Children.begin(), node.Children.end());
+               pos = make_pair(c_node.children.begin(), c_node.children.end());
                level++;
-               if (visitor.GoDeeper(level).Stop)
+               if (visitor.go_deeper(level).stop)
                   break;
             }
             else
@@ -103,15 +103,15 @@ namespace TreeReader
             goBack.pop_back();
             ++pos.first;
             level--;
-            if (visitor.GoHigher(level).Stop)
+            if (visitor.go_higher(level).stop)
                break;
          }
       }
    }
 
-   void VisitInOrder(const TextTree& tree, const Node* node, bool siblings, const NodeVisitFunction& func)
+   void visit_in_order(const text_tree& tree, const node* node, bool siblings, const node_visit_function& func)
    {
-      FunctionTreeVisitor visitor(func);
-      VisitInOrder(tree, node, siblings, visitor);
+      function_tree_visitor visitor(func);
+      visit_in_order(tree, node, siblings, visitor);
    }
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -11,10 +11,10 @@ namespace TreeReader
    // Beware that the string text pointers could theoretically moved while the vector
    // is filled, so don't rely on their address until all the lines have been read.
 
-   struct TextLinesTextHolder : TextHolder
+   struct text_lines_text_holder : text_holder
    {
-      typedef std::vector<std::wstring> TextLines;
+      typedef std::vector<std::wstring> text_lines;
 
-      TextLines Lines;
+      text_lines lines;
    };
 }

@@ -1,21 +1,21 @@
-#include "GlobalCommands.h"
-#include "TreeCommands.h"
-#include "TreeFilterMaker.h"
-#include "TreeReaderHelpers.h"
-#include "SimpleTreeWriter.h"
+#include "dak/tree_reader/global_commands.h"
+#include "dak/tree_reader/tree_commands.h"
+#include "dak/tree_reader/tree_filter_maker.h"
+#include "dak/utility/text.h"
+#include "dak/tree_reader/simple_tree_writer.h"
 
 #include <sstream>
 #include <fstream>
 #include <iomanip>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    using namespace std;
 
    /////////////////////////////////////////////////////////////////////////
    //
    // Context constructor.
-   GlobalCommands::GlobalCommands()
+   global_commands::global_commands()
    {
    }
 
@@ -23,27 +23,27 @@ namespace TreeReader
    //
    // Tree loading and saving.
 
-   void GlobalCommands::SetInputFilter(const wstring& filterRegex)
+   void global_commands::set_input_filter(const wstring& filterregex)
    {
-      Options.ReadOptions.InputFilter = filterRegex;
+      options.read_options.input_filter = filterregex;
    }
 
-   void GlobalCommands::SetInputIndent(const wstring& indentText)
+   void global_commands::set_input_indentation(const wstring& indentText)
    {
-      Options.ReadOptions.InputIndent = indentText;
+      options.read_options.input_indent = indentText;
    }
 
-   void GlobalCommands::SetOutputIndent(const wstring& indentText)
+   void global_commands::set_output_indentation(const wstring& indentText)
    {
-      Options.OutputLineIndent = indentText;
+      options.output_line_indent = indentText;
    }
 
-   TreeCommandsPtr GlobalCommands::LoadTree(const filesystem::path& filename)
+   tree_commands_ptr global_commands::load_tree(const filesystem::path& filename)
    {
-      auto newTree = make_shared<TextTree>(ReadSimpleTextTree(filename, Options.ReadOptions));
-      if (newTree && newTree->Roots.size() > 0)
+      auto newTree = make_shared<text_tree>(load_simple_text_tree(filename, options.read_options));
+      if (newTree && newTree->roots.size() > 0)
       {
-         auto treeCmd = make_shared<TreeCommands>(newTree, filename, _knownFilters, _undoRedo);
+         auto treeCmd = make_shared<tree_commands>(newTree, filename, _known_filters, _undo_redo);
          _trees.emplace_back(treeCmd);
          return treeCmd;
       }
@@ -57,60 +57,60 @@ namespace TreeReader
    //
    // Named filters management.
 
-   NamedFilterPtr GlobalCommands::NameFilter(const wstring& filterName, const TreeCommandsPtr& tree)
+   named_filter_ptr global_commands::name_filter(const wstring& filterName, const tree_commands_ptr& tree)
    {
-      tree->SetFilterName(filterName);
-      return NameFilter(filterName, tree->GetFilter());
+      tree->set_filter_name(filterName);
+      return name_filter(filterName, tree->get_filter());
    }
 
-   NamedFilterPtr GlobalCommands::NameFilter(const wstring& filterName, const TreeFilterPtr& filter)
+   named_filter_ptr global_commands::name_filter(const wstring& filterName, const tree_filter_ptr& filter)
    {
-      return _knownFilters->Add(filterName, filter);
+      return _known_filters->add(filterName, filter);
    }
 
-   bool GlobalCommands::RemoveNamedFilter(const wstring& filterName)
+   bool global_commands::remove_Filter(const wstring& filterName)
    {
-      return _knownFilters->Remove(filterName);
+      return _known_filters->remove(filterName);
    }
 
-   void GlobalCommands::SaveNamedFilters(const filesystem::path& filename)
+   void global_commands::save_named_filters(const filesystem::path& filename)
    {
-      if (_knownFilters->All().size() > 0)
-         WriteNamedFilters(filename, *_knownFilters);
+      if (_known_filters->all().size() > 0)
+         dak::tree_reader::save_named_filters(filename, *_known_filters);
    }
 
-   void GlobalCommands::LoadNamedFilters(const filesystem::path& filename)
+   void global_commands::load_named_filters(const filesystem::path& filename)
    {
-      auto filters = ReadNamedFilters(filename);
-      _knownFilters->Merge(filters);
+      auto filters = dak::tree_reader::load_named_filters(filename);
+      _known_filters->merge(filters);
    }
 
    /////////////////////////////////////////////////////////////////////////
    //
-   // Options.
+   // options.
 
-   void GlobalCommands::SaveOptions(const filesystem::path& filename)
+   void global_commands::save_options(const filesystem::path& filename)
    {
       wofstream stream(filename);
-      SaveOptions(stream);
+      save_options(stream);
    }
 
-   void GlobalCommands::SaveOptions(std::wostream& stream)
+   void global_commands::save_options(std::wostream& stream)
    {
       stream << L"V1: " << L"\n"
-      << L"output-indent: "   << quoted(Options.OutputLineIndent) << L"\n"
-      << L"input-filter: "    << quoted(Options.ReadOptions.InputFilter) << L"\n"
-      << L"input-indent: "    << quoted(Options.ReadOptions.InputIndent) << L"\n"
-      << L"tab-size: "        << Options.ReadOptions.TabSize << L"\n";
+      << L"output-indent: "   << quoted(options.output_line_indent) << L"\n"
+      << L"input-filter: "    << quoted(options.read_options.input_filter) << L"\n"
+      << L"input-indent: "    << quoted(options.read_options.input_indent) << L"\n"
+      << L"tab-size: "        << options.read_options.tab_size << L"\n";
    }
 
-   void GlobalCommands::LoadOptions(const filesystem::path& filename)
+   void global_commands::load_options(const filesystem::path& filename)
    {
       wifstream stream(filename);
-      LoadOptions(stream);
+      load_options(stream);
    }
 
-   void GlobalCommands::LoadOptions(std::wistream& stream)
+   void global_commands::load_options(std::wistream& stream)
    {
       wstring v1;
       stream >> v1;
@@ -123,22 +123,22 @@ namespace TreeReader
          stream >> skipws >> item >> skipws;
          if (item == L"output-indent:")
          {
-            stream >> quoted(Options.OutputLineIndent);
+            stream >> quoted(options.output_line_indent);
 
          }
          else if (item == L"input-filter:")
          {
-            stream >> quoted(Options.ReadOptions.InputFilter);
+            stream >> quoted(options.read_options.input_filter);
 
          }
          else if (item == L"input-indent:")
          {
-            stream >> quoted(Options.ReadOptions.InputIndent);
+            stream >> quoted(options.read_options.input_indent);
 
          }
          else if (item == L"tab-size:")
          {
-            stream >> Options.ReadOptions.TabSize;
+            stream >> options.read_options.tab_size;
 
          }
       }
@@ -148,7 +148,7 @@ namespace TreeReader
    //
    // Current text tree.
 
-   void GlobalCommands::RemoveTree(const TreeCommandsPtr& tree)
+   void global_commands::remove_tree(const tree_commands_ptr& tree)
    {
       const auto pos = find(_trees.begin(), _trees.end(), tree);
       if (pos == _trees.end())
@@ -157,21 +157,21 @@ namespace TreeReader
       _trees.erase(pos);
    }
 
-   TreeCommandsPtr GlobalCommands::CreateTreeFromFiltered(const TreeCommandsPtr& tree)
+   tree_commands_ptr global_commands::create_tree_from_filtered(const tree_commands_ptr& tree)
    {
       if (!tree)
          return {};
 
-      auto newCtx = make_shared<TreeCommands>(tree->GetFilteredTree(), tree->GetFilteredTreeFileName(), _knownFilters, _undoRedo);
+      auto newCtx = make_shared<tree_commands>(tree->get_filtered_tree(), tree->get_filtered_tree_filename(), _known_filters, _undo_redo);
 
       _trees.emplace_back(newCtx);
 
       return newCtx;
    }
 
-   void GlobalCommands::ClearUndoStack()
+   void global_commands::clear_undo_stack()
    {
-      _undoRedo->Clear();
+      _undo_redo->clear();
    }
 
 }

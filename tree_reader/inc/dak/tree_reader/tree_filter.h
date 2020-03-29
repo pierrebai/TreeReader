@@ -1,7 +1,7 @@
 #pragma once
 
-#include "TextTree.h"
-#include "TextTreeVisitor.h"
+#include "dak/tree_reader/text_tree.h"
+#include "dak/tree_reader/text_tree_visitor.h"
 
 #include <string>
 #include <memory>
@@ -10,164 +10,164 @@
 #include <future>
 #include <unordered_set>
 
-namespace TreeReader
+namespace dak::tree_reader
 {
-   struct TreeFilter;
-   typedef std::shared_ptr<TreeFilter> TreeFilterPtr;
+   struct tree_filter;
+   typedef std::shared_ptr<tree_filter> tree_filter_ptr;
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter used to reduce a text tree to another simpler text tree.
+   // filter used to reduce a text tree to another simpler text tree.
 
-   struct TreeFilter
+   struct tree_filter
    {
       // Possible result of a filter on a node: stop or not, visit children or not, keep the node or not.
 
-      struct Result : TreeVisitor::Result
+      struct result : tree_visitor::result
       {
-         bool Keep = false;
+         bool keep = false;
 
          // Combining results preserves the stop and skip children flags, but combines the keep flags as specified: or, and.
 
-         Result operator|(const Result& r) const
+         result operator|(const result& r) const
          {
-            return Result{ Stop || r.Stop, SkipChildren || r.SkipChildren, Keep || r.Keep };
+            return result{ stop || r.stop, skip_children || r.skip_children, keep || r.keep };
          }
 
-         Result operator&(const Result& r) const
+         result operator&(const result& r) const
          {
-            return Result{ Stop || r.Stop, SkipChildren || r.SkipChildren, Keep && r.Keep };
+            return result{ stop || r.stop, skip_children || r.skip_children, keep && r.keep };
          }
       };
 
-      virtual ~TreeFilter() {};
+      virtual ~tree_filter() {};
 
-      // Filter a node to decide to keep drop the node.
-      virtual Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) = 0;
+      // filter a node to decide to keep drop the node.
+      virtual result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) = 0;
 
-      // Gets the name of the node, including its data.
-      virtual std::wstring GetName() const;
+      // gets the name of the node, including its data.
+      virtual std::wstring get_name() const;
 
-      // Gets the short name of the node, without its data.
-      virtual std::wstring GetShortName() const = 0;
+      // gets the short name of the node, without its data.
+      virtual std::wstring get_short_name() const = 0;
 
-      // Gets a longer description of the purpose of the node.
-      virtual std::wstring GetDescription() const = 0;
+      // gets a longer description of the purpose of the node.
+      virtual std::wstring get_description() const = 0;
 
       // Create a copy of this filter.
-      virtual TreeFilterPtr Clone() const = 0;
+      virtual tree_filter_ptr clone() const = 0;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that delegates to another filter.
+   // filter that delegates to another filter.
    //
-   // Allows adding behavior to another existing filter.
+   // allows adding behavior to another existing filter.
 
-   struct DelegateTreeFilter : TreeFilter
+   struct delegate_tree_filter : tree_filter
    {
-      TreeFilterPtr Filter;
+      tree_filter_ptr filter;
 
-      DelegateTreeFilter() = default;
-      DelegateTreeFilter(const TreeFilterPtr& filter) : Filter(filter) { }
-      DelegateTreeFilter(const DelegateTreeFilter& other);
+      delegate_tree_filter() = default;
+      delegate_tree_filter(const tree_filter_ptr& filter) : filter(filter) { }
+      delegate_tree_filter(const delegate_tree_filter& other);
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts all nodes.
+   // filter that accepts all nodes.
 
-   struct AcceptTreeFilter : TreeFilter
+   struct accept_tree_filter : tree_filter
    {
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that stops filtering.
+   // filter that stops filtering.
    //
    // Can keep or not keep the node, as desired.
 
-   struct StopTreeFilter : TreeFilter
+   struct stop_tree_filter : tree_filter
    {
-      bool Keep = true;
+      bool keep = true;
 
-      StopTreeFilter() = default;
-      StopTreeFilter(bool keep) : Keep(keep) {}
+      stop_tree_filter() = default;
+      stop_tree_filter(bool keep) : keep(keep) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that stops the filtering as soon as its delegate accept a node.
+   // filter that stops the filtering as soon as its delegate accept a node.
 
-   struct StopWhenKeptTreeFilter : DelegateTreeFilter
+   struct stop_when_kept_tree_filter : delegate_tree_filter
    {
-      StopWhenKeptTreeFilter() = default;
-      StopWhenKeptTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
+      stop_when_kept_tree_filter() = default;
+      stop_when_kept_tree_filter(const tree_filter_ptr& filter) : delegate_tree_filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that stops filtering when another sub-filter keeps a node.
+   // filter that stops filtering when another sub-filter keeps a node.
    //
-   // Never keeps the node. Used to stop doing sb-tree filtering. (See IfSubTree and IfSibling.)
+   // Never keeps the node. Used to stop doing sb-tree filtering. (See if_subtree and if_sibling.)
 
-   struct UntilTreeFilter : DelegateTreeFilter
+   struct until_tree_filter : delegate_tree_filter
    {
-      UntilTreeFilter() = default;
-      UntilTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
+      until_tree_filter() = default;
+      until_tree_filter(const tree_filter_ptr& filter) : delegate_tree_filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that keeps nodes containing a given text.
+   // filter that keeps nodes containing a given text.
 
-   struct ContainsTreeFilter : TreeFilter
+   struct contains_tree_filter : tree_filter
    {
       std::wstring Contained;
 
-      ContainsTreeFilter() = default;
-      ContainsTreeFilter(const std::wstring& text) : Contained(text) { }
+      contains_tree_filter() = default;
+      contains_tree_filter(const std::wstring& text) : Contained(text) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_name() const override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that keeps only the first node that contain some text.
+   // filter that keeps only the first node that contain some text.
 
-   struct UniqueTreeFilter : TreeFilter
+   struct unique_tree_filter : tree_filter
    {
-      UniqueTreeFilter() = default;
+      unique_tree_filter() = default;
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
 
    private:
       struct hash { int  operator()(const wchar_t* text) const; };
@@ -178,226 +178,226 @@ namespace TreeReader
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter by matching the exact address of the text.
+   // filter by matching the exact address of the text.
    // Can be use to keep an exact node, using selection in a UI for example.
 
-   struct TextAddressTreeFilter : TreeFilter
+   struct text_address_tree_filter : tree_filter
    {
-      const wchar_t* ExactAddress = nullptr;
+      const wchar_t* exact_address = nullptr;
 
-      TextAddressTreeFilter() = default;
-      TextAddressTreeFilter(const wchar_t* addr) : ExactAddress(addr) { }
+      text_address_tree_filter() = default;
+      text_address_tree_filter(const wchar_t* addr) : exact_address(addr) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_name() const override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that keeps nodes matching a regular expression.
+   // filter that keeps nodes matching a regular expression.
 
-   struct RegexTreeFilter : TreeFilter
+   struct regex_tree_filter : tree_filter
    {
-      std::wstring RegexTextForm;
-      std::wregex Regex;
+      std::wstring regexTextForm;
+      std::wregex regex;
 
-      RegexTreeFilter() = default;
-      RegexTreeFilter(const std::wstring& reg) : RegexTextForm(reg), Regex(std::wregex(reg)) { }
+      regex_tree_filter() = default;
+      regex_tree_filter(const std::wstring& reg) : regexTextForm(reg), regex(std::wregex(reg)) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_name() const override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that combines the result of other filters.
+   // filter that combines the result of other filters.
 
-   struct CombineTreeFilter : TreeFilter
+   struct combine_tree_filter : tree_filter
    {
-      std::vector<TreeFilterPtr> Filters;
+      std::vector<tree_filter_ptr> named_filters;
 
-      CombineTreeFilter() = default;
+      combine_tree_filter() = default;
 
-      CombineTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { Filters.push_back(lhs); Filters.push_back(rhs); }
-      CombineTreeFilter(const std::vector<TreeFilterPtr>& filters) : Filters(filters) {}
-      CombineTreeFilter(const CombineTreeFilter& other);
+      combine_tree_filter(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { named_filters.push_back(lhs); named_filters.push_back(rhs); }
+      combine_tree_filter(const std::vector<tree_filter_ptr>& filters) : named_filters(filters) {}
+      combine_tree_filter(const combine_tree_filter& other);
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that inverts the keep decision of another filter.
+   // filter that inverts the keep decision of another filter.
 
-   struct NotTreeFilter : DelegateTreeFilter
+   struct not_tree_filter : delegate_tree_filter
    {
-      NotTreeFilter() = default;
-      NotTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
+      not_tree_filter() = default;
+      not_tree_filter(const tree_filter_ptr& filter) : delegate_tree_filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts a node if any of its sub-filters accept the node.
+   // filter that accepts a node if any of its sub-filters accept the node.
 
-   struct OrTreeFilter : CombineTreeFilter
+   struct or_tree_filter : combine_tree_filter
    {
-      OrTreeFilter() = default;
-      OrTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
-      OrTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
+      or_tree_filter() = default;
+      or_tree_filter(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) : combine_tree_filter(lhs, rhs) { }
+      or_tree_filter(const std::vector<tree_filter_ptr>& filters) : combine_tree_filter(filters) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts a node if all of its sub-filters accept the node.
+   // filter that accepts a node if all of its sub-filters accept the node.
 
-   struct AndTreeFilter : CombineTreeFilter
+   struct and_tree_filter : combine_tree_filter
    {
-      AndTreeFilter() = default;
-      AndTreeFilter(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) : CombineTreeFilter(lhs, rhs) { }
-      AndTreeFilter(const std::vector<TreeFilterPtr>& filters) : CombineTreeFilter(filters) {}
+      and_tree_filter() = default;
+      and_tree_filter(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) : combine_tree_filter(lhs, rhs) { }
+      and_tree_filter(const std::vector<tree_filter_ptr>& filters) : combine_tree_filter(filters) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts all children of a node that was accepted by another.
+   // filter that accepts all children of a node that was accepted by another.
    //
    // Can accept or not that parent initial node.
 
-   struct UnderTreeFilter : DelegateTreeFilter
+   struct under_tree_filter : delegate_tree_filter
    {
-      bool IncludeSelf = true;
+      bool include_self = true;
 
-      UnderTreeFilter() = default;
-      UnderTreeFilter(const TreeFilterPtr& filter, bool includeSelf = true)
-         : DelegateTreeFilter(filter), IncludeSelf(includeSelf) {}
+      under_tree_filter() = default;
+      under_tree_filter(const tree_filter_ptr& filter, bool includeSelf = true)
+         : delegate_tree_filter(filter), include_self(includeSelf) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
 
    private:
-      size_t _keepAllNodesUnderLevel = -1;
+      size_t _keep_all_nodes_under_level = -1;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that removes all children of a node that was accepted
+   // filter that removes all children of a node that was accepted
    // by another filter.
    //
    // Can remove or not that parent initial node.
 
-   struct RemoveChildrenTreeFilter : DelegateTreeFilter
+   struct remove_children_tree_filter : delegate_tree_filter
    {
-      bool IncludeSelf = false;
+      bool include_self = false;
 
-      RemoveChildrenTreeFilter() = default;
-      RemoveChildrenTreeFilter(const TreeFilterPtr& filter, bool removeSelf)
-         : DelegateTreeFilter(filter), IncludeSelf(removeSelf) { }
+      remove_children_tree_filter() = default;
+      remove_children_tree_filter(const tree_filter_ptr& filter, bool removeSelf)
+         : delegate_tree_filter(filter), include_self(removeSelf) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts nodes that are within a range of depth in the tree.
+   // filter that accepts nodes that are within a range of depth in the tree.
 
-   struct LevelRangeTreeFilter : TreeFilter
+   struct level_range_tree_filter : tree_filter
    {
-      size_t MinLevel;
-      size_t MaxLevel;
+      size_t min_level;
+      size_t max_level;
 
-      LevelRangeTreeFilter() = default;
-      LevelRangeTreeFilter(size_t minLevel, size_t maxLevel) : MinLevel(minLevel), MaxLevel(maxLevel) {}
+      level_range_tree_filter() = default;
+      level_range_tree_filter(size_t minLevel, size_t maxLevel) : min_level(minLevel), max_level(maxLevel) {}
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetName() const override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_name() const override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts a node if at least one child is accepted
+   // filter that accepts a node if at least one child is accepted
    // by another filter.
 
-   struct IfSubTreeTreeFilter : DelegateTreeFilter
+   struct if_subtree_tree_filter : delegate_tree_filter
    {
-      IfSubTreeTreeFilter() = default;
-      IfSubTreeTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
+      if_subtree_tree_filter() = default;
+      if_subtree_tree_filter(const tree_filter_ptr& filter) : delegate_tree_filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
 
    private:
-      TextTree _filtered;
+      text_tree _filtered;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Filter that accepts a node if at least one sibling is accepted
+   // filter that accepts a node if at least one sibling is accepted
    // by another filter.
 
-   struct IfSiblingTreeFilter : DelegateTreeFilter
+   struct if_sibling_tree_filter : delegate_tree_filter
    {
-      IfSiblingTreeFilter() = default;
-      IfSiblingTreeFilter(const TreeFilterPtr& filter) : DelegateTreeFilter(filter) { }
+      if_sibling_tree_filter() = default;
+      if_sibling_tree_filter(const tree_filter_ptr& filter) : delegate_tree_filter(filter) { }
 
-      Result IsKept(const TextTree& tree, const TextTree::Node& node, size_t level) override;
-      std::wstring GetShortName() const override;
-      std::wstring GetDescription() const override;
-      TreeFilterPtr Clone() const override;
+      result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
+      std::wstring get_short_name() const override;
+      std::wstring get_description() const override;
+      tree_filter_ptr clone() const override;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
-   // Functions to create filters.
+   // functions to create filters.
 
-   inline std::shared_ptr<AcceptTreeFilter> Accept() { return std::make_shared<AcceptTreeFilter>(); }
-   inline std::shared_ptr<StopTreeFilter> Stop() { return std::make_shared<StopTreeFilter>(); }
-   inline std::shared_ptr<UntilTreeFilter> Until(const TreeFilterPtr& filter) { return std::make_shared<UntilTreeFilter>(filter); }
-   inline std::shared_ptr<ContainsTreeFilter> Contains(const std::wstring& text) { return std::make_shared<ContainsTreeFilter>(text); }
-   inline std::shared_ptr<UniqueTreeFilter> Unique() { return std::make_shared<UniqueTreeFilter>(); }
-   inline std::shared_ptr<TextAddressTreeFilter> ExactAddress(const wchar_t* text) { return std::make_shared<TextAddressTreeFilter>(text); }
-   inline std::shared_ptr<RegexTreeFilter> Regex(const wchar_t* reg) { return std::make_shared<RegexTreeFilter>(reg ? reg : L""); }
-   inline std::shared_ptr<RegexTreeFilter> Regex(const std::wstring& reg) { return std::make_shared<RegexTreeFilter>(reg); }
-   inline std::shared_ptr<NotTreeFilter> Not(const TreeFilterPtr& filter) { return std::make_shared<NotTreeFilter>(filter); }
-   inline std::shared_ptr<OrTreeFilter> Or(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<OrTreeFilter>(lhs, rhs); }
-   inline std::shared_ptr<AndTreeFilter> And(const TreeFilterPtr& lhs, const TreeFilterPtr& rhs) { return std::make_shared<AndTreeFilter>(lhs, rhs); }
-   inline std::shared_ptr<OrTreeFilter> Any(const std::vector<TreeFilterPtr>& filters) { return std::make_shared<OrTreeFilter>(filters); }
-   inline std::shared_ptr<AndTreeFilter> All(const std::vector<TreeFilterPtr>& filters) { return std::make_shared<AndTreeFilter>(filters); }
-   inline std::shared_ptr<UnderTreeFilter> Under(const TreeFilterPtr& filter, bool includeSelf = true) { return std::make_shared<UnderTreeFilter>(filter, includeSelf); }
-   inline std::shared_ptr<RemoveChildrenTreeFilter> NoChild(const TreeFilterPtr& filter, bool removeSelf = false) { return std::make_shared<RemoveChildrenTreeFilter>(filter, removeSelf); }
-   inline std::shared_ptr<LevelRangeTreeFilter> LevelRange(size_t min, size_t max) { return std::make_shared<LevelRangeTreeFilter>(min, max); }
-   inline std::shared_ptr<LevelRangeTreeFilter> MinLevel(size_t level) { return LevelRange(level, -1); }
-   inline std::shared_ptr<LevelRangeTreeFilter> MaxLevel(size_t level) { return LevelRange(0, level); }
-   inline std::shared_ptr<IfSubTreeTreeFilter> IfSubTree(const TreeFilterPtr& filter) { return std::make_shared<IfSubTreeTreeFilter>(filter); }
-   inline std::shared_ptr<IfSiblingTreeFilter> IfSibling(const TreeFilterPtr& filter) { return std::make_shared<IfSiblingTreeFilter>(filter); }
-   inline std::shared_ptr<StopWhenKeptTreeFilter> StopWhenKept(const TreeFilterPtr& filter) { return std::make_shared<StopWhenKeptTreeFilter>(filter); }
+   inline std::shared_ptr<accept_tree_filter> accept() { return std::make_shared<accept_tree_filter>(); }
+   inline std::shared_ptr<stop_tree_filter> stop() { return std::make_shared<stop_tree_filter>(); }
+   inline std::shared_ptr<until_tree_filter> until(const tree_filter_ptr& filter) { return std::make_shared<until_tree_filter>(filter); }
+   inline std::shared_ptr<contains_tree_filter> contains(const std::wstring& text) { return std::make_shared<contains_tree_filter>(text); }
+   inline std::shared_ptr<unique_tree_filter> unique() { return std::make_shared<unique_tree_filter>(); }
+   inline std::shared_ptr<text_address_tree_filter> exact_address(const wchar_t* text) { return std::make_shared<text_address_tree_filter>(text); }
+   inline std::shared_ptr<regex_tree_filter> regex(const wchar_t* reg) { return std::make_shared<regex_tree_filter>(reg ? reg : L""); }
+   inline std::shared_ptr<regex_tree_filter> regex(const std::wstring& reg) { return std::make_shared<regex_tree_filter>(reg); }
+   inline std::shared_ptr<not_tree_filter> not(const tree_filter_ptr& filter) { return std::make_shared<not_tree_filter>(filter); }
+   inline std::shared_ptr<or_tree_filter> or(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { return std::make_shared<or_tree_filter>(lhs, rhs); }
+   inline std::shared_ptr<and_tree_filter> and(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { return std::make_shared<and_tree_filter>(lhs, rhs); }
+   inline std::shared_ptr<or_tree_filter> Any(const std::vector<tree_filter_ptr>& filters) { return std::make_shared<or_tree_filter>(filters); }
+   inline std::shared_ptr<and_tree_filter> all(const std::vector<tree_filter_ptr>& filters) { return std::make_shared<and_tree_filter>(filters); }
+   inline std::shared_ptr<under_tree_filter> under(const tree_filter_ptr& filter, bool includeSelf = true) { return std::make_shared<under_tree_filter>(filter, includeSelf); }
+   inline std::shared_ptr<remove_children_tree_filter> no_child(const tree_filter_ptr& filter, bool removeSelf = false) { return std::make_shared<remove_children_tree_filter>(filter, removeSelf); }
+   inline std::shared_ptr<level_range_tree_filter> level_range(size_t min, size_t max) { return std::make_shared<level_range_tree_filter>(min, max); }
+   inline std::shared_ptr<level_range_tree_filter> min_level(size_t level) { return level_range(level, -1); }
+   inline std::shared_ptr<level_range_tree_filter> max_level(size_t level) { return level_range(0, level); }
+   inline std::shared_ptr<if_subtree_tree_filter> if_subtree(const tree_filter_ptr& filter) { return std::make_shared<if_subtree_tree_filter>(filter); }
+   inline std::shared_ptr<if_sibling_tree_filter> if_sibling(const tree_filter_ptr& filter) { return std::make_shared<if_sibling_tree_filter>(filter); }
+   inline std::shared_ptr<stop_when_kept_tree_filter> stop_when_kept(const tree_filter_ptr& filter) { return std::make_shared<stop_when_kept_tree_filter>(filter); }
 }
 

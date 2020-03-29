@@ -13,7 +13,7 @@
 
 #include <QtGui/qevent.h>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    using namespace std;
 

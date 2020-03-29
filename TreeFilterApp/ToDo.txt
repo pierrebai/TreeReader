@@ -1,4 +1,4 @@
-Allow multi-filtering. (filter, then filter again)
+allow multi-filtering. (filter, then filter again)
 Make more complex filters (match + until, others)
 Make named filters have open slot (text or sub-filters)
 

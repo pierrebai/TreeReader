@@ -1,24 +1,28 @@
 #pragma once
 
-#include <QtWidgets/qwidget>
+#include <QtWidgets/QWidget>
+
+#include "dak/utility/undo_stack.h"
 
 #include <memory>
 #include <functional>
 
-namespace TreeReader
+namespace dak::utility
 {
-   struct TreeFilter;
-   struct NamedFilters;
-   class UndoStack;
+   class undo_stack;
 }
 
-namespace TreeReaderApp
+namespace dak::tree_reader
+{
+   struct tree_filter;
+   struct named_filters;
+}
+
+namespace dak::tree_reader::app
 {
    class FiltersEditorUI;
-   using TreeFilter = TreeReader::TreeFilter;
-   using TreeFilterPtr = std::shared_ptr<TreeFilter>;
-   using UndoStack = TreeReader::UndoStack;
-   using NamedFilters = TreeReader::NamedFilters;
+   using tree_filter_ptr = std::shared_ptr<tree_filter>;
+   using undo_stack = dak::utility::undo_stack;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -27,18 +31,18 @@ namespace TreeReaderApp
    struct FilterEditor : QWidget
    {
       // Callback when the edited filter is changed.
-      typedef std::function<void(const TreeFilterPtr&)> FilterChangedCallback;
+      typedef std::function<void(const tree_filter_ptr&)> FilterChangedCallback;
       FilterChangedCallback FilterChanged;
 
       // Create a filter editor with the given parent widget.
-      FilterEditor(const NamedFilters& known, UndoStack& undoRedo, QWidget* parent);
+      FilterEditor(const named_filters& known, undo_stack& undoRedo, QWidget* parent);
 
-      // Set the Filters being edited.
-      void SetEdited(const TreeFilterPtr& edited, const std::wstring& name, bool forced = false);
+      // Set the named_filters being edited.
+      void SetEdited(const tree_filter_ptr& edited, const std::wstring& name, bool forced = false);
 
-      // Get the filter being edited.
-      TreeFilterPtr GetEdited() const;
-      std::wstring GetEditedName() const;
+      // get the filter being edited.
+      tree_filter_ptr getEdited() const;
+      std::wstring getEditedName() const;
 
    protected:
       std::unique_ptr<FiltersEditorUI> _ui;

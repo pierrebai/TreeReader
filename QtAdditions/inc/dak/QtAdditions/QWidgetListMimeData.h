@@ -3,7 +3,7 @@
 #include <QtCore/qmimedata.h>
 #include <QtCore/qpoint.h>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    struct QWidgetListItem;
 

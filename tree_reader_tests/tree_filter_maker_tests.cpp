@@ -1,242 +1,243 @@
-#include "TreeReader.h"
-#include "TreeReaderTestHelpers.h"
+#include "dak/tree_reader/tree_reader.h"
+#include "tree_reader_test_helpers.h"
+
 #include "CppUnitTest.h"
 
 #include <sstream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
-using namespace TreeReader;
+using namespace dak::tree_reader;
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	TEST_CLASS(TreeFilterMakerTests)
+	TEST_CLASS(tree_filter_maker_tests)
 	{
 	public:
 
-      TEST_METHOD(ConvertToTextAcceptFilter)
+      TEST_METHOD(ConvertToTextacceptFilter)
       {
-         auto filter = Accept();
+         auto filter = accept();
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \naccept [ ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<AcceptTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<accept_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
       }
 
-      TEST_METHOD(ConvertToTextStopFilter)
+      TEST_METHOD(ConvertToTextstopFilter)
       {
-         auto filter = Stop();
+         auto filter = stop();
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nstop [ ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<StopTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<stop_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
       }
 
-      TEST_METHOD(ConvertToTextStopWhenKeptFilter)
+      TEST_METHOD(ConvertToTextstopWhenKeptFilter)
       {
-         auto filter = StopWhenKept(Accept());
+         auto filter = stop_when_kept(accept());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nstop-when-kept [ \n accept [ ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<StopWhenKeptTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<stop_when_kept_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::IsTrue(dynamic_pointer_cast<AcceptTreeFilter>(rebuilt->Filter) != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->filter) != nullptr);
       }
 
-      TEST_METHOD(ConvertToTextContainsFilter)
+      TEST_METHOD(ConvertToTextcontainsFilter)
       {
-         auto filter = Contains(L"\"abc\"");
+         auto filter = contains(L"\"abc\"");
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \ncontains [ \"\\\"abc\\\"\" ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<ContainsTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<contains_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
          Assert::AreEqual(L"\"abc\"", rebuilt->Contained.c_str());
       }
 
-      TEST_METHOD(ConvertToTextUniqueFilter)
+      TEST_METHOD(ConvertToTextuniqueFilter)
       {
-         auto filter = Unique();
+         auto filter = unique();
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nunique [ ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<UniqueTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<unique_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
       }
 
-      TEST_METHOD(ConvertToTextRegexFilter)
+      TEST_METHOD(ConvertToTextregexFilter)
       {
-         auto filter = Regex(L"[abc]*");
+         auto filter = dak::tree_reader::regex(L"[abc]*");
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nregex [ \"[abc]*\" ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<RegexTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<regex_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::AreEqual(L"[abc]*", rebuilt->RegexTextForm.c_str());
+         Assert::AreEqual(L"[abc]*", rebuilt->regexTextForm.c_str());
       }
 
-      TEST_METHOD(ConvertToTextNotAcceptFilter)
+      TEST_METHOD(ConvertToTextnotacceptFilter)
       {
-         auto filter = Not(Accept());
+         auto filter = not(accept());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nnot [ \n accept [ ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<NotTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<not_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::IsTrue(dynamic_pointer_cast<AcceptTreeFilter>(rebuilt->Filter) != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->filter) != nullptr);
       }
 
       TEST_METHOD(ConvertToTextOrFilter)
       {
-         auto filter = Or(Contains(L"a"), Contains(L"b"));
+         auto filter = or(contains(L"a"), contains(L"b"));
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nor [ \n contains [ \"a\" ], \n contains [ \"b\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<OrTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<or_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual<size_t>(2, rebuilt->Filters.size());
+         Assert::AreEqual<size_t>(2, rebuilt->named_filters.size());
 
-         auto lhs = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filters[0]);
+         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[0]);
          Assert::IsTrue(lhs != nullptr);
          Assert::AreEqual(L"a", lhs->Contained.c_str());
 
-         auto rhs = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filters[1]);
+         auto rhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[1]);
          Assert::IsTrue(rhs != nullptr);
          Assert::AreEqual(L"b", rhs->Contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextAndFilter)
       {
-         auto filter = And(Contains(L"a"), Unique());
+         auto filter = and(contains(L"a"), unique());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n unique [ ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<AndTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<and_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual<size_t>(2, rebuilt->Filters.size());
+         Assert::AreEqual<size_t>(2, rebuilt->named_filters.size());
 
-         auto lhs = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filters[0]);
+         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[0]);
          Assert::IsTrue(lhs != nullptr);
          Assert::AreEqual(L"a", lhs->Contained.c_str());
 
-         auto rhs = dynamic_pointer_cast<UniqueTreeFilter>(rebuilt->Filters[1]);
+         auto rhs = dynamic_pointer_cast<unique_tree_filter>(rebuilt->named_filters[1]);
          Assert::IsTrue(rhs != nullptr);
       }
 
       TEST_METHOD(ConvertToTextUnderFilter)
       {
-         auto filter = Under(Contains(L"a"), true);
+         auto filter = under(contains(L"a"), true);
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nunder [ true, \n contains [ \"a\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<UnderTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<under_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::IsTrue(rebuilt->IncludeSelf);
+         Assert::IsTrue(rebuilt->include_self);
 
-         auto under = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
+         auto under = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filter);
          Assert::IsTrue(under != nullptr);
          Assert::AreEqual(L"a", under->Contained.c_str());
       }
 
-      TEST_METHOD(ConvertToTextRemoveChildrenFilter)
+      TEST_METHOD(ConvertToTextremovechildrenFilter)
       {
-         auto filter = NoChild(Contains(L"abc"));
+         auto filter = no_child(contains(L"abc"));
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nno-child [ false, \n contains [ \"abc\" ] ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<RemoveChildrenTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<remove_children_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::IsFalse(rebuilt->IncludeSelf);
+         Assert::IsFalse(rebuilt->include_self);
 
-         auto subFilter = dynamic_pointer_cast<ContainsTreeFilter>(rebuilt->Filter);
+         auto subFilter = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filter);
          Assert::IsTrue(subFilter != nullptr);
          Assert::AreEqual(L"abc", subFilter->Contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextRangeFilter)
       {
-         auto filter = LevelRange(7, 9);
+         auto filter = level_range(7, 9);
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nrange [ 7, 9 ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<LevelRangeTreeFilter>(ConvertTextToFilters(text, NamedFilters()));
+         auto rebuilt = dynamic_pointer_cast<level_range_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual<size_t>(7, rebuilt->MinLevel);
-         Assert::AreEqual<size_t>(9, rebuilt->MaxLevel);
+         Assert::AreEqual<size_t>(7, rebuilt->min_level);
+         Assert::AreEqual<size_t>(9, rebuilt->max_level);
       }
 
       TEST_METHOD(ConvertToTextNamedFilter)
       {
-         NamedFilters known;
-         known.Add(L"abc", Contains(L"abc"));
+         named_filters known;
+         known.add(L"abc", contains(L"abc"));
 
-         auto filter = known.Get(L"abc");
+         auto filter = known.get(L"abc");
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nnamed [ \"abc\" ]", text.c_str());
 
-         auto rebuilt = dynamic_pointer_cast<NamedTreeFilter>(ConvertTextToFilters(text, known));
+         auto rebuilt = dynamic_pointer_cast<named_tree_filter>(convert_text_to_filter(text, known));
          Assert::IsTrue(rebuilt != nullptr);
 
          Assert::AreEqual(wstring(L"abc"), rebuilt->Name);
-         Assert::IsTrue(known.Get(L"abc")->Filter == rebuilt->Filter);
+         Assert::IsTrue(known.get(L"abc")->filter == rebuilt->filter);
       }
 
       TEST_METHOD(ConvertSimpleText)
       {
-         auto filter = ConvertSimpleTextToFilters(L"( a & b & ! c ) | ( > d | ( <= 3 & * & . ) ) ", NamedFilters());
+         auto filter = convert_simple_text_to_filter(L"( a & b & ! c ) | ( > d | ( <= 3 & * & . ) ) ", named_filters());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nor [ \n and [ \n  contains [ \"a\" ], \n  contains [ \"b\" ], \n  not [ \n   contains [ \"c\" ] ] ], \n or [ \n  under [ true, \n   contains [ \"d\" ] ], \n  and [ \n   range [ 0, 3 ], \n   accept [ ], \n   stop [ ] ] ] ]", text.c_str());
       }
 
       TEST_METHOD(ConvertSimpleTextWithIfSibling)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a ?= b", NamedFilters());
+         auto filter = convert_simple_text_to_filter(L"a ?= b", named_filters());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n if-sib [ \n  contains [ \"b\" ] ] ]", text.c_str());
       }
 
       TEST_METHOD(ConvertSimpleTextWithIfSubTree)
       {
-         auto filter = ConvertSimpleTextToFilters(L"a ?> b", NamedFilters());
+         auto filter = convert_simple_text_to_filter(L"a ?> b", named_filters());
 
-         const wstring text = ConvertFiltersToText(filter);
+         const wstring text = convert_filter_to_text(filter);
 
          Assert::AreEqual(L"V1: \nand [ \n contains [ \"a\" ], \n if-sub [ \n  contains [ \"b\" ] ] ]", text.c_str());
       }

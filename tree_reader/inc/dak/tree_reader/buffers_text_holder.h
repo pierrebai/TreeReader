@@ -1,34 +1,34 @@
 #pragma once
 
-#include "TextTree.h"
+#include "dak/tree_reader/text_tree.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
    // Holds text as a vector of raw characters buffers.
    // Uses indirection to make sure each buffer does not change address.
 
-   struct BuffersTextHolder : TextHolder
+   struct buffers_text_holder : text_holder
    {
-      typedef std::vector<wchar_t> Buffer;
-      typedef std::shared_ptr<Buffer> BufferPtr;
-      typedef std::vector<BufferPtr> Buffers;
+      typedef std::vector<wchar_t> buffer;
+      typedef std::shared_ptr<buffer> buffer_ptr;
+      typedef std::vector<buffer_ptr> buffers;
 
-      Buffers TextBuffers;
+      buffers text_buffers;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Read text lines from an input stream and stores them in the holder.
 
-   struct BuffersTextHolderReader
+   struct buffers_text_holder_reader
    {
-      std::shared_ptr<BuffersTextHolder> Holder = std::make_shared<BuffersTextHolder>();
+      std::shared_ptr<buffers_text_holder> holder = std::make_shared<buffers_text_holder>();
 
-      wchar_t* PosInBuffer = nullptr;
-      wchar_t* BufferEnd = nullptr;
+      wchar_t* pos_in_buffer = nullptr;
+      wchar_t* buffer_end = nullptr;
 
-      std::pair<wchar_t*, size_t> ReadLine(std::wistream& stream);
+      std::pair<wchar_t*, size_t> read_line(std::wistream& stream);
    };
 }

@@ -1,24 +1,24 @@
 #pragma once
 
-#include "TreeFilter.h"
+#include "dak/tree_reader/tree_filter.h"
 
-namespace TreeReader
+namespace dak::tree_reader
 {
    ////////////////////////////////////////////////////////////////////////////
    //
    // A visitor that delegates to a function when visiting each filter.
    //
-   // Allows starting from an arbitrary filter and not visiting the initial filter.
+   // allows starting from an arbitrary filter and not visiting the initial filter.
    //
-   // (Not visiting siblings also skip the initial node too.)
+   // (not visiting siblings also skip the initial node too.)
 
-   typedef std::function<bool(const TreeFilterPtr& filter)> FilterVisitFunction;
+   typedef std::function<bool(const tree_filter_ptr& filter)> filter_visit_function;
 
-   bool VisitFilters(const TreeFilterPtr& filter, bool includeSelf, FilterVisitFunction func);
+   bool visit_filters(const tree_filter_ptr& filter, bool includeSelf, filter_visit_function func);
 
-   inline bool VisitFilters(const TreeFilterPtr& filter, FilterVisitFunction func)
+   inline bool visit_filters(const tree_filter_ptr& filter, filter_visit_function func)
    {
-      return VisitFilters(filter, true, func);
+      return visit_filters(filter, true, func);
    }
 }
 

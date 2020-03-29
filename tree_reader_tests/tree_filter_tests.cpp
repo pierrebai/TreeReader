@@ -1,24 +1,25 @@
-#include "TreeFilter.h"
-#include "TreeFiltering.h"
-#include "TreeReaderTestHelpers.h"
+#include "dak/tree_reader/tree_filter.h"
+#include "dak/tree_reader/tree_filtering.h"
+#include "tree_reader_test_helpers.h"
+
 #include "CppUnitTest.h"
 
 #include <sstream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
-using namespace TreeReader;
+using namespace dak::tree_reader;
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {
-	TEST_CLASS(TreeFilterTests)
+	TEST_CLASS(tree_filter_tests)
 	{
 	public:
 
-		TEST_METHOD(PrintSimpleTreeWithContainsFilter)
+		TEST_METHOD(PrintSimpleTreeWithcontainsFilter)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, *Contains(L"g"));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, *contains(L"g"));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -27,10 +28,10 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-      TEST_METHOD(PrintSimpleTreeWithUniqueFilter)
+      TEST_METHOD(PrintSimpleTreeWithuniqueFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, *Unique());
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, *unique());
 
          wostringstream sstream;
          sstream << filtered;
@@ -47,11 +48,11 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
       }
 
-      TEST_METHOD(PrintSimpleTreeWithExactAddressFilter)
+      TEST_METHOD(PrintSimpleTreeWithexact_addressFilter)
       {
-         TextTree tree = CreateSimpleTree();
-         TextTree filtered;
-         FilterTree(tree, filtered, *ExactAddress(tree.Roots[0]->TextPtr));
+         text_tree tree = create_simple_tree();
+         text_tree filtered;
+         filter_tree(tree, filtered, *exact_address(tree.roots[0]->text_ptr));
 
          wostringstream sstream;
          sstream << filtered;
@@ -60,10 +61,10 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
       }
 
-      TEST_METHOD(PrintSimpleTreeWithNotFilter)
+      TEST_METHOD(PrintSimpleTreeWithnotFilter)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Not(Contains(L"f")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, not(contains(L"f")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -81,8 +82,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, IfSubTree(Contains(L"k")));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, if_subtree(contains(L"k")));
 
          wostringstream sstream;
          sstream << filtered;
@@ -93,10 +94,10 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
       }
 
-      TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndStopFilter)
+      TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndstopFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, And(IfSubTree(Contains(L"f")), Stop()));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, and(if_subtree(contains(L"f")), stop()));
 
          wostringstream sstream;
          sstream << filtered;
@@ -108,8 +109,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithIfSiblingFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, IfSibling(Contains(L"t")));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, if_sibling(contains(L"t")));
 
          wostringstream sstream;
          sstream << filtered;
@@ -122,8 +123,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Or(Contains(L"f"), Contains(L"m")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, or(contains(L"f"), contains(L"m")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -134,10 +135,10 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-		TEST_METHOD(PrintSimpleTreeWithRemoveChildrenFilter)
+		TEST_METHOD(PrintSimpleTreeWithremovechildrenFilter)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, no_child(contains(L"g")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -152,8 +153,8 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithUnder)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, And(Under(Contains(L"g"), false), Contains(L"s")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, and(under(contains(L"g"), false), contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -165,8 +166,8 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithUnderAndSelf)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Under(Contains(L"g"), true));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, under(contains(L"g"), true));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -180,10 +181,10 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-      TEST_METHOD(PrintSimpleTreeWithRemoveChildrenAndSelfFilter)
+      TEST_METHOD(PrintSimpleTreeWithremovechildrenAndSelfFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, NoChild(Contains(L"g"), true));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, no_child(contains(L"g"), true));
 
          wostringstream sstream;
          sstream << filtered;
@@ -197,8 +198,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithLevelRangeFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, LevelRange(2, 3));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, level_range(2, 3));
 
          wostringstream sstream;
          sstream << filtered;
@@ -213,8 +214,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithMinLevelFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, MinLevel(2));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, min_level(2));
 
          wostringstream sstream;
          sstream << filtered;
@@ -230,8 +231,8 @@ namespace TreeReaderTests
 
       TEST_METHOD(PrintSimpleTreeWithMaxLevelFilter)
       {
-         TextTree filtered;
-         FilterTree(CreateSimpleTree(), filtered, MaxLevel(1));
+         text_tree filtered;
+         filter_tree(create_simple_tree(), filtered, max_level(1));
 
          wostringstream sstream;
          sstream << filtered;
@@ -243,10 +244,10 @@ namespace TreeReaderTests
          Assert::AreEqual(expectedOutput, sstream.str().c_str());
       }
 
-      TEST_METHOD(PrintSimpleTreeWithNotRegex)
+      TEST_METHOD(PrintSimpleTreeWithnotregex)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Not(Regex(L"[g]")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, not(dak::tree_reader::regex(L"[g]")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -265,8 +266,8 @@ namespace TreeReaderTests
 
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
-			TextTree filtered;
-			FilterTree(CreateSimpleTree(), filtered, Or(Contains(L"d"), Contains(L"s")));
+			text_tree filtered;
+			filter_tree(create_simple_tree(), filtered, or(contains(L"d"), contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -277,10 +278,10 @@ namespace TreeReaderTests
 			Assert::AreEqual(expectedOutput, sstream.str().c_str());
 		}
 
-      TEST_METHOD(PrintSimpleTreeWithAsyncContainsFilter)
+      TEST_METHOD(PrintSimpleTreeWithAsynccontainsFilter)
       {
-         auto tree = make_shared<TextTree>(CreateSimpleTree());
-         auto [fut, abort] = FilterTreeAsync(tree, Contains(L"g"));
+         auto tree = make_shared<text_tree>(create_simple_tree());
+         auto [fut, abort] = filter_tree_async(tree, contains(L"g"));
 
          wostringstream sstream;
          sstream << fut.get();

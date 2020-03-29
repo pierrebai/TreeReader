@@ -11,12 +11,12 @@
 #include <QtWidgets/qaction.h>
 #include <QtWidgets/qtoolbutton.h>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    ////////////////////////////////////////////////////////////////////////////
    //
    // Create toolbar buttons.
-   // Note: icon is a bitmap resource ID.
+   // note: icon is a bitmap resource ID.
 
    QToolButton* CreateToolButton(const QString& text, int icon = 0, QKeySequence key = QKeySequence(), const QString& tooltip = nullptr, std::function<void()> = nullptr);
    QToolButton* CreateToolButton(QAction* action);
@@ -25,7 +25,7 @@ namespace QtAdditions
    ////////////////////////////////////////////////////////////////////////////
    //
    // Create action.
-   // Note: icon is a bitmap resource ID.
+   // note: icon is a bitmap resource ID.
 
    QAction* CreateAction(const QString& text, int icon = 0, QKeySequence key = QKeySequence(), const QString& tooltip = nullptr, std::function<void()> = nullptr);
 

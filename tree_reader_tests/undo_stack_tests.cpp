@@ -1,100 +1,100 @@
-#include "UndoStack.h"
+#include "dak/utility/undo_stack.h"
 
 #include "CppUnitTest.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace TreeReader;
+using namespace dak::utility;
 
-namespace TreeReaderTests
+namespace dak::tree_reader_tests
 {		
-	TEST_CLASS(UndoStackTests)
+	TEST_CLASS(undo_stack_tests)
 	{
 	public:
 		
-		TEST_METHOD(UndoStackUndoRedo)
+		TEST_METHOD(UndoStackundo_redo)
 		{
-         UndoStack undo;
+         undo_stack undo;
 
-         Assert::IsFalse(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsFalse(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
          Assert::AreEqual<size_t>(0, undo.Contents().size());
 
-         struct Data
+         struct data
          {
-            Data(double a) : a(a), a_squared(a*a) { }
+            data(double a) : a(a), a_squared(a*a) { }
 
             double a = 0.;
             double a_squared = 0.;
          };
 
-         Data my_data(7.);
+         data my_data(7.);
 
          Assert::AreEqual(7., my_data.a);
          Assert::AreEqual(49., my_data.a_squared);
 
-         undo.Commit(
+         undo.commit(
          {
             my_data,
             [&](std::any& d)
             {
-               std::any_cast<Data&>(d).a_squared = 0.;
+               std::any_cast<data&>(d).a_squared = 0.;
             },
             [&my_data=my_data](const std::any& d)
             {
-               my_data = std::any_cast<const Data&>(d);
+               my_data = std::any_cast<const data&>(d);
                my_data.a_squared = my_data.a * my_data.a;
             }
          });
 
-         Assert::IsFalse(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsFalse(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
          Assert::AreEqual(7., my_data.a);
          Assert::AreEqual(49., my_data.a_squared);
 
          Assert::AreEqual<size_t>(1, undo.Contents().size());
-         Assert::AreEqual(7., std::any_cast<const Data&>(undo.Contents().back().Data).a);
-         Assert::AreEqual(0., std::any_cast<const Data&>(undo.Contents().back().Data).a_squared);
+         Assert::AreEqual(7., std::any_cast<const data&>(undo.Contents().back().data).a);
+         Assert::AreEqual(0., std::any_cast<const data&>(undo.Contents().back().data).a_squared);
 
-         my_data = Data(9.);
+         my_data = data(9.);
 
-         undo.Commit(
+         undo.commit(
          {
             my_data,
             [&](std::any& d)
             {
-               std::any_cast<Data&>(d).a_squared = 0.;
+               std::any_cast<data&>(d).a_squared = 0.;
             },
             [&my_data=my_data](const std::any& d)
             {
-               my_data = std::any_cast<const Data&>(d);
+               my_data = std::any_cast<const data&>(d);
                my_data.a_squared = my_data.a * my_data.a;
             }
          });
 
-         Assert::IsTrue(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsTrue(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
          Assert::AreEqual(9., my_data.a);
          Assert::AreEqual(81., my_data.a_squared);
 
          Assert::AreEqual<size_t>(2, undo.Contents().size());
-         Assert::AreEqual(9., std::any_cast<const Data&>(undo.Contents().back().Data).a);
-         Assert::AreEqual(0., std::any_cast<const Data&>(undo.Contents().back().Data).a_squared);
+         Assert::AreEqual(9., std::any_cast<const data&>(undo.Contents().back().data).a);
+         Assert::AreEqual(0., std::any_cast<const data&>(undo.Contents().back().data).a_squared);
 
-         undo.Undo();
+         undo.undo();
 
-         Assert::IsFalse(undo.HasUndo());
-         Assert::IsTrue(undo.HasRedo());
+         Assert::IsFalse(undo.has_undo());
+         Assert::IsTrue(undo.has_redo());
 
          Assert::AreEqual(7., my_data.a);
          Assert::AreEqual(49., my_data.a_squared);
 
-         undo.Redo();
+         undo.redo();
 
-         Assert::IsTrue(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsTrue(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
          Assert::AreEqual(9., my_data.a);
          Assert::AreEqual(81., my_data.a_squared);
@@ -102,80 +102,80 @@ namespace TreeReaderTests
 
 		TEST_METHOD(UndoStack_without_deaded_awaken)
 		{
-         UndoStack undo;
+         undo_stack undo;
 
-         undo.Commit({ 1.5 });
-         undo.Commit({ 3.5 });
+         undo.commit({ 1.5 });
+         undo.commit({ 3.5 });
 
-         Assert::IsTrue(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsTrue(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
-         undo.Undo();
+         undo.undo();
 
-         Assert::IsFalse(undo.HasUndo());
-         Assert::IsTrue(undo.HasRedo());
+         Assert::IsFalse(undo.has_undo());
+         Assert::IsTrue(undo.has_redo());
 
-         undo.Undo();
+         undo.undo();
 
-         Assert::IsFalse(undo.HasUndo());
-         Assert::IsTrue(undo.HasRedo());
+         Assert::IsFalse(undo.has_undo());
+         Assert::IsTrue(undo.has_redo());
 
-         undo.Redo();
+         undo.redo();
 
-         Assert::IsTrue(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsTrue(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
 
-         undo.Redo();
+         undo.redo();
 
-         Assert::IsTrue(undo.HasUndo());
-         Assert::IsFalse(undo.HasRedo());
+         Assert::IsTrue(undo.has_undo());
+         Assert::IsFalse(undo.has_redo());
       }
 
 		TEST_METHOD(UndoStack_empty_noop)
 		{
-         UndoStack undo;
+         undo_stack undo;
 
-         undo.Undo();
-         undo.Undo();
-         undo.Undo();
+         undo.undo();
+         undo.undo();
+         undo.undo();
 
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
 
-         undo.Undo();
-         undo.Undo();
+         undo.undo();
+         undo.undo();
 
-         undo.Redo();
-         undo.Redo();
+         undo.redo();
+         undo.redo();
 
-         undo.Commit({ 1.5 });
-         undo.Commit({ 3.5 });
+         undo.commit({ 1.5 });
+         undo.commit({ 3.5 });
 
-         undo.Redo();
-         undo.Redo();
+         undo.redo();
+         undo.redo();
 
-         undo.Undo();
-         undo.Undo();
-         undo.Undo();
+         undo.undo();
+         undo.undo();
+         undo.undo();
 
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
-         undo.Redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
+         undo.redo();
 
-         undo.Undo();
-         undo.Undo();
+         undo.undo();
+         undo.undo();
 
-         undo.Redo();
-         undo.Redo();
+         undo.redo();
+         undo.redo();
       }
 	};
 }

@@ -2,7 +2,7 @@
 
 #include <QtWidgets/qwidget.h>
 
-namespace QtAdditions
+namespace Qtadditions
 {
    /////////////////////////////////////////////////////////////////////////
    //
@@ -13,7 +13,7 @@ namespace QtAdditions
       QWidgetListItem(QWidget* parent = nullptr);
       virtual ~QWidgetListItem();
 
-      virtual QWidgetListItem* Clone() const;
+      virtual QWidgetListItem* clone() const;
 
    protected:
       void enterEvent(QEvent* event) override;
