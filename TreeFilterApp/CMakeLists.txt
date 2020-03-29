@@ -35,7 +35,7 @@ add_executable(TreeFilterApp WIN32
 )
 
 target_link_libraries(TreeFilterApp PUBLIC
-   TreeReader
+   tree_reader
    QtAdditions
    Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
 )
@@ -43,8 +43,8 @@ target_link_libraries(TreeFilterApp PUBLIC
 target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
 
 target_include_directories(TreeFilterApp PUBLIC
-   "${PROJECT_SOURCE_DIR}/TreeReader"
-   "${PROJECT_SOURCE_DIR}/QtAdditions"
+   "${PROJECT_SOURCE_DIR}/tree_reader/inc"
+   "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
 )
 
 add_custom_command(TARGET TreeFilterApp POST_BUILD
@@ -78,3 +78,4 @@ set(CPACK_NSIS_INSTALLED_ICON_NAME "TreeFilterApp.exe")
 set(CPACK_NSIS_DISPLAY_NAME "Tree Filter App")
 
 INCLUDE(CPack)
+

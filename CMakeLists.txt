@@ -7,9 +7,9 @@ project(TreeReaderProject)
 add_definitions(-DUNICODE)
 add_definitions(-D_UNICODE)
 
-add_subdirectory(TreeReader)
-add_subdirectory(TreeReaderTests)
+add_subdirectory(tree_reader)
+add_subdirectory(tree_reader_tests)
 add_subdirectory(QtAdditions)
-add_subdirectory(TreeFilter)
+add_subdirectory(tree_filter)
 add_subdirectory(TreeFilterApp)
 
