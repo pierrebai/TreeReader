@@ -11,7 +11,7 @@ namespace dak::tree_reader_tests
 	{
 	public:
 		
-		TEST_METHOD(UndoStackundo_redo)
+		TEST_METHOD(undo_stack_undo_redo)
 		{
          undo_stack undo;
 
@@ -100,7 +100,7 @@ namespace dak::tree_reader_tests
          Assert::AreEqual(81., my_data.a_squared);
       }
 
-		TEST_METHOD(UndoStack_without_deaded_awaken)
+		TEST_METHOD(undo_stack_without_deaded_awaken)
 		{
          undo_stack undo;
 
@@ -131,7 +131,7 @@ namespace dak::tree_reader_tests
          Assert::IsFalse(undo.has_redo());
       }
 
-		TEST_METHOD(UndoStack_empty_noop)
+		TEST_METHOD(undo_stack_empty_noop)
 		{
          undo_stack undo;
 

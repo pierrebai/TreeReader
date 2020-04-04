@@ -9,75 +9,75 @@ namespace dak::tree_reader
 
    namespace V1
    {
-      wstring ConvertFilterToText(const tree_filter_ptr& filter, size_t indent);
+      wstring convert_filter_to_text(const tree_filter_ptr& filter, size_t indent);
 
-      wstring ConvertFilterToText(const accept_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const accept_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"accept [ ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const stop_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const stop_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"stop [ ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const stop_when_kept_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const stop_when_kept_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"stop-when-kept [ " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"stop-when-kept [ " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const until_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const until_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"until [ " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"until [ " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const contains_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const contains_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"contains [ " << quoted(filter.Contained) << L" ]";
+         sstream << L"contains [ " << quoted(filter.contained) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const unique_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const unique_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"unique [ ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const regex_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const regex_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"regex [ " << quoted(filter.regexTextForm) << L" ]";
+         sstream << L"regex [ " << quoted(filter.regex_text) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const not_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const not_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"not [ " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"not [ " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const if_subtree_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const if_subtree_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"if-sub [ " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"if-sub [ " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const if_sibling_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const if_sibling_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"if-sib [ " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"if-sib [ " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
@@ -90,66 +90,66 @@ namespace dak::tree_reader
 
          if (begin != end)
          {
-            sstream << ConvertFilterToText(*begin, indent);
+            sstream << convert_filter_to_text(*begin, indent);
             ++begin;
          }
 
          while (begin != end)
          {
             sstream << L", ";
-            sstream << ConvertFilterToText(*begin, indent);
+            sstream << convert_filter_to_text(*begin, indent);
             ++begin;
          }
 
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const or_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const or_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"or [ " << convert_filter_to_text(filter.named_filters, indent + 1) << L" ]";
+         sstream << L"or [ " << convert_filter_to_text(filter.filters, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const and_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const and_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"and [ " << convert_filter_to_text(filter.named_filters, indent + 1) << L" ]";
+         sstream << L"and [ " << convert_filter_to_text(filter.filters, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const under_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const under_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"under [ " << boolalpha << filter.include_self << L", " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"under [ " << boolalpha << filter.include_self << L", " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const remove_children_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const remove_children_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"no-child [ " << boolalpha << filter.include_self << L", " << ConvertFilterToText(filter.filter, indent + 1) << L" ]";
+         sstream << L"no-child [ " << boolalpha << filter.include_self << L", " << convert_filter_to_text(filter.sub_filter, indent + 1) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const level_range_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const level_range_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
          sstream << L"range [ " << filter.min_level << L", " << filter.max_level << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const named_tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const named_tree_filter& filter, size_t indent)
       {
          wostringstream sstream;
-         sstream << L"named [ " << quoted(filter.Name) << L" ]";
+         sstream << L"named [ " << quoted(filter.name) << L" ]";
          return sstream.str();
       }
 
-      wstring ConvertFilterToText(const tree_filter& filter, size_t indent)
+      wstring convert_filter_to_text(const tree_filter& filter, size_t indent)
       {
-         wstring indentText = wstring(L"\n") + wstring(indent, L' ');
-         #define CALL_CONVERTER(a) if (const a* ptr = dynamic_cast<const a *>(&filter)) { return indentText + ConvertFilterToText(*ptr, indent); }
+         wstring indent_text = wstring(L"\n") + wstring(indent, L' ');
+         #define CALL_CONVERTER(a) if (const a* ptr = dynamic_cast<const a *>(&filter)) { return indent_text + convert_filter_to_text(*ptr, indent); }
 
          CALL_CONVERTER(accept_tree_filter)
          CALL_CONVERTER(stop_tree_filter)
@@ -173,27 +173,27 @@ namespace dak::tree_reader
          return {};
       }
 
-      wstring ConvertFilterToText(const tree_filter_ptr& filter, size_t indent)
+      wstring convert_filter_to_text(const tree_filter_ptr& filter, size_t indent)
       {
          if (!filter)
             return {};
 
-         return ConvertFilterToText(*filter, indent);
+         return convert_filter_to_text(*filter, indent);
       }
 
       wstring convert_filter_to_text(const tree_filter_ptr& filter)
       {
          wostringstream sstream;
-         sstream << L"V1: " << ConvertFilterToText(filter, 0);
+         sstream << L"V1: " << convert_filter_to_text(filter, 0);
          return sstream.str();
       }
 
       template <class T>
-      tree_filter_ptr ConvertTextToFilter(wistringstream& sstream);
+      tree_filter_ptr convert_text_to_filter(wistringstream& sstream);
 
       tree_filter_ptr convert_text_to_filter(wistringstream& sstream);
 
-      void EatClosingBrace(wistringstream& sstream)
+      void eat_closing_brace(wistringstream& sstream)
       {
          // Eat the closing ']'.
          wchar_t brace;
@@ -201,99 +201,99 @@ namespace dak::tree_reader
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<accept_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<accept_tree_filter>(wistringstream& sstream)
       {
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
          return accept();
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<stop_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<stop_tree_filter>(wistringstream& sstream)
       {
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
          return stop();
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<stop_when_kept_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<stop_when_kept_tree_filter>(wistringstream& sstream)
       {
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return stop_when_kept(filter);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<until_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<until_tree_filter>(wistringstream& sstream)
       {
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return until(filter);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<contains_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<contains_tree_filter>(wistringstream& sstream)
       {
          wstring contained;
          sstream >> skipws >> quoted(contained);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return contains(contained);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<unique_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<unique_tree_filter>(wistringstream& sstream)
       {
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
          return unique();
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<regex_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<regex_tree_filter>(wistringstream& sstream)
       {
          wstring regex;
          sstream >> skipws >> quoted(regex);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return dak::tree_reader::regex(regex);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<not_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<not_tree_filter>(wistringstream& sstream)
       {
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return not(filter);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<if_subtree_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<if_subtree_tree_filter>(wistringstream& sstream)
       {
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return if_subtree(filter);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<if_sibling_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<if_sibling_tree_filter>(wistringstream& sstream)
       {
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return if_sibling(filter);
       }
 
-      vector<tree_filter_ptr> ConvertTextToMultiFilters(wistringstream& sstream)
+      vector<tree_filter_ptr> convert_text_to_multiple_filters(wistringstream& sstream)
       {
          vector<tree_filter_ptr> filters;
 
@@ -315,81 +315,81 @@ namespace dak::tree_reader
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<or_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<or_tree_filter>(wistringstream& sstream)
       {
-         auto filters = ConvertTextToMultiFilters(sstream);
+         auto filters = convert_text_to_multiple_filters(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return Any(filters);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<and_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<and_tree_filter>(wistringstream& sstream)
       {
-         auto filters = ConvertTextToMultiFilters(sstream);
+         auto filters = convert_text_to_multiple_filters(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          return all(filters);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<under_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<under_tree_filter>(wistringstream& sstream)
       {
-         bool includeSelf;
+         bool include_self;
          wchar_t comma;
-         sstream >> skipws >> boolalpha >> includeSelf >> skipws >> comma;
+         sstream >> skipws >> boolalpha >> include_self >> skipws >> comma;
 
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
-         return under(filter, includeSelf);
+         return under(filter, include_self);
       }
 
       template <>
-      tree_filter_ptr ConvertTextToFilter<remove_children_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<remove_children_tree_filter>(wistringstream& sstream)
       {
-         bool removeSelf;
+         bool remove_self;
          wchar_t comma;
-         sstream >> skipws >> boolalpha >> removeSelf >> skipws >> comma;
+         sstream >> skipws >> boolalpha >> remove_self >> skipws >> comma;
 
          auto filter = convert_text_to_filter(sstream);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
-         return no_child(filter, removeSelf);
+         return no_child(filter, remove_self);
       }
 
       template<>
-      tree_filter_ptr ConvertTextToFilter<level_range_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<level_range_tree_filter>(wistringstream& sstream)
       {
-         size_t minLevel, maxLevel;
+         size_t min_level, max_level;
          wchar_t comma;
-         sstream >> skipws >> minLevel >> skipws >> comma >> skipws >> maxLevel;
+         sstream >> skipws >> min_level >> skipws >> comma >> skipws >> max_level;
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
-         return level_range(minLevel, maxLevel);
+         return level_range(min_level, max_level);
       }
 
       template<>
-      tree_filter_ptr ConvertTextToFilter<named_tree_filter>(wistringstream& sstream)
+      tree_filter_ptr convert_text_to_filter<named_tree_filter>(wistringstream& sstream)
       {
          wstring name;
          sstream >> skipws >> quoted(name);
 
-         EatClosingBrace(sstream);
+         eat_closing_brace(sstream);
 
          auto named = make_shared<named_tree_filter>();
-         named->Name = name;
+         named->name = name;
          return named;
       }
 
       tree_filter_ptr convert_text_to_filter(wistringstream& sstream)
       {
-         #define CALL_CONVERTER(a,b) if (name == a) { return ConvertTextToFilter<b>(sstream); } else
+         #define CALL_CONVERTER(a,b) if (name == a) { return convert_text_to_filter<b>(sstream); } else
 
          wstring name;
          wchar_t brace;

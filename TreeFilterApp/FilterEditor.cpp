@@ -54,7 +54,7 @@ namespace dak::tree_reader::app
          return _filterName;
       }
 
-      void SetEdited(const tree_filter_ptr& ed, const wstring& name, bool forced)
+      void setEdited(const tree_filter_ptr& ed, const wstring& name, bool forced)
       {
          if (ed == _edited && !forced)
             return;
@@ -120,13 +120,13 @@ namespace dak::tree_reader::app
 
          if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
          {
-            for (const auto& c : combine->named_filters)
+            for (const auto& c : combine->filters)
                if (IsUnder(c, child))
                   return true;
          }
          else if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
-            return IsUnder(delegate->filter, child);
+            return IsUnder(delegate->sub_filter, child);
          }
 
          return false;
@@ -178,11 +178,11 @@ namespace dak::tree_reader::app
       {
          if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
-            delegate->filter = nullptr;
+            delegate->sub_filter = nullptr;
          }
          else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
          {
-            combine->named_filters.clear();
+            combine->filters.clear();
          }
          return filter;
       }
@@ -194,10 +194,10 @@ namespace dak::tree_reader::app
             auto tfw = dynamic_cast<TreeFilterListItem*>(widget);
             if (!tfw)
                continue;
-            if (!tfw->filter)
+            if (!tfw->Filter)
                continue;
 
-            auto filter = DisconnectFilter(tfw->filter->clone());
+            auto filter = DisconnectFilter(tfw->Filter->clone());
 
             if (!root)
             {
@@ -210,16 +210,16 @@ namespace dak::tree_reader::app
                {
                   if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(previous.back()))
                   {
-                     if (!delegate->filter)
+                     if (!delegate->sub_filter)
                      {
-                        delegate->filter = filter;
+                        delegate->sub_filter = filter;
                         placed = true;
                         break;
                      }
                   }
                   else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(previous.back()))
                   {
-                     combine->named_filters.push_back(filter);
+                     combine->filters.push_back(filter);
                      placed = true;
                      break;
                   }
@@ -325,12 +325,12 @@ namespace dak::tree_reader::app
    {
    }
 
-   void FilterEditor::SetEdited(const tree_filter_ptr& edited, const wstring& name, bool forced)
+   void FilterEditor::setEdited(const tree_filter_ptr& edited, const wstring& name, bool forced)
    {
       if (!_ui)
          return;
 
-      _ui->SetEdited(edited, name, forced);
+      _ui->setEdited(edited, name, forced);
    }
 
    tree_filter_ptr FilterEditor::getEdited() const

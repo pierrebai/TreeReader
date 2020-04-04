@@ -14,12 +14,12 @@ namespace dak::tree_reader
 
       if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
       {
-         if (!visit_filters(delegate->filter, func))
+         if (!visit_filters(delegate->sub_filter, func))
             return false;
       }
       else if (auto combined = dynamic_pointer_cast<combine_tree_filter>(filter))
       {
-         for (auto& child : combined->named_filters)
+         for (auto& child : combined->filters)
          {
             if (!visit_filters(child, func))
                return false;

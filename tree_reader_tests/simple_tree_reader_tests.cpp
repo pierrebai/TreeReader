@@ -28,7 +28,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream2;
 			sstream2 << tree;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"abc\n"
 				L"  def\n"
 				L"    jkl\n"
@@ -37,7 +37,7 @@ namespace dak::tree_reader_tests
 				L"      pqr\n"
 				L"      stu\n"
 				L"        vwx\n";
-			Assert::AreEqual(expectedOutput, sstream2.str().c_str());
+			Assert::AreEqual(expected_output, sstream2.str().c_str());
 		}
 
 		TEST_METHOD(read_simple_tree_with_input_filter)
@@ -56,7 +56,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream2;
 			sstream2 << tree;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"ac\n"
 				L"  df\n"
 				L"    jl\n"
@@ -65,7 +65,7 @@ namespace dak::tree_reader_tests
 				L"      pqr\n"
 				L"      stu\n"
 				L"        vwx\n";
-			Assert::AreEqual(expectedOutput, sstream2.str().c_str());
+			Assert::AreEqual(expected_output, sstream2.str().c_str());
 		}
 	};
 }

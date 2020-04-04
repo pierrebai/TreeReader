@@ -13,7 +13,7 @@ namespace dak::tree_reader
    using namespace std;
 
    tree_commands::tree_commands(text_tree_ptr tree, wstring name, shared_ptr<named_filters> knownFilters, shared_ptr<undo_stack> undoRedo)
-   : Tree(move(tree)), _tree_filename(move(name)), _known_filters(move(knownFilters)), _undo_redo(move(undoRedo))
+   : _tree(move(tree)), _tree_filename(move(name)), _known_filters(move(knownFilters)), _undo_redo(move(undoRedo))
    {
    }
 
@@ -69,19 +69,19 @@ namespace dak::tree_reader
       {
          if (async)
          {
-            _async_filtering = move(filter_tree_async(Tree, _filter));
+            _async_filtering = move(filter_tree_async(_tree, _filter));
          }
          else
          {
             _filtered = make_shared<text_tree>();
-            filter_tree(*Tree, *_filtered, *_filter);
+            filter_tree(*_tree, *_filtered, *_filter);
             _filtered_was_saved = false;
             apply_search_in_tree(async);
          }
       }
       else
       {
-         _filtered = make_shared<text_tree>(*Tree);
+         _filtered = make_shared<text_tree>(*_tree);
          // note: pure copy of input tree are considered to have been saved.
          _filtered_was_saved = true;
          apply_search_in_tree(async);
@@ -167,7 +167,7 @@ namespace dak::tree_reader
          return;
       }
 
-      text_tree_ptr applyTo = _filtered ? _filtered : Tree;
+      text_tree_ptr applyTo = _filtered ? _filtered : _tree;
 
       if (!applyTo)
          return;
@@ -191,7 +191,7 @@ namespace dak::tree_reader
 
    text_tree_ptr tree_commands::get_original_tree() const
    {
-      return Tree;
+      return _tree;
    }
 
    std::wstring tree_commands::get_original_tree_filename() const

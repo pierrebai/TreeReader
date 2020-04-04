@@ -21,7 +21,7 @@ namespace dak::tree_reader
    struct named_tree_filter : tree_filter
    {
       tree_filter_ptr filter;
-      std::wstring Name;
+      std::wstring name;
 
       named_tree_filter() = default;
 
@@ -31,8 +31,8 @@ namespace dak::tree_reader
       tree_filter_ptr clone() const override;
 
    private:
-      named_tree_filter(const std::wstring& name) : Name(name) { }
-      named_tree_filter(const tree_filter_ptr& filter, const std::wstring& name) : filter(filter), Name(name) { }
+      named_tree_filter(const std::wstring& a_name) : name(a_name) { }
+      named_tree_filter(const tree_filter_ptr& a_filter, const std::wstring& a_name) : filter(a_filter), name(a_name) { }
 
       friend struct named_filters;
    };

@@ -238,7 +238,7 @@ namespace dak::tree_reader::app
          auto filter = convert_simple_text_to_filter(self->_simpleSearch->text().toStdWString(), self->_data.get_Filters());
          if (filter)
          {
-            self->_filterEditor->SetEdited(filter, L"");
+            self->_filterEditor->setEdited(filter, L"");
          }
       });
 
@@ -349,7 +349,7 @@ namespace dak::tree_reader::app
       if (!window)
          return;
 
-      _filterEditor->SetEdited(window->Tree->get_filter(), window->Tree->get_filter_name());
+      _filterEditor->setEdited(window->Tree->get_filter(), window->Tree->get_filter_name());
    }
 
    void MainWindow::FillAvailableFiltersUI()
@@ -381,10 +381,10 @@ namespace dak::tree_reader::app
          if (!panel)
             return;
 
-         if (!panel->filter)
+         if (!panel->Filter)
             return;
 
-         if (self->_data.remove_Filter(panel->filter->get_name()))
+         if (self->_data.remove_Filter(panel->Filter->get_name()))
          {
             self->_availableFiltersList->removeItem(panel);
          }
@@ -395,11 +395,11 @@ namespace dak::tree_reader::app
          if (!panel)
             return;
 
-         if (auto named = dynamic_pointer_cast<named_tree_filter>(panel->filter))
+         if (auto named = dynamic_pointer_cast<named_tree_filter>(panel->Filter))
          {
             if (named->filter)
             {
-               self->_filterEditor->SetEdited(named->filter->clone(), named->Name, true);
+               self->_filterEditor->setEdited(named->filter->clone(), named->name, true);
             }
          }
       };

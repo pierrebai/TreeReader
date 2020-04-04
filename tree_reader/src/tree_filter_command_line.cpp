@@ -97,11 +97,11 @@ namespace dak::tree_reader
       wstring result;
 
       // Backup current settings to detect changes.
-      const commands_options previousOptions = options;
-      auto previousFilterText = filter_text;
-      auto previousTreeFileName = current_tree ? current_tree->get_original_tree_filename() : wstring();
-      auto previousFilter = current_tree ? current_tree->get_filter() : tree_filter_ptr();
-      auto previousCtx = current_tree;
+      const commands_options previous_options = options;
+      auto previous_filter_text = filter_text;
+      auto previous_tree_filename = current_tree ? current_tree->get_original_tree_filename() : wstring();
+      auto previous_filter = current_tree ? current_tree->get_filter() : tree_filter_ptr();
+      auto previous_ctx = current_tree;
 
       filter_text = L"";
 
@@ -180,7 +180,7 @@ namespace dak::tree_reader
                current_tree->apply_filter_to_tree();
                current_tree = create_tree_from_filtered(current_tree);
                clear_filter_text();
-               previousFilterText = L"";
+               previous_filter_text = L"";
             }
          }
          else if (cmd == L"name" && i + 1 < cmds.size())
@@ -210,21 +210,21 @@ namespace dak::tree_reader
       }
 
       if (filter_text.empty())
-         filter_text = previousFilterText;
+         filter_text = previous_filter_text;
 
-      const bool filterTextChanged = (previousFilterText != filter_text);
-      if (filterTextChanged)
+      const bool filter_text_changed = (previous_filter_text != filter_text);
+      if (filter_text_changed)
          result += create_filter();
 
       if (current_tree)
       {
-         const bool optionsChanged = (previousOptions != options);
-         const bool readOptionsChanged = (previousOptions.read_options != options.read_options);
-         const bool fileChanged = (previousTreeFileName != current_tree->get_original_tree_filename());
-         const bool filterChanged = (filterTextChanged || previousFilter != current_tree->get_filter());
-         const bool treeChanged = (previousCtx != current_tree);
+         const bool options_changed = (previous_options != options);
+         const bool read_options_changed = (previous_options.read_options != options.read_options);
+         const bool file_changed = (previous_tree_filename != current_tree->get_original_tree_filename());
+         const bool filter_changed = (filter_text_changed || previous_filter != current_tree->get_filter());
+         const bool tree_changed = (previous_ctx != current_tree);
 
-         if (fileChanged || filterChanged || optionsChanged || readOptionsChanged || treeChanged)
+         if (file_changed || filter_changed || options_changed || read_options_changed || tree_changed)
             current_tree->apply_filter_to_tree();
       }
 

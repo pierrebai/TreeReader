@@ -82,7 +82,7 @@ namespace dak::tree_reader
       text_tree_ptr _searched;
 
       std::wstring _tree_filename;
-      text_tree_ptr Tree;
+      text_tree_ptr _tree;
 
       std::wstring _filtered_filename;
       text_tree_ptr _filtered;

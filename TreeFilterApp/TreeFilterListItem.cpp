@@ -55,7 +55,7 @@ namespace dak::tree_reader::app
 
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<contains_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->Contained);
+         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->contained);
       }
 
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<unique_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
@@ -65,7 +65,7 @@ namespace dak::tree_reader::app
 
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<regex_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->regexTextForm);
+         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->regex_text);
       }
 
       TreeFilterListItem* CreateFilterPanel(const shared_ptr<not_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
@@ -151,7 +151,7 @@ namespace dak::tree_reader::app
       const shared_ptr<tree_filter>& filter,
       DeleteCallbackfunction delfunc, EditCallbackfunction editfunc,
       wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
-      : filter(filter)
+      : Filter(filter)
    {
       const bool active = (delfunc != nullptr);
 
@@ -269,7 +269,7 @@ namespace dak::tree_reader::app
 
    TreeFilterListItem* TreeFilterListItem::clone(DeleteCallbackfunction delfunc, EditCallbackfunction editfunc) const
    {
-      return Create(filter->clone(), delfunc, editfunc);
+      return Create(Filter->clone(), delfunc, editfunc);
    }
 
 }

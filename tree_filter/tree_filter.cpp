@@ -12,7 +12,7 @@ int wmain(int argc, wchar_t** argv)
 {
    command_line ctx;
 
-   wstring programName = argc > 0 ? argv[0] : L"tree_filter";
+   wstring program_name = argc > 0 ? argv[0] : L"tree_filter";
    vector<wstring> args(argv + min(1, argc), argv + argc);
 
    while (true)

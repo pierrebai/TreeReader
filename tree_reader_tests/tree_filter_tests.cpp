@@ -24,8 +24,8 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] = L"ghi\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			const wchar_t expected_output[] = L"ghi\n";
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
       TEST_METHOD(PrintSimpleTreeWithuniqueFilter)
@@ -36,7 +36,7 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
 				L"abc\n"
 				L"  def\n"
 				L"    jkl\n"
@@ -45,7 +45,7 @@ namespace dak::tree_reader_tests
 				L"      pqr\n"
 				L"      stu\n"
 				L"        vwx\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithexact_addressFilter)
@@ -57,8 +57,8 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] = L"abc\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         const wchar_t expected_output[] = L"abc\n";
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithnotFilter)
@@ -69,7 +69,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"abc\n"
 				L"  jkl\n"
 				L"  ghi\n"
@@ -77,7 +77,7 @@ namespace dak::tree_reader_tests
 				L"      pqr\n"
 				L"      stu\n"
 				L"        vwx\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeFilter)
@@ -88,10 +88,10 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"abc\n"
             L"  def\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndstopFilter)
@@ -102,9 +102,9 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"abc\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithIfSiblingFilter)
@@ -115,10 +115,10 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"pqr\n"
             L"stu\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithOrFilter)
@@ -129,10 +129,10 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"def\n"
 				L"mno\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 		TEST_METHOD(PrintSimpleTreeWithremovechildrenFilter)
@@ -143,12 +143,12 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"abc\n"
             L"  def\n"
             L"    jkl\n"
             L"  ghi\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 		TEST_METHOD(PrintSimpleTreeWithUnder)
@@ -159,9 +159,9 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"stu\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 		TEST_METHOD(PrintSimpleTreeWithUnderAndSelf)
@@ -172,13 +172,13 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
             L"ghi\n"
             L"  mno\n"
             L"    pqr\n"
             L"    stu\n"
             L"      vwx\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
       TEST_METHOD(PrintSimpleTreeWithremovechildrenAndSelfFilter)
@@ -189,11 +189,11 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"abc\n"
             L"  def\n"
             L"    jkl\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithLevelRangeFilter)
@@ -204,12 +204,12 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"jkl\n"
             L"mno\n"
             L"  pqr\n"
             L"  stu\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithMinLevelFilter)
@@ -220,13 +220,13 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"jkl\n"
             L"mno\n"
             L"  pqr\n"
             L"  stu\n"
             L"    vwx\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithMaxLevelFilter)
@@ -237,11 +237,11 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << filtered;
 
-         const wchar_t expectedOutput[] =
+         const wchar_t expected_output[] =
             L"abc\n"
             L"  def\n"
             L"  ghi\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
       TEST_METHOD(PrintSimpleTreeWithnotregex)
@@ -252,7 +252,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"abc\n"
 				L"  def\n"
 				L"    jkl\n"
@@ -260,7 +260,7 @@ namespace dak::tree_reader_tests
 				L"    pqr\n"
 				L"    stu\n"
 				L"      vwx\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 
@@ -272,10 +272,10 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << filtered;
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"def\n"
 				L"stu\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
       TEST_METHOD(PrintSimpleTreeWithAsynccontainsFilter)
@@ -286,8 +286,8 @@ namespace dak::tree_reader_tests
          wostringstream sstream;
          sstream << fut.get();
 
-         const wchar_t expectedOutput[] = L"ghi\n";
-         Assert::AreEqual(expectedOutput, sstream.str().c_str());
+         const wchar_t expected_output[] = L"ghi\n";
+         Assert::AreEqual(expected_output, sstream.str().c_str());
       }
 
    };

@@ -66,10 +66,10 @@ namespace dak::tree_reader
 
    struct delegate_tree_filter : tree_filter
    {
-      tree_filter_ptr filter;
+      tree_filter_ptr sub_filter;
 
       delegate_tree_filter() = default;
-      delegate_tree_filter(const tree_filter_ptr& filter) : filter(filter) { }
+      delegate_tree_filter(const tree_filter_ptr& filter) : sub_filter(filter) { }
       delegate_tree_filter(const delegate_tree_filter& other);
 
       result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
@@ -144,10 +144,10 @@ namespace dak::tree_reader
 
    struct contains_tree_filter : tree_filter
    {
-      std::wstring Contained;
+      std::wstring contained;
 
       contains_tree_filter() = default;
-      contains_tree_filter(const std::wstring& text) : Contained(text) { }
+      contains_tree_filter(const std::wstring& text) : contained(text) { }
 
       result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
       std::wstring get_name() const override;
@@ -201,11 +201,11 @@ namespace dak::tree_reader
 
    struct regex_tree_filter : tree_filter
    {
-      std::wstring regexTextForm;
+      std::wstring regex_text;
       std::wregex regex;
 
       regex_tree_filter() = default;
-      regex_tree_filter(const std::wstring& reg) : regexTextForm(reg), regex(std::wregex(reg)) { }
+      regex_tree_filter(const std::wstring& reg) : regex_text(reg), regex(std::wregex(reg)) { }
 
       result is_kept(const text_tree& tree, const text_tree::node& node, size_t level) override;
       std::wstring get_name() const override;
@@ -220,12 +220,12 @@ namespace dak::tree_reader
 
    struct combine_tree_filter : tree_filter
    {
-      std::vector<tree_filter_ptr> named_filters;
+      std::vector<tree_filter_ptr> filters;
 
       combine_tree_filter() = default;
 
-      combine_tree_filter(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { named_filters.push_back(lhs); named_filters.push_back(rhs); }
-      combine_tree_filter(const std::vector<tree_filter_ptr>& filters) : named_filters(filters) {}
+      combine_tree_filter(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { filters.push_back(lhs); filters.push_back(rhs); }
+      combine_tree_filter(const std::vector<tree_filter_ptr>& filters) : filters(filters) {}
       combine_tree_filter(const combine_tree_filter& other);
    };
 

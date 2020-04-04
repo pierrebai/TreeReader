@@ -52,8 +52,8 @@ namespace dak::tree_reader::app
       {
          if (auto tfw = dynamic_cast<TreeFilterListItem*>(w))
          {
-            if (tfw->filter)
-               filters.emplace_back(tfw->filter);
+            if (tfw->Filter)
+               filters.emplace_back(tfw->Filter);
          }
       }
 

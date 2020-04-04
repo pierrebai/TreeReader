@@ -3,6 +3,6 @@
 
 namespace dak::tree_reader_tests
 {
-	std::shared_ptr<tree_reader::text_lines_text_holder> Createtext_lines();
+	std::shared_ptr<tree_reader::text_lines_text_holder> create_text_lines();
 	tree_reader::text_tree create_simple_tree();
 }

@@ -61,7 +61,7 @@ namespace dak::tree_reader
             }
             else if (current_combiner)
             {
-               current_combiner->named_filters.push_back(filter);
+               current_combiner->filters.push_back(filter);
             }
             else if (previous)
             {
@@ -75,11 +75,11 @@ namespace dak::tree_reader
                   current_combiner = make_shared<and_tree_filter>();
                }
 
-               current_combiner->named_filters.push_back(previous);
+               current_combiner->filters.push_back(previous);
                previous = nullptr;
 
                if (filter)
-                  current_combiner->named_filters.push_back(filter);
+                  current_combiner->filters.push_back(filter);
 
                if (!result)
                   result = current_combiner;
@@ -113,7 +113,7 @@ namespace dak::tree_reader
             {
                auto filter = make_shared<not_tree_filter>();
                add_filter(filter);
-               needed_filter = &filter->filter;
+               needed_filter = &filter->sub_filter;
             }
             else if (part[0] == L'@')
             {
@@ -125,13 +125,13 @@ namespace dak::tree_reader
             {
                auto filter = make_shared<if_sibling_tree_filter>();
                add_filter(filter);
-               needed_filter = &filter->filter;
+               needed_filter = &filter->sub_filter;
             }
             else if (part == L"?>" || part == L"child")
             {
                auto filter = make_shared<if_subtree_tree_filter>();
                add_filter(filter);
-               needed_filter = &filter->filter;
+               needed_filter = &filter->sub_filter;
             }
             else if (part == L"|" || part == L"or" || part == L"any")
             {
@@ -168,7 +168,7 @@ namespace dak::tree_reader
             {
                auto filter = make_shared<under_tree_filter>();
                add_filter(filter);
-               needed_filter = &filter->filter;
+               needed_filter = &filter->sub_filter;
             }
             else if (part == L"." || part == L"stop")
             {
@@ -178,7 +178,7 @@ namespace dak::tree_reader
             {
                auto filter = make_shared<until_tree_filter>();
                add_filter(filter);
-               needed_filter = &filter->filter;
+               needed_filter = &filter->sub_filter;
             }
             else if (part == L"*" || part == L"accept")
             {

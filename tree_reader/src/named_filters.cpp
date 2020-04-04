@@ -79,11 +79,11 @@ namespace dak::tree_reader
       while (stream)
       {
          wstring name;
-         wstring filterText;
+         wstring filter_text;
          wchar_t column;
-         stream >> skipws >> quoted(name) >> skipws >> column >> skipws >> quoted(filterText);
+         stream >> skipws >> quoted(name) >> skipws >> column >> skipws >> quoted(filter_text);
 
-         tree_filter_ptr filter = convert_text_to_filter(filterText, filters);
+         tree_filter_ptr filter = convert_text_to_filter(filter_text, filters);
 
          filters.add(name, filter);
       }
@@ -98,11 +98,11 @@ namespace dak::tree_reader
    {
       visit_filters(filter, [&named](const tree_filter_ptr& filter)
       {
-         if (auto namedFilter = dynamic_pointer_cast<named_tree_filter>(filter))
+         if (auto named_filter = dynamic_pointer_cast<named_tree_filter>(filter))
          {
-            auto target_filter = named.get_definition(namedFilter->Name);
+            auto target_filter = named.get_definition(named_filter->name);
             if (target_filter)
-               namedFilter->filter = target_filter;
+               named_filter->filter = target_filter;
          }
          return true;
       });

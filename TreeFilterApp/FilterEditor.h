@@ -38,7 +38,7 @@ namespace dak::tree_reader::app
       FilterEditor(const named_filters& known, undo_stack& undoRedo, QWidget* parent);
 
       // Set the named_filters being edited.
-      void SetEdited(const tree_filter_ptr& edited, const std::wstring& name, bool forced = false);
+      void setEdited(const tree_filter_ptr& edited, const std::wstring& name, bool forced = false);
 
       // get the filter being edited.
       tree_filter_ptr getEdited() const;

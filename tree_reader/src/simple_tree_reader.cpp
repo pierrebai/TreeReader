@@ -12,9 +12,9 @@ namespace dak::tree_reader
    using namespace std::filesystem;
    using node = text_tree::node;
 
-   struct buffersTextholderWithFilteredlines : buffers_text_holder
+   struct buffers_text_holder_with_filtered_lines : buffers_text_holder
    {
-      list<wstring> Filteredlines;
+      list<wstring> filtered_lines;
    };
 
    text_tree load_simple_text_tree(const path& path, const load_simple_text_tree_options& options)
@@ -25,26 +25,26 @@ namespace dak::tree_reader
 
    static std::pair<size_t, size_t> getIndent(const wchar_t* line, size_t count, const load_simple_text_tree_options& options)
    {
-      const size_t textIndex = wcsspn(line, options.input_indent.c_str());
-      size_t indent = textIndex;
-      for (size_t i = 0; i < textIndex; ++i)
+      const size_t text_index = wcsspn(line, options.input_indent.c_str());
+      size_t indent = text_index;
+      for (size_t i = 0; i < text_index; ++i)
          if (line[i] == L'\t')
             indent += options.tab_size - 1;
-      return make_pair(indent, textIndex);
+      return make_pair(indent, text_index);
 }
 
    text_tree load_simple_text_tree(wistream& stream, const load_simple_text_tree_options& options)
    {
       buffers_text_holder_reader reader;
 
-      // reset the text holder for this private version that can hold extra filtered lines.
-      shared_ptr<buffersTextholderWithFilteredlines> holder;
-      wregex inputFilter;
-      const bool inputFilterUsed = !options.input_filter.empty();
-      if (inputFilterUsed)
+      // Reset the text holder for this private version that can hold extra filtered lines.
+      shared_ptr<buffers_text_holder_with_filtered_lines> holder;
+      wregex input_filter;
+      const bool input_filter_used = !options.input_filter.empty();
+      if (input_filter_used)
       {
-         inputFilter = wregex(options.input_filter);
-         reader.holder = holder = make_shared<buffersTextholderWithFilteredlines>();
+         input_filter = wregex(options.input_filter);
+         reader.holder = holder = make_shared<buffers_text_holder_with_filtered_lines>();
       }
 
       vector<size_t> indents;
@@ -58,29 +58,29 @@ namespace dak::tree_reader
             if (count <= 0)
                break;
 
-            if (inputFilterUsed)
+            if (input_filter_used)
             {
-               auto pos = wcregex_iterator(line, line + count, inputFilter);
+               auto pos = wcregex_iterator(line, line + count, input_filter);
                auto end = wcregex_iterator();
                if (pos == end)
                   continue;
 
-               wstring cleanedLine;
+               wstring cleaned_line;
                for (; pos != end; ++pos)
-                  cleanedLine += pos->str();
+                  cleaned_line += pos->str();
 
-               const size_t cleanedCount = cleanedLine.size();
-               if (cleanedCount < count)
+               const size_t cleaned_count = cleaned_line.size();
+               if (cleaned_count < count)
                {
-                  holder->Filteredlines.emplace_back(move(cleanedLine));
-                  line = holder->Filteredlines.back().data();
-                  count = cleanedCount;
+                  holder->filtered_lines.emplace_back(move(cleaned_line));
+                  line = holder->filtered_lines.back().data();
+                  count = cleaned_count;
                }
             }
 
-            const auto [indent, textIndex] = getIndent(line, count, options);
+            const auto [indent, text_index] = getIndent(line, count, options);
 
-            lines.emplace_back(line + textIndex);
+            lines.emplace_back(line + text_index);
             indents.emplace_back(indent);
          }
       }
@@ -92,30 +92,30 @@ namespace dak::tree_reader
       if (indents.empty())
          return tree;
 
-      vector<size_t> previousIndents;
-      vector<node *> previousnodes;
+      vector<size_t> previous_indents;
+      vector<node *> previous_nodes;
 
-      previousIndents.emplace_back(indents[0]);
-      previousnodes.emplace_back(nullptr);
+      previous_indents.emplace_back(indents[0]);
+      previous_nodes.emplace_back(nullptr);
 
       for (size_t i = 0; i < indents.size(); ++i)
       {
-         const size_t newIndent = indents[i];
+         const size_t new_indent = indents[i];
 
-         size_t previousIndent = previousIndents.back();
-         while (newIndent < previousIndent)
+         size_t previous_indent = previous_indents.back();
+         while (new_indent < previous_indent)
          {
-            previousIndents.pop_back();
-            previousnodes.pop_back();
-            previousIndent = previousIndents.back();
+            previous_indents.pop_back();
+            previous_nodes.pop_back();
+            previous_indent = previous_indents.back();
          }
 
-         const wchar_t* newText = lines[i];
-         node* addUnder = (newIndent > previousIndent) ? previousnodes.back()
-                        : previousnodes.back() ? previousnodes.back()->parent : nullptr;
-         node * newnode = tree.add_child(addUnder, newText);
-         previousIndents.emplace_back(newIndent);
-         previousnodes.emplace_back(newnode);
+         const wchar_t* new_text = lines[i];
+         node* addUnder = (new_indent > previous_indent) ? previous_nodes.back()
+                        : previous_nodes.back() ? previous_nodes.back()->parent : nullptr;
+         node * newnode = tree.add_child(addUnder, new_text);
+         previous_indents.emplace_back(new_indent);
+         previous_nodes.emplace_back(newnode);
       }
 
       return tree;

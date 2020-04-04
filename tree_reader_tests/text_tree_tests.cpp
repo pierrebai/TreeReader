@@ -20,8 +20,8 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << text_tree();
 
-			const wchar_t expectedOutput[] = L"";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			const wchar_t expected_output[] = L"";
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 		TEST_METHOD(count_simple_tree)
@@ -63,7 +63,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			sstream << create_simple_tree();
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"abc\n"
 				L"  def\n"
 				L"    jkl\n"
@@ -72,7 +72,7 @@ namespace dak::tree_reader_tests
 				L"      pqr\n"
 				L"      stu\n"
 				L"        vwx\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 
 		TEST_METHOD(print_simple_tree_with_dot_dot_indent)
@@ -80,7 +80,7 @@ namespace dak::tree_reader_tests
 			wostringstream sstream;
 			print_tree(sstream, create_simple_tree(), L"..");
 
-			const wchar_t expectedOutput[] =
+			const wchar_t expected_output[] =
 				L"abc\n"
 				L"..def\n"
 				L"....jkl\n"
@@ -89,7 +89,7 @@ namespace dak::tree_reader_tests
 				L"......pqr\n"
 				L"......stu\n"
 				L"........vwx\n";
-			Assert::AreEqual(expectedOutput, sstream.str().c_str());
+			Assert::AreEqual(expected_output, sstream.str().c_str());
 		}
 	};
 }

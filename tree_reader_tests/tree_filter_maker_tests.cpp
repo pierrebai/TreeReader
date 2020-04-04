@@ -49,7 +49,7 @@ namespace dak::tree_reader_tests
 
          auto rebuilt = dynamic_pointer_cast<stop_when_kept_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->filter) != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->sub_filter) != nullptr);
       }
 
       TEST_METHOD(ConvertToTextcontainsFilter)
@@ -62,7 +62,7 @@ namespace dak::tree_reader_tests
 
          auto rebuilt = dynamic_pointer_cast<contains_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::AreEqual(L"\"abc\"", rebuilt->Contained.c_str());
+         Assert::AreEqual(L"\"abc\"", rebuilt->contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextuniqueFilter)
@@ -87,7 +87,7 @@ namespace dak::tree_reader_tests
 
          auto rebuilt = dynamic_pointer_cast<regex_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::AreEqual(L"[abc]*", rebuilt->regexTextForm.c_str());
+         Assert::AreEqual(L"[abc]*", rebuilt->regex_text.c_str());
       }
 
       TEST_METHOD(ConvertToTextnotacceptFilter)
@@ -100,7 +100,7 @@ namespace dak::tree_reader_tests
 
          auto rebuilt = dynamic_pointer_cast<not_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
-         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->filter) != nullptr);
+         Assert::IsTrue(dynamic_pointer_cast<accept_tree_filter>(rebuilt->sub_filter) != nullptr);
       }
 
       TEST_METHOD(ConvertToTextOrFilter)
@@ -114,15 +114,15 @@ namespace dak::tree_reader_tests
          auto rebuilt = dynamic_pointer_cast<or_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual<size_t>(2, rebuilt->named_filters.size());
+         Assert::AreEqual<size_t>(2, rebuilt->filters.size());
 
-         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[0]);
+         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filters[0]);
          Assert::IsTrue(lhs != nullptr);
-         Assert::AreEqual(L"a", lhs->Contained.c_str());
+         Assert::AreEqual(L"a", lhs->contained.c_str());
 
-         auto rhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[1]);
+         auto rhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filters[1]);
          Assert::IsTrue(rhs != nullptr);
-         Assert::AreEqual(L"b", rhs->Contained.c_str());
+         Assert::AreEqual(L"b", rhs->contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextAndFilter)
@@ -136,13 +136,13 @@ namespace dak::tree_reader_tests
          auto rebuilt = dynamic_pointer_cast<and_tree_filter>(convert_text_to_filter(text, named_filters()));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual<size_t>(2, rebuilt->named_filters.size());
+         Assert::AreEqual<size_t>(2, rebuilt->filters.size());
 
-         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->named_filters[0]);
+         auto lhs = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filters[0]);
          Assert::IsTrue(lhs != nullptr);
-         Assert::AreEqual(L"a", lhs->Contained.c_str());
+         Assert::AreEqual(L"a", lhs->contained.c_str());
 
-         auto rhs = dynamic_pointer_cast<unique_tree_filter>(rebuilt->named_filters[1]);
+         auto rhs = dynamic_pointer_cast<unique_tree_filter>(rebuilt->filters[1]);
          Assert::IsTrue(rhs != nullptr);
       }
 
@@ -159,9 +159,9 @@ namespace dak::tree_reader_tests
 
          Assert::IsTrue(rebuilt->include_self);
 
-         auto under = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filter);
+         auto under = dynamic_pointer_cast<contains_tree_filter>(rebuilt->sub_filter);
          Assert::IsTrue(under != nullptr);
-         Assert::AreEqual(L"a", under->Contained.c_str());
+         Assert::AreEqual(L"a", under->contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextremovechildrenFilter)
@@ -177,9 +177,9 @@ namespace dak::tree_reader_tests
 
          Assert::IsFalse(rebuilt->include_self);
 
-         auto subFilter = dynamic_pointer_cast<contains_tree_filter>(rebuilt->filter);
+         auto subFilter = dynamic_pointer_cast<contains_tree_filter>(rebuilt->sub_filter);
          Assert::IsTrue(subFilter != nullptr);
-         Assert::AreEqual(L"abc", subFilter->Contained.c_str());
+         Assert::AreEqual(L"abc", subFilter->contained.c_str());
       }
 
       TEST_METHOD(ConvertToTextRangeFilter)
@@ -211,7 +211,7 @@ namespace dak::tree_reader_tests
          auto rebuilt = dynamic_pointer_cast<named_tree_filter>(convert_text_to_filter(text, known));
          Assert::IsTrue(rebuilt != nullptr);
 
-         Assert::AreEqual(wstring(L"abc"), rebuilt->Name);
+         Assert::AreEqual(wstring(L"abc"), rebuilt->name);
          Assert::IsTrue(known.get(L"abc")->filter == rebuilt->filter);
       }
 

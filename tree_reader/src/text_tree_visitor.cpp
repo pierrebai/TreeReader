@@ -7,23 +7,23 @@ namespace dak::tree_reader
    using node = text_tree::node;
    using Iter = vector<node *>::const_iterator;
    using IterPair = pair<Iter, Iter>;
-   constexpr result Continuevisit{ false, false };
-   constexpr result stopvisit{ true, false };
+   constexpr result continue_visit{ false, false };
+   constexpr result stop_visit{ true, false };
 
    result simple_tree_visitor::go_deeper(size_t deeperLevel)
    {
-      return Continuevisit;
+      return continue_visit;
    }
 
    result simple_tree_visitor::go_higher(size_t higherLevel)
    {
-      return Continuevisit;
+      return continue_visit;
    }
 
    result delegate_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
    {
       if (!visitor)
-         return stopvisit;
+         return stop_visit;
 
       return visitor->visit(tree, node, level);
    }
@@ -36,7 +36,7 @@ namespace dak::tree_reader
    result can_abort_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
    {
       if (abort)
-         return stopvisit;
+         return stop_visit;
 
       return delegate_tree_visitor::visit(tree, node, level);
    }
@@ -68,7 +68,7 @@ namespace dak::tree_reader
          pos = make_pair(tree.roots.begin(), tree.roots.end());
       }
 
-      vector<IterPair> goBack;
+      vector<IterPair> go_back;
 
       size_t level = 0;
       while (true)
@@ -82,7 +82,7 @@ namespace dak::tree_reader
 
             if (!result.skip_children && c_node.children.size() > 0)
             {
-               goBack.push_back(pos);
+               go_back.push_back(pos);
                pos = make_pair(c_node.children.begin(), c_node.children.end());
                level++;
                if (visitor.go_deeper(level).stop)
@@ -93,14 +93,14 @@ namespace dak::tree_reader
                ++pos.first;
             }
          }
-         else if (goBack.empty())
+         else if (go_back.empty())
          {
             break;
          }
          else
          {
-            pos = goBack.back();
-            goBack.pop_back();
+            pos = go_back.back();
+            go_back.pop_back();
             ++pos.first;
             level--;
             if (visitor.go_higher(level).stop)

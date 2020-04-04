@@ -40,10 +40,10 @@ namespace dak::tree_reader
 
    tree_commands_ptr global_commands::load_tree(const filesystem::path& filename)
    {
-      auto newTree = make_shared<text_tree>(load_simple_text_tree(filename, options.read_options));
-      if (newTree && newTree->roots.size() > 0)
+      auto new_tree = make_shared<text_tree>(load_simple_text_tree(filename, options.read_options));
+      if (new_tree && new_tree->roots.size() > 0)
       {
-         auto treeCmd = make_shared<tree_commands>(newTree, filename, _known_filters, _undo_redo);
+         auto treeCmd = make_shared<tree_commands>(new_tree, filename, _known_filters, _undo_redo);
          _trees.emplace_back(treeCmd);
          return treeCmd;
       }
@@ -162,11 +162,11 @@ namespace dak::tree_reader
       if (!tree)
          return {};
 
-      auto newCtx = make_shared<tree_commands>(tree->get_filtered_tree(), tree->get_filtered_tree_filename(), _known_filters, _undo_redo);
+      auto new_ctx = make_shared<tree_commands>(tree->get_filtered_tree(), tree->get_filtered_tree_filename(), _known_filters, _undo_redo);
 
-      _trees.emplace_back(newCtx);
+      _trees.emplace_back(new_ctx);
 
-      return newCtx;
+      return new_ctx;
    }
 
    void global_commands::clear_undo_stack()

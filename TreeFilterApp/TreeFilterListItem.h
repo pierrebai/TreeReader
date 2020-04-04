@@ -23,7 +23,7 @@ namespace dak::tree_reader::app
 
    struct TreeFilterListItem : QWidgetListItem
    {
-      tree_filter_ptr filter;
+      tree_filter_ptr Filter;
       TreeFilterListWidget* SubList = nullptr;
 
       // Callback signature when the user wants to delete a filter.
