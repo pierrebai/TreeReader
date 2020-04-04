@@ -12,49 +12,49 @@ find_package(Qt5 COMPONENTS LinguistTools REQUIRED)
 
 qt5_create_translation(qmFiles
    ${CMAKE_SOURCE_DIR}
-   TreeFilterApp_fr.ts
+   tree_filter_app_fr.ts
 )
 
-add_executable(TreeFilterApp WIN32
-   TreeFilterApp.cpp
-   FilterEditor.cpp           FilterEditor.h
-   MainWindow.cpp             MainWindow.h
-   TextTreeModel.cpp          TextTreeModel.h
-   TextTreeSubWindow.cpp      TextTreeSubWindow.h
-   TreeFilterListItem.cpp     TreeFilterListItem.h
-   TreeFilterListWidget.cpp   TreeFilterListWidget.h
-   OptionsDialog.cpp          OptionsDialog.h
+add_executable(tree_filter_app WIN32
+   tree_filter_app.cpp
+   filter_editor.cpp             filter_editor.h
+   main_window.cpp               main_window.h
+   text_tree_model.cpp           text_tree_model.h
+   text_tree_sub_window.cpp      text_tree_sub_window.h
+   tree_filter_list_item.cpp     tree_filter_list_item.h
+   tree_filter_list_widget.cpp   tree_filter_list_widget.h
+   options_dialog.cpp            options_dialog.h
 
-   Resource.rc             resource.h
+   resource.rc                   resource.h
 
-   ToDo.txt
+   todo.txt
 
    ${qmFiles}
 
    #resources.qrc
 )
 
-target_link_libraries(TreeFilterApp PUBLIC
+target_link_libraries(tree_filter_app PUBLIC
    tree_reader
    QtAdditions
    Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
 )
 
-target_compile_features(TreeFilterApp PUBLIC cxx_std_20)
+target_compile_features(tree_filter_app PUBLIC cxx_std_20)
 
-target_include_directories(TreeFilterApp PUBLIC
+target_include_directories(tree_filter_app PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
    "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
 )
 
-add_custom_command(TARGET TreeFilterApp POST_BUILD
-   COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:TreeFilterApp>"
-   COMMAND ${CMAKE_COMMAND} -E copy "${qmFiles}" "$<TARGET_FILE_DIR:TreeFilterApp>"
+add_custom_command(TARGET tree_filter_app POST_BUILD
+   COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:tree_filter_app>"
+   COMMAND ${CMAKE_COMMAND} -E copy "${qmFiles}" "$<TARGET_FILE_DIR:tree_filter_app>"
 )
 
 install(
    DIRECTORY
-   "$<TARGET_FILE_DIR:TreeFilterApp>/"
+   "$<TARGET_FILE_DIR:tree_filter_app>/"
    DESTINATION .
    COMPONENT application
    PATTERN "*.pdb" EXCLUDE 
@@ -72,9 +72,9 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Tree filter App")
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
-set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/TreeFilterApp/icon.ico")
-set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/TreeFilterApp/icon.ico")
-set(CPACK_NSIS_INSTALLED_ICON_NAME "TreeFilterApp.exe")
+set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/tree_filter_app/icon.ico")
+set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/tree_filter_app/icon.ico")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "tree_filter_app.exe")
 set(CPACK_NSIS_DISPLAY_NAME "Tree filter App")
 
 INCLUDE(CPack)
