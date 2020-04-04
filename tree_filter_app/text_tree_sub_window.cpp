@@ -1,5 +1,5 @@
-#include "TextTreeSubWindow.h"
-#include "TextTreeModel.h"
+#include "text_tree_sub_window.h"
+#include "text_tree_model.h"
 
 #include "dak/tree_reader/tree_commands.h"
 
@@ -18,31 +18,31 @@ namespace dak::tree_reader::app
    using namespace Qtadditions;
    using namespace std;
 
-   TextTreeSubWindow::TextTreeSubWindow(const tree_commands_ptr& tree, commands_options& options)
-   : Tree(tree), _options(options)
+   text_tree_sub_window::text_tree_sub_window(const tree_commands_ptr& a_tree, commands_options& options)
+   : tree(a_tree), _options(options)
    {
-      _treeView = new QTreeView;
-      _treeView->setUniformRowHeights(true);
-      _treeView->setHeaderHidden(true);
-      _treeView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+      _tree_view = new QTreeView;
+      _tree_view->setUniformRowHeights(true);
+      _tree_view->setHeaderHidden(true);
+      _tree_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-      _model = new TextTreeModel;
-      _model->Tree = tree->get_original_tree();
+      _model = new text_tree_model;
+      _model->tree = tree->get_original_tree();
 
-      auto oldModel = _treeView->model();
-      _treeView->setModel(_model);
-      delete oldModel;
+      auto old_model = _tree_view->model();
+      _tree_view->setModel(_model);
+      delete old_model;
 
-      setWidget(_treeView);
+      setWidget(_tree_view);
 
       setWindowTitle(QString::fromStdWString(tree->get_original_tree_filename()));
       setAttribute(Qt::WA_DeleteOnClose);
    }
 
-   void TextTreeSubWindow::UpdateShownModel(const text_tree_ptr& tree)
+   void text_tree_sub_window::update_shown_model(const text_tree_ptr& a_tree)
    {
       // note: we don't change the OriginalTree variable, only which tree is shown (original tree or filtered).
-      _model->Tree = tree;
+      _model->tree = a_tree;
       _model->reset();
    }
 
@@ -50,11 +50,11 @@ namespace dak::tree_reader::app
    //
    // Closing and saving.
 
-   void TextTreeSubWindow::closeEvent(QCloseEvent* ev)
+   void text_tree_sub_window::closeEvent(QCloseEvent* ev)
    {
-      if (SaveIfRequired(tr("close the tab"), tr("closing the tab")))
+      if (save_if_required(tr("close the tab"), tr("closing the tab")))
       {
-         with_no_exceptions([self = this]() { self->Tree->abort_async_filter(); });
+         with_no_exceptions([self = this]() { self->tree->abort_async_filter(); });
 
          QWidget::closeEvent(ev);
       }
@@ -64,9 +64,9 @@ namespace dak::tree_reader::app
       }
    }
 
-   bool TextTreeSubWindow::SaveIfRequired(const QString& action, const QString& actioning)
+   bool text_tree_sub_window::save_if_required(const QString& action, const QString& actioning)
    {
-      if (Tree->get_filtered_tree() && !Tree->is_filtered_tree_saved())
+      if (tree->get_filtered_tree() && !tree->is_filtered_tree_saved())
       {
          YesNoCancel answer = AskYesNoCancel(
             tr("Unsaved Text Tree Warning"),
@@ -82,14 +82,14 @@ namespace dak::tree_reader::app
       return true;
    }
 
-   bool TextTreeSubWindow::save_filtered_tree(const commands_options& options)
+   bool text_tree_sub_window::save_filtered_tree(const commands_options& options)
    {
-      if (!Tree->get_filtered_tree())
+      if (!tree->get_filtered_tree())
          return true;
 
       auto path = AskSave(tr("Save Filtered Text Tree"), tr(tree_commands::tree_file_types), "", this);
 
-      Tree->save_filtered_tree(path, options);
+      tree->save_filtered_tree(path, options);
 
       return true;
    }

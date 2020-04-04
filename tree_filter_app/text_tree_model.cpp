@@ -1,4 +1,4 @@
-#include "TextTreeModel.h"
+#include "text_tree_model.h"
 
 namespace dak::tree_reader::app
 {
@@ -6,15 +6,15 @@ namespace dak::tree_reader::app
    using namespace dak::tree_reader;
    using node = text_tree::node;
 
-   void TextTreeModel::reset()
+   void text_tree_model::reset()
    {
       beginResetModel();
       endResetModel();
    }
 
-   QVariant TextTreeModel::data(const QModelIndex& index, int role) const
+   QVariant text_tree_model::data(const QModelIndex& index, int role) const
    {
-      if (!Tree)
+      if (!tree)
          return QVariant();
 
       if (role != Qt::DisplayRole)
@@ -30,27 +30,27 @@ namespace dak::tree_reader::app
       return QVariant(QString::fromWCharArray(a_node->text_ptr));
    }
 
-   QVariant TextTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+   QVariant text_tree_model::headerData(int section, Qt::Orientation orientation, int role) const
    {
       return QVariant();
    }
 
-   QModelIndex TextTreeModel::index(int row, int column, const QModelIndex& parent) const
+   QModelIndex text_tree_model::index(int row, int column, const QModelIndex& parent) const
    {
-      if (!Tree)
+      if (!tree)
          return QModelIndex();
 
-      const node* parentnode = parent.isValid() ? static_cast<node*>(parent.internalPointer()) : nullptr;
-      const std::vector<node*>& nodes = parentnode ? parentnode->children : Tree->roots;
+      const node* parent_node = parent.isValid() ? static_cast<node*>(parent.internalPointer()) : nullptr;
+      const std::vector<node*>& nodes = parent_node ? parent_node->children : tree->roots;
       if (row < 0 || row >= nodes.size())
          return QModelIndex();
 
       return createIndex(row, column, static_cast<void*>(nodes[row]));
    }
 
-   QModelIndex TextTreeModel::parent(const QModelIndex& index) const
+   QModelIndex text_tree_model::parent(const QModelIndex& index) const
    {
-      if (!Tree)
+      if (!tree)
          return QModelIndex();
 
       if (!index.isValid())
@@ -66,13 +66,13 @@ namespace dak::tree_reader::app
       return createIndex(int(a_node->index_in_parent), 0, static_cast<void*>(a_node->parent));
    }
 
-   int TextTreeModel::rowCount(const QModelIndex& parent) const
+   int text_tree_model::rowCount(const QModelIndex& parent) const
    {
-      if (!Tree)
+      if (!tree)
          return 0;
 
       if (!parent.isValid())
-         return int(Tree->roots.size());
+         return int(tree->roots.size());
 
       const node* a_node = static_cast<node*>(parent.internalPointer());
       if (!a_node)
@@ -80,9 +80,9 @@ namespace dak::tree_reader::app
 
       return int(a_node->children.size());
    }
-   int TextTreeModel::columnCount(const QModelIndex& parent) const
+   int text_tree_model::columnCount(const QModelIndex& parent) const
    {
-      if (!Tree)
+      if (!tree)
          return 0;
       return 1;
    }

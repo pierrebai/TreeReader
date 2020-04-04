@@ -12,9 +12,10 @@ namespace dak::tree_reader::app
    //
    // Tree model containing all lines of a text tree.
 
-   struct TextTreeModel : QAbstractItemModel
+   struct text_tree_model : QAbstractItemModel
    {
-      text_tree_ptr Tree;
+      text_tree_ptr tree;
+
       void reset();
 
       QVariant data(const QModelIndex& index, int role) const override;

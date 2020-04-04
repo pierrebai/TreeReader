@@ -1,5 +1,5 @@
-#include "FilterEditor.h"
-#include "TreeFilterListWidget.h"
+#include "filter_editor.h"
+#include "tree_filter_list_widget.h"
 
 #include "dak/QtAdditions/QtUtilities.h"
 #include "dak/QtAdditions/QWidgetScrollListWidget.h"
@@ -33,38 +33,38 @@ namespace dak::tree_reader::app
    //
    // A QWidget to select and order filters.
 
-   class FiltersEditorUI
+   class filters_editor_ui
    {
    public:
-      FiltersEditorUI(const named_filters& known, undo_stack& undoRedo, FilterEditor& parent)
+      filters_editor_ui(const named_filters& known, undo_stack& undoRedo, filter_editor& parent)
       : _known_filters(known), _undo_redo(undoRedo), _editor(parent)
       {
-         BuildUI(parent);
-         ConnectUI();
+         build_ui(parent);
+         connect_ui();
       }
 
-      tree_filter_ptr getEdited()
+      tree_filter_ptr get_edited()
       {
-         UpdateEditedFromUI();
+         update_editor_from_ui();
          return _edited;
       }
 
-      wstring getEditedName() const
+      wstring get_edited_name() const
       {
-         return _filterName;
+         return _filter_name;
       }
 
-      void setEdited(const tree_filter_ptr& ed, const wstring& name, bool forced)
+      void set_edited(const tree_filter_ptr& ed, const wstring& name, bool forced)
       {
          if (ed == _edited && !forced)
             return;
 
          _edited = ed;
-         _filterName = name;
+         _filter_name = name;
 
-         FillUI();
+         fill_ui();
 
-         CommitFilterChangeToUndo();
+         commit_filter_changes_to_undo();
       }
 
    private:
@@ -73,47 +73,47 @@ namespace dak::tree_reader::app
       //
       // UI setup.
 
-      void BuildUI(FilterEditor& parent)
+      void build_ui(filter_editor& parent)
       {
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         auto delCallback = [self = this](TreeFilterListItem* panel)
+         auto del_func = [self = this](tree_filter_list_item* panel)
          {
             // When a filter gets deleted, update the edited filter if it is no
             // longer the root.
             delete panel;
-            auto filters = self->_filterList->getTreeFilters();
+            auto filters = self->_filter_list->get_tree_filters();
             if (filters.size() > 0)
                self->_edited = filters.back();
             else
                self->_edited = nullptr;
 
-            self->CommitFilterChangeToUndo();
+            self->commit_filter_changes_to_undo();
          };
 
-         auto listChangedCallback = [self = this](QWidgetListWidget* list)
+         auto list_changed_callback = [self = this](QWidgetListWidget* list)
          {
-            self->CommitFilterChangeToUndo();
+            self->commit_filter_changes_to_undo();
          };
 
-         _filterList = new TreeFilterListWidget(delCallback, {}, listChangedCallback);
+         _filter_list = new tree_filter_list_widget(del_func, {}, list_changed_callback);
 
-         _filterList->setAcceptDrops(true);
-         _filterList->setEnabled(true);
+         _filter_list->setAcceptDrops(true);
+         _filter_list->setEnabled(true);
 
-         _scrollFilterList = new QWidgetScrollListWidget(_filterList);
-         layout->addWidget(_scrollFilterList);
+         _filter_scroll = new QWidgetScrollListWidget(_filter_list);
+         layout->addWidget(_filter_scroll);
 
          // note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-         _undo_redo.commit({ 0, nullptr, [self = this](const any&) { self->AwakenToEmptyFilters(); } });
+         _undo_redo.commit({ 0, nullptr, [self = this](const std::any&) { self->awaken_to_empty_filters(); } });
       }
 
-      void ConnectUI()
+      void connect_ui()
       {
       }
 
-      static bool IsUnder(const tree_filter_ptr& filter, const tree_filter_ptr& child)
+      static bool is_under(const tree_filter_ptr& filter, const tree_filter_ptr& child)
       {
          if (filter == child)
             return true;
@@ -121,47 +121,47 @@ namespace dak::tree_reader::app
          if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
          {
             for (const auto& c : combine->filters)
-               if (IsUnder(c, child))
+               if (is_under(c, child))
                   return true;
          }
          else if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
-            return IsUnder(delegate->sub_filter, child);
+            return is_under(delegate->sub_filter, child);
          }
 
          return false;
       }
 
-      void FillUI()
+      void fill_ui()
       {
-         DisableFeedback df(_filterList, _disableFeedback);
+         DisableFeedback df(_filter_list, _disable_feedback);
 
-         deque<pair<shared_ptr<combine_tree_filter>, TreeFilterListWidget*>> combineFilters;
+         deque<pair<shared_ptr<combine_tree_filter>, tree_filter_list_widget*>> combineFilters;
 
-         _filterList->clear();
+         _filter_list->clear();
          dak::tree_reader::visit_filters(_edited, true, [self = this, &combineFilters](const tree_filter_ptr& filter) -> bool
          {
             QWidgetListItem* widget = nullptr;
             for (auto& [combineFilter, combineWidget] : combineFilters)
             {
-               if (IsUnder(combineFilter, filter))
+               if (is_under(combineFilter, filter))
                {
-                  widget = combineWidget->addTreeFilter(filter);
+                  widget = combineWidget->add_tree_filter(filter);
                   break;
                }
             }
 
 
             if (!widget)
-               widget = self->_filterList->addTreeFilter(filter);
+               widget = self->_filter_list->add_tree_filter(filter);
 
-            if (TreeFilterListItem* filterWidget = dynamic_cast<TreeFilterListItem*>(widget))
+            if (tree_filter_list_item* filterWidget = dynamic_cast<tree_filter_list_item*>(widget))
             {
-               if (filterWidget->SubList)
+               if (filterWidget->sub_list)
                {
                   if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
                   {
-                     combineFilters.emplace_front(combine, filterWidget->SubList);
+                     combineFilters.emplace_front(combine, filterWidget->sub_list);
                   }
                }
             }
@@ -174,7 +174,7 @@ namespace dak::tree_reader::app
       //
       // Transfer from UI to data.
 
-      static tree_filter_ptr DisconnectFilter(tree_filter_ptr filter)
+      static tree_filter_ptr disconnect_filter(tree_filter_ptr filter)
       {
          if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
          {
@@ -187,17 +187,17 @@ namespace dak::tree_reader::app
          return filter;
       }
 
-      static void FillFiltersFromUI(const std::vector<QWidgetListItem*>& widgets, tree_filter_ptr& root, vector<tree_filter_ptr>& previous)
+      static void fill_filters_from_ui(const std::vector<QWidgetListItem*>& widgets, tree_filter_ptr& root, vector<tree_filter_ptr>& previous)
       {
          for (auto& widget : widgets)
          {
-            auto tfw = dynamic_cast<TreeFilterListItem*>(widget);
+            auto tfw = dynamic_cast<tree_filter_list_item*>(widget);
             if (!tfw)
                continue;
-            if (!tfw->Filter)
+            if (!tfw->filter)
                continue;
 
-            auto filter = DisconnectFilter(tfw->Filter->clone());
+            auto filter = disconnect_filter(tfw->filter->clone());
 
             if (!root)
             {
@@ -229,17 +229,17 @@ namespace dak::tree_reader::app
 
                if (!placed)
                {
-                  auto newRoot = and(root, filter);
-                  root = newRoot;
+                  auto new_root = and(root, filter);
+                  root = new_root;
                   previous.push_back(root);
                }
             }
 
-            if (tfw->SubList)
+            if (tfw->sub_list)
             {
-               vector<tree_filter_ptr> subPrevious;
-               subPrevious.push_back(filter);
-               FillFiltersFromUI(tfw->SubList->getItems(), filter, subPrevious);
+               vector<tree_filter_ptr> sub_previous;
+               sub_previous.push_back(filter);
+               fill_filters_from_ui(tfw->sub_list->getItems(), filter, sub_previous);
 
                // note: when we have an explicit sub-list, we don't use it as
                //       the previous implicit combine to put other filters not
@@ -255,11 +255,11 @@ namespace dak::tree_reader::app
          }
       }
 
-      void UpdateEditedFromUI()
+      void update_editor_from_ui()
       {
          vector<tree_filter_ptr> previous;
          tree_filter_ptr root;
-         FillFiltersFromUI(_filterList->getItems(), root, previous);
+         fill_filters_from_ui(_filter_list->getItems(), root, previous);
          _edited = root;
       }
 
@@ -267,36 +267,36 @@ namespace dak::tree_reader::app
       //
       // undo/redo.
 
-      void CommitFilterChangeToUndo()
+      void commit_filter_changes_to_undo()
       {
-         if (_disableFeedback > 0)
+         if (_disable_feedback > 0)
             return;
 
-         UpdateEditedFromUI();
+         update_editor_from_ui();
          _undo_redo.commit(
             {
                convert_filter_to_text(_edited),
-               [self = this](any& data) { self->deaden_filters(data); },
-               [self = this](const any& data) { self->awaken_filters(data); }
+               [self = this](std::any& data) { self->deaden_filters(data); },
+               [self = this](const std::any& data) { self->awaken_filters(data); }
             });
       }
 
-      void deaden_filters(any& data)
+      void deaden_filters(std::any& data)
       {
-         UpdateEditedFromUI();
+         update_editor_from_ui();
          data = convert_filter_to_text(_edited);
       }
 
-      void awaken_filters(const any& data)
+      void awaken_filters(const std::any& data)
       {
          _edited = convert_text_to_filter(any_cast<wstring>(data), _known_filters);
-         FillUI();
+         fill_ui();
       }
 
-      void AwakenToEmptyFilters()
+      void awaken_to_empty_filters()
       {
          _edited = nullptr;
-         FillUI();
+         fill_ui();
       }
 
 
@@ -306,47 +306,47 @@ namespace dak::tree_reader::app
 
       const named_filters& _known_filters;
       undo_stack& _undo_redo;
-      FilterEditor& _editor;
+      filter_editor& _editor;
       tree_filter_ptr _edited;
-      wstring _filterName;
+      wstring _filter_name;
 
-      TreeFilterListWidget* _filterList;
-      QWidgetScrollListWidget* _scrollFilterList;
+      tree_filter_list_widget* _filter_list;
+      QWidgetScrollListWidget* _filter_scroll;
 
-      int _disableFeedback = 0;
+      int _disable_feedback = 0;
    };
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // A QWidget to select and order filters.
 
-   FilterEditor::FilterEditor(const named_filters& known, undo_stack& undoRedo, QWidget* parent)
-   : QWidget(parent), _ui(make_unique<FiltersEditorUI>(known, undoRedo, *this))
+   filter_editor::filter_editor(const named_filters& known, undo_stack& undoRedo, QWidget* parent)
+   : QWidget(parent), _ui(make_unique<filters_editor_ui>(known, undoRedo, *this))
    {
    }
 
-   void FilterEditor::setEdited(const tree_filter_ptr& edited, const wstring& name, bool forced)
+   void filter_editor::set_edited(const tree_filter_ptr& edited, const wstring& name, bool forced)
    {
       if (!_ui)
          return;
 
-      _ui->setEdited(edited, name, forced);
+      _ui->set_edited(edited, name, forced);
    }
 
-   tree_filter_ptr FilterEditor::getEdited() const
+   tree_filter_ptr filter_editor::get_edited() const
    {
       if (!_ui)
          return {};
 
-      return _ui->getEdited();
+      return _ui->get_edited();
    }
 
-   wstring FilterEditor::getEditedName() const
+   wstring filter_editor::get_edited_name() const
    {
       if (!_ui)
          return {};
 
-      return _ui->getEditedName();
+      return _ui->get_edited_name();
    }
 }
 

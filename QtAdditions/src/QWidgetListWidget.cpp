@@ -25,8 +25,8 @@ namespace Qtadditions
    //
    // Widget list panel.
 
-   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackfunction modifCallback, bool stretch, QWidget* parent)
-   : QFrame(parent), _modifCallback(modifCallback)
+   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackfunction modif_func, bool stretch, QWidget* parent)
+   : QFrame(parent), _modifCallback(modif_func)
    {
       setBackgroundRole(QPalette::ColorRole::Base);
       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));

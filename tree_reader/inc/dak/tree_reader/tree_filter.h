@@ -389,7 +389,7 @@ namespace dak::tree_reader
    inline std::shared_ptr<not_tree_filter> not(const tree_filter_ptr& filter) { return std::make_shared<not_tree_filter>(filter); }
    inline std::shared_ptr<or_tree_filter> or(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { return std::make_shared<or_tree_filter>(lhs, rhs); }
    inline std::shared_ptr<and_tree_filter> and(const tree_filter_ptr& lhs, const tree_filter_ptr& rhs) { return std::make_shared<and_tree_filter>(lhs, rhs); }
-   inline std::shared_ptr<or_tree_filter> Any(const std::vector<tree_filter_ptr>& filters) { return std::make_shared<or_tree_filter>(filters); }
+   inline std::shared_ptr<or_tree_filter> any(const std::vector<tree_filter_ptr>& filters) { return std::make_shared<or_tree_filter>(filters); }
    inline std::shared_ptr<and_tree_filter> all(const std::vector<tree_filter_ptr>& filters) { return std::make_shared<and_tree_filter>(filters); }
    inline std::shared_ptr<under_tree_filter> under(const tree_filter_ptr& filter, bool includeSelf = true) { return std::make_shared<under_tree_filter>(filter, includeSelf); }
    inline std::shared_ptr<remove_children_tree_filter> no_child(const tree_filter_ptr& filter, bool removeSelf = false) { return std::make_shared<remove_children_tree_filter>(filter, removeSelf); }

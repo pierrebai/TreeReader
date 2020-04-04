@@ -1,5 +1,5 @@
-#include "TreeFilterListItem.h"
-#include "TreeFilterListWidget.h"
+#include "tree_filter_list_item.h"
+#include "tree_filter_list_widget.h"
 
 #include "dak/QtAdditions/QtUtilities.h"
 
@@ -26,91 +26,91 @@ namespace dak::tree_reader::app
 
    namespace
    {
-      using DeleteCallbackfunction = TreeFilterListItem::DeleteCallbackfunction;
-      using EditCallbackfunction = TreeFilterListItem::EditCallbackfunction;
+      using delete_callback_function = tree_filter_list_item::delete_callback_function;
+      using edit_callback_function = tree_filter_list_item::edit_callback_function;
 
       /////////////////////////////////////////////////////////////////////////
       //
       // filter panel creation helpers.
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<accept_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<accept_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<stop_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<stop_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<stop_when_kept_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<stop_when_kept_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<until_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<until_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<contains_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<contains_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->contained);
+         return new tree_filter_list_item(filter, delfunc, editfunc, &filter->contained);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<unique_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<unique_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc);
+         return new tree_filter_list_item(filter, delfunc, editfunc);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<regex_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<regex_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, &filter->regex_text);
+         return new tree_filter_list_item(filter, delfunc, editfunc, &filter->regex_text);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<not_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<not_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<if_subtree_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<if_subtree_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<if_sibling_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<if_sibling_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<or_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<or_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<and_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<and_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<under_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<under_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr, &filter->include_self);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, &filter->include_self);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<remove_children_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<remove_children_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr, &filter->include_self);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, &filter->include_self);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<level_range_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<level_range_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr, nullptr, &filter->min_level, &filter->max_level);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, nullptr, &filter->min_level, &filter->max_level);
       }
 
-      TreeFilterListItem* CreateFilterPanel(const shared_ptr<named_tree_filter>& filter, DeleteCallbackfunction delfunc, EditCallbackfunction editfunc)
+      tree_filter_list_item* create_filter_panel(const shared_ptr<named_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
       {
-         return new TreeFilterListItem(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
       }
    }
 
@@ -118,12 +118,12 @@ namespace dak::tree_reader::app
    //
    // filter panel creation.
 
-   TreeFilterListItem* TreeFilterListItem::Create(
+   tree_filter_list_item* tree_filter_list_item::create(
       const tree_filter_ptr& filter,
-      DeleteCallbackfunction delfunc,
-      EditCallbackfunction editfunc)
+      delete_callback_function delfunc,
+      edit_callback_function editfunc)
    {
-      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return CreateFilterPanel(ptr, delfunc, editfunc); }
+      #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return create_filter_panel(ptr, delfunc, editfunc); }
 
       CALL_CONVERTER(accept_tree_filter)
       CALL_CONVERTER(stop_tree_filter)
@@ -147,15 +147,15 @@ namespace dak::tree_reader::app
       return nullptr;
    }
 
-   TreeFilterListItem::TreeFilterListItem(
-      const shared_ptr<tree_filter>& filter,
-      DeleteCallbackfunction delfunc, EditCallbackfunction editfunc,
+   tree_filter_list_item::tree_filter_list_item(
+      const shared_ptr<tree_filter>& a_filter,
+      delete_callback_function delfunc, edit_callback_function editfunc,
       wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
-      : Filter(filter)
+      : filter(a_filter)
    {
       const bool active = (delfunc != nullptr);
 
-      setToolTip(QString::fromStdWString(filter->get_description()));
+      setToolTip(QString::fromStdWString(a_filter->get_description()));
       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 
       auto container_layout = new QVBoxLayout(this);
@@ -168,60 +168,60 @@ namespace dak::tree_reader::app
       name_layout->setMargin(0);
       container_layout->addLayout(name_layout);
 
-      auto nameLabel = new QLabel(QString::fromStdWString(filter->get_short_name()));
+      auto nameLabel = new QLabel(QString::fromStdWString(a_filter->get_short_name()));
       name_layout->addWidget(nameLabel);
 
       if (textContent)
       {
-         auto textEdit = new QLineEdit(QString::fromStdWString(*textContent));
-         textEdit->setMaximumWidth(80);
-         textEdit->setEnabled(active);
-         name_layout->addWidget(textEdit);
+         auto text_edit = new QLineEdit(QString::fromStdWString(*textContent));
+         text_edit->setMaximumWidth(80);
+         text_edit->setEnabled(active);
+         name_layout->addWidget(text_edit);
 
-         textEdit->connect(textEdit, &QLineEdit::editingFinished, [textContent, textEdit]()
+         text_edit->connect(text_edit, &QLineEdit::editingFinished, [textContent, text_edit]()
          {
-            *textContent = textEdit->text().toStdWString();
+            *textContent = text_edit->text().toStdWString();
          });
       }
 
       if (count)
       {
-         auto numberEdit = new QLineEdit(QString().setNum(*count));
-         numberEdit->setMaximumWidth(count2 ? 40 : 80);
-         numberEdit->setValidator(new QIntValidator);
-         numberEdit->setEnabled(active);
-         name_layout->addWidget(numberEdit);
+         auto number_edit = new QLineEdit(QString().setNum(*count));
+         number_edit->setMaximumWidth(count2 ? 40 : 80);
+         number_edit->setValidator(new QIntValidator);
+         number_edit->setEnabled(active);
+         name_layout->addWidget(number_edit);
 
-         numberEdit->connect(numberEdit, &QLineEdit::editingFinished, [count, numberEdit]()
+         number_edit->connect(number_edit, &QLineEdit::editingFinished, [count, number_edit]()
          {
-            *count = numberEdit->text().toUInt();
+            *count = number_edit->text().toUInt();
          });
       }
 
       if (count2)
       {
-         auto numberEdit = new QLineEdit(QString().setNum(*count2));
-         numberEdit->setMaximumWidth(count ? 40 : 80);
-         numberEdit->setValidator(new QIntValidator);
-         numberEdit->setEnabled(active);
-         name_layout->addWidget(numberEdit);
+         auto number_edit = new QLineEdit(QString().setNum(*count2));
+         number_edit->setMaximumWidth(count ? 40 : 80);
+         number_edit->setValidator(new QIntValidator);
+         number_edit->setEnabled(active);
+         name_layout->addWidget(number_edit);
 
-         numberEdit->connect(numberEdit, &QLineEdit::editingFinished, [count2, numberEdit]()
+         number_edit->connect(number_edit, &QLineEdit::editingFinished, [count2, number_edit]()
          {
-            *count2 = numberEdit->text().toUInt();
+            *count2 = number_edit->text().toUInt();
          });
       }
 
       if (editfunc)
       {
-         auto editButton = new QPushButton;
-         editButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
-         editButton->setToolTip(tr("Edit this filter"));
-         editButton->setFlat(true);
-         editButton->setMaximumSize(QSize(16, 16));
-         name_layout->addWidget(editButton);
+         auto edit_button = new QPushButton;
+         edit_button->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_EDIT)));
+         edit_button->setToolTip(tr("Edit this filter"));
+         edit_button->setFlat(true);
+         edit_button->setMaximumSize(QSize(16, 16));
+         name_layout->addWidget(edit_button);
 
-         editButton->connect(editButton, &QPushButton::clicked, [filter, self = this, editfunc]()
+         edit_button->connect(edit_button, &QPushButton::clicked, [a_filter, self = this, editfunc]()
          {
             editfunc(self);
          });
@@ -229,14 +229,14 @@ namespace dak::tree_reader::app
 
       if (delfunc)
       {
-         auto deleteButton = new QPushButton;
-         deleteButton->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
-         deleteButton->setToolTip(tr("Delete this filter"));
-         deleteButton->setFlat(true);
-         deleteButton->setMaximumSize(QSize(16, 16));
-         name_layout->addWidget(deleteButton);
+         auto delete_button = new QPushButton;
+         delete_button->setIcon(QIcon(CreatePixmapFromResource(IDB_FILTER_DELETE)));
+         delete_button->setToolTip(tr("Delete this filter"));
+         delete_button->setFlat(true);
+         delete_button->setMaximumSize(QSize(16, 16));
+         name_layout->addWidget(delete_button);
 
-         deleteButton->connect(deleteButton, &QPushButton::clicked, [filter, self = this, delfunc]()
+         delete_button->connect(delete_button, &QPushButton::clicked, [a_filter, self = this, delfunc]()
          {
             delfunc(self);
          });
@@ -244,32 +244,32 @@ namespace dak::tree_reader::app
 
       if (includeSelf)
       {
-         auto includeBox = new QCheckBox(tr("Include self"));
-         includeBox->setChecked(active);
-         container_layout->addWidget(includeBox);
+         auto include_box = new QCheckBox(tr("Include self"));
+         include_box->setChecked(active);
+         container_layout->addWidget(include_box);
 
-         includeBox->connect(includeBox, &QCheckBox::stateChanged, [includeSelf, includeBox](int)
+         include_box->connect(include_box, &QCheckBox::stateChanged, [includeSelf, include_box](int)
          {
-            *includeSelf = includeBox->isChecked();
+            *includeSelf = include_box->isChecked();
          });
       }
 
-      if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
+      if (auto combine = dynamic_pointer_cast<combine_tree_filter>(a_filter))
       {
-         SubList = new TreeFilterListWidget(delfunc, editfunc, {}, false);
-         SubList->setAcceptDrops(true);
-         container_layout->addWidget(SubList);
+         sub_list = new tree_filter_list_widget(delfunc, editfunc, {}, false);
+         sub_list->setAcceptDrops(true);
+         container_layout->addWidget(sub_list);
       }
    }
 
-   TreeFilterListItem* TreeFilterListItem::clone() const
+   tree_filter_list_item* tree_filter_list_item::clone() const
    {
       return clone(nullptr, nullptr);
    }
 
-   TreeFilterListItem* TreeFilterListItem::clone(DeleteCallbackfunction delfunc, EditCallbackfunction editfunc) const
+   tree_filter_list_item* tree_filter_list_item::clone(delete_callback_function delfunc, edit_callback_function editfunc) const
    {
-      return Create(Filter->clone(), delfunc, editfunc);
+      return create(filter->clone(), delfunc, editfunc);
    }
 
 }

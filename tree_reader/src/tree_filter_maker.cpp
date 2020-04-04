@@ -321,7 +321,7 @@ namespace dak::tree_reader
 
          eat_closing_brace(sstream);
 
-         return Any(filters);
+         return any(filters);
       }
 
       template <>

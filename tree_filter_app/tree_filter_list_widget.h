@@ -2,7 +2,7 @@
 
 #include "dak/tree_reader/tree_filter.h"
 #include "dak/QtAdditions/QWidgetListWidget.h"
-#include "TreeFilterListItem.h"
+#include "tree_filter_list_item.h"
 
 class QDragEnterEvent;
 class QDropEvent;
@@ -18,29 +18,29 @@ namespace dak::tree_reader::app
    //
    // Widget containing a list of filters.
 
-   struct TreeFilterListWidget : public QWidgetListWidget
+   struct tree_filter_list_widget : public QWidgetListWidget
    {
       // Callback signature when the user wants to delete a filter.
       // Deleting the panel removes it from the list panel that contains it.
-      using DeleteCallbackfunction = TreeFilterListItem::DeleteCallbackfunction;
-      using EditCallbackfunction = TreeFilterListItem::EditCallbackfunction;
+      using delete_callback_function = tree_filter_list_item::delete_callback_function;
+      using edit_callback_function = tree_filter_list_item::edit_callback_function;
 
-      DeleteCallbackfunction DeleteCallback;
-      EditCallbackfunction EditCallback;
+      delete_callback_function delete_callback;
+      edit_callback_function edit_callback;
 
       // Create a tree filter drag widget.
-      TreeFilterListWidget(
-         DeleteCallbackfunction delCallback = {},
-         EditCallbackfunction editCallback = {},
-         ListModifiedCallbackfunction modifCallback = {},
+      tree_filter_list_widget(
+         delete_callback_function del_func = {},
+         edit_callback_function edit_func = {},
+         ListModifiedCallbackfunction modif_func = {},
          bool stretch = true, QWidget* parent = nullptr);
 
       // add a filter panel UI to the given list panel, with an optional deletion callback.
-      QWidgetListItem* addTreeFilter(const tree_filter_ptr& filter, int index = -1);
-      QWidgetListItem* addTreeFilter(const tree_filter_ptr& filter, DeleteCallbackfunction delCallback, EditCallbackfunction editCallback, int index = -1);
+      QWidgetListItem* add_tree_filter(const tree_filter_ptr& filter, int index = -1);
+      QWidgetListItem* add_tree_filter(const tree_filter_ptr& filter, delete_callback_function del_func, edit_callback_function edit_func, int index = -1);
 
       // Retrieve all filters kept directly in the list.
-      std::vector<tree_filter_ptr> getTreeFilters() const;
+      std::vector<tree_filter_ptr> get_tree_filters() const;
 
    protected:
       QWidgetListItem* cloneItem(QWidgetListItem*) const override;

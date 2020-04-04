@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FilterEditor.h"
-#include "TreeFilterListWidget.h"
+#include "filter_editor.h"
+#include "tree_filter_list_widget.h"
 
 #include "dak/QtAdditions/QWidgetScrollListWidget.h"
 
@@ -35,109 +35,109 @@ namespace dak::tree_reader::app
 
    using QWidgetScrollListWidget = Qtadditions::QWidgetScrollListWidget;
 
-   struct TextTreeSubWindow;
+   struct text_tree_sub_window;
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // The main window of the tree filter app.
 
-   struct MainWindow : QMainWindow
+   struct main_window : QMainWindow
    {
       // Create the main window.
-      MainWindow();
+      main_window();
 
    protected:
       // Create the UI elements.
-      void BuildUI();
+      void build_ui();
 
-      void BuildToolBarUI();
-      void BuildFiltersUI();
-      void BuildSimpleSearchUI();
-      void BuildTabbedUI();
+      void build_toolbar_ui();
+      void build_filters_ui();
+      void build_simple_search_ui();
+      void build_tabbed_ui();
 
       // Connect the signals of the UI elements.
-      void ConnectUI();
+      void connect_ui();
 
       // Fill the UI with the intial data.
-      void FillUI();
-      void FillFilterEditorUI();
-      void FillAvailableFiltersUI();
+      void fill_ui();
+      void fill_filter_editor_ui();
+      void fill_available_filters_ui();
 
       // undo / redo tool-bar buttons.
-      void Updateundo_redoActions();
+      void update_undo_redo_actions();
 
       // Closing, loading and saving.
       void closeEvent(QCloseEvent* ev);
-      bool SaveIfRequired(const QString& action, const QString& actioning);
+      bool save_if_required(const QString& action, const QString& actioning);
       void load_tree();
-      bool save_filtered_tree(TextTreeSubWindow* window);
+      bool save_filtered_tree(text_tree_sub_window* window);
 
       // Tab management.
-      void addTextTreeTab(const tree_commands_ptr& newTree);
-      void UpdateActiveTab(); 
-      void UpdateTextTreeTab();
+      void add_text_tree_tab(const tree_commands_ptr& newTree);
+      void update_active_tab(); 
+      void update_text_tree_tab();
 
       // Current tab.
-      TextTreeSubWindow* getCurrentSubWindow();
-      std::vector<TextTreeSubWindow*> getallSubWindows();
+      text_tree_sub_window* get_current_sub_window();
+      std::vector<text_tree_sub_window*> get_all_sub_windows();
 
       // Main window state.
-      void SaveState();
-      void LoadState();
+      void save_state();
+      void load_state();
 
       // Tree filtering.
       void filter_tree();
-      void VerifyAsyncFiltering();
+      void verify_async_filtering();
       void abort_async_filtering();
       void search_in_tree(const QString& text);
       void search_in_tree();
 
-      void PushFilter();
-      void UpdateCreateTabAction();
+      void push_filter();
+      void update_create_tab_action();
 
       // filter naming.
       void name_filter();
-      void addNamedFilterToAvailable(const tree_filter_ptr& filter);
+      void add_named_filter_to_available(const tree_filter_ptr& filter);
 
       // options.
-      void OpenOptions();
+      void open_options();
 
       // data.
       global_commands _data;
 
       // Toolbar buttons.
-      QAction* _undoAction = nullptr;
-      QToolButton* _undoButton = nullptr;
+      QAction* _undo_action = nullptr;
+      QToolButton* _undo_button = nullptr;
 
-      QAction* _redoAction = nullptr;
-      QToolButton* _redoButton = nullptr;
+      QAction* _redo_action = nullptr;
+      QToolButton* _redo_button = nullptr;
 
-      QAction* _loadTreeAction = nullptr;
-      QToolButton* _loadTreeButton = nullptr;
+      QAction* _load_tree_action = nullptr;
+      QToolButton* _load_tree_button = nullptr;
 
-      QAction* _saveTreeAction = nullptr;
-      QToolButton* _saveTreeButton = nullptr;
+      QAction* _save_tree_action = nullptr;
+      QToolButton* _save_tree_button = nullptr;
 
-      QAction* _applyFilterAction = nullptr;
-      QToolButton* _applyFilterButton = nullptr;
+      QAction* _apply_filter_action = nullptr;
+      QToolButton* _apply_filter_button = nullptr;
 
-      QAction* _nameFilterAction = nullptr;
-      QToolButton* _nameFilterButton = nullptr;
+      QAction* _name_filter_action = nullptr;
+      QToolButton* _name_filter_button = nullptr;
 
-      QAction* _pushFilterAction = nullptr;
-      QToolButton* _pushFilterButton = nullptr;
+      QAction* _push_filter_action = nullptr;
+      QToolButton* _push_filter_button = nullptr;
 
-      QAction* _optionsAction = nullptr;
-      QToolButton* _optionsButton = nullptr;
+      QAction* _options_action = nullptr;
+      QToolButton* _options_button = nullptr;
 
-      QPushButton* _editSearchButton = nullptr;
+      QPushButton* _edit_search_button = nullptr;
 
       // UI elements.
-      QLineEdit* _simpleSearch = nullptr;
-      FilterEditor* _filterEditor = nullptr;
-      TreeFilterListWidget* _availableFiltersList = nullptr;
-      QWidgetScrollListWidget* _scrollFiltersList = nullptr;
-      QTimer* _filteringTimer = nullptr;
+      QLineEdit* _simple_search = nullptr;
+      filter_editor* _filter_editor = nullptr;
+      tree_filter_list_widget* _available_filters_list = nullptr;
+      QWidgetScrollListWidget* _available_filters_scroll = nullptr;
+      QTimer* _filtering_timer = nullptr;
 
       QMdiArea* _tabs = nullptr;
 

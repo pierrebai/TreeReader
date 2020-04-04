@@ -223,12 +223,12 @@ namespace dak::tree_reader
    //
    // undo / redo.
 
-   void tree_commands::deaden_filters(any& data)
+   void tree_commands::deaden_filters(std::any& data)
    {
       data = convert_filter_to_text(_filter);
    }
 
-   void tree_commands::awaken_filters(const any& data)
+   void tree_commands::awaken_filters(const std::any& data)
    {
       // note: do not call set_filter as it would put it in undo/redo...
       _filter = convert_text_to_filter(any_cast<wstring>(data), *_known_filters);;
@@ -239,8 +239,8 @@ namespace dak::tree_reader
       _undo_redo->commit(
       {
          convert_filter_to_text(_filter),
-         [self = this](any& data) { self->deaden_filters(data); },
-         [self = this](const any& data) { self->awaken_filters(data); }
+         [self = this](std::any& data) { self->deaden_filters(data); },
+         [self = this](const std::any& data) { self->awaken_filters(data); }
       });
    }
 

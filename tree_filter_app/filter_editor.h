@@ -20,7 +20,7 @@ namespace dak::tree_reader
 
 namespace dak::tree_reader::app
 {
-   class FiltersEditorUI;
+   class filters_editor_ui;
    using tree_filter_ptr = std::shared_ptr<tree_filter>;
    using undo_stack = dak::utility::undo_stack;
 
@@ -28,24 +28,24 @@ namespace dak::tree_reader::app
    //
    // A QWidget to select and order filters.
 
-   struct FilterEditor : QWidget
+   struct filter_editor : QWidget
    {
       // Callback when the edited filter is changed.
-      typedef std::function<void(const tree_filter_ptr&)> FilterChangedCallback;
-      FilterChangedCallback FilterChanged;
+      typedef std::function<void(const tree_filter_ptr&)> filter_changed_callback;
+      filter_changed_callback filter_changed;
 
       // Create a filter editor with the given parent widget.
-      FilterEditor(const named_filters& known, undo_stack& undoRedo, QWidget* parent);
+      filter_editor(const named_filters& known, undo_stack& undoRedo, QWidget* parent);
 
       // Set the named_filters being edited.
-      void setEdited(const tree_filter_ptr& edited, const std::wstring& name, bool forced = false);
+      void set_edited(const tree_filter_ptr& edited, const std::wstring& name, bool forced = false);
 
       // get the filter being edited.
-      tree_filter_ptr getEdited() const;
-      std::wstring getEditedName() const;
+      tree_filter_ptr get_edited() const;
+      std::wstring get_edited_name() const;
 
    protected:
-      std::unique_ptr<FiltersEditorUI> _ui;
+      std::unique_ptr<filters_editor_ui> _ui;
 
       Q_OBJECT;
 

@@ -1,11 +1,11 @@
-#include "MainWindow.h"
+#include "main_window.h"
 
 #include <QtWidgets/qapplication.h>
 
 #include <QtCore/qlibraryinfo.h>
 #include <QtCore/qtranslator.h>
 
-static HINSTANCE appInstance;
+static HINSTANCE app_instance;
 
 namespace dak::tree_reader::app
 {
@@ -15,18 +15,18 @@ namespace dak::tree_reader::app
    {
       QScopedPointer<QApplication> app(new QApplication(argc, argv));
 
-      QTranslator qtTranslator;
-      qtTranslator.load("qt_" + QLocale::system().name(),
+      QTranslator qt_translator;
+      qt_translator.load("qt_" + QLocale::system().name(),
          QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-      app->installTranslator(&qtTranslator);
+      app->installTranslator(&qt_translator);
 
-      QTranslator appTranslator;
-      appTranslator.load("TreeFilterApp_" + QLocale::system().name());
-      app->installTranslator(&appTranslator);
+      QTranslator app_translator;
+      app_translator.load("TreeFilterApp_" + QLocale::system().name());
+      app->installTranslator(&app_translator);
 
-      auto mainWindow = new MainWindow;
-      mainWindow->resize(1000, 800);
-      mainWindow->show();
+      auto window = new main_window;
+      window->resize(1000, 800);
+      window->show();
 
       return app->exec();
    }
@@ -39,6 +39,6 @@ int main(int argc, char** argv)
 
 int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)
 {
-   appInstance = hInstance;
+   app_instance = hInstance;
    return main(0, 0);
 }

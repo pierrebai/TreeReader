@@ -24,7 +24,7 @@ namespace Qtadditions
       using ListModifiedCallbackfunction = std::function<void(QWidgetListWidget * list)>;;
 
       // Create a widget list widget.
-      QWidgetListWidget(ListModifiedCallbackfunction modifCallback = {}, bool stretch = true, QWidget * parent = nullptr);
+      QWidgetListWidget(ListModifiedCallbackfunction modif_func = {}, bool stretch = true, QWidget * parent = nullptr);
 
       // Clears the list panel of all items.
       void clear();
