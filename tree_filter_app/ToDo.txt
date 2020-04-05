@@ -2,7 +2,4 @@ allow multi-filtering. (filter, then filter again)
 Make more complex filters (match + until, others)
 Make named filters have open slot (text or sub-filters)
 
-Use undo/redo from github.
-Use QWidgetListWidget from github.
-
 Write more tests: global commands, tree commands, buffers text holder.
