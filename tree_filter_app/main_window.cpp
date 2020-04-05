@@ -37,7 +37,7 @@ namespace dak::tree_reader::app
 {
    using namespace dak::tree_reader;
    using namespace dak::utility;
-   using namespace Qtadditions;
+   using namespace QtAdditions;
    using namespace std;
 
    namespace

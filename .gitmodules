@@ -1,0 +1,6 @@
+[submodule "QWidgetListWidget"]
+	path = QWidgetListWidget
+	url = https://github.com/pierrebai/QWidgetListWidget.git
+[submodule "SimpleUndoRedo"]
+	path = SimpleUndoRedo
+	url = https://github.com/pierrebai/SimpleUndoRedo.git

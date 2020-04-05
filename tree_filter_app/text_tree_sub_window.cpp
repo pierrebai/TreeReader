@@ -15,7 +15,7 @@ namespace dak::tree_reader::app
 {
    using namespace dak::tree_reader;
    using namespace dak::utility;
-   using namespace Qtadditions;
+   using namespace QtAdditions;
    using namespace std;
 
    text_tree_sub_window::text_tree_sub_window(const tree_commands_ptr& a_tree, commands_options& options)

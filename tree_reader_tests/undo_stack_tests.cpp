@@ -18,7 +18,7 @@ namespace dak::tree_reader_tests
          Assert::IsFalse(undo.has_undo());
          Assert::IsFalse(undo.has_redo());
 
-         Assert::AreEqual<size_t>(0, undo.Contents().size());
+         Assert::AreEqual<size_t>(0, undo.contents().size());
 
          struct data
          {
@@ -33,7 +33,7 @@ namespace dak::tree_reader_tests
          Assert::AreEqual(7., my_data.a);
          Assert::AreEqual(49., my_data.a_squared);
 
-         undo.commit(
+         undo.simple_commit(
          {
             my_data,
             [&](std::any& d)
@@ -53,13 +53,14 @@ namespace dak::tree_reader_tests
          Assert::AreEqual(7., my_data.a);
          Assert::AreEqual(49., my_data.a_squared);
 
-         Assert::AreEqual<size_t>(1, undo.Contents().size());
-         Assert::AreEqual(7., std::any_cast<const data&>(undo.Contents().back().data).a);
-         Assert::AreEqual(0., std::any_cast<const data&>(undo.Contents().back().data).a_squared);
+         Assert::AreEqual<size_t>(1, undo.contents().size());
+         Assert::AreEqual<size_t>(1, undo.contents().back().size());
+         Assert::AreEqual(7., std::any_cast<const data&>(undo.contents().back().back().data).a);
+         Assert::AreEqual(0., std::any_cast<const data&>(undo.contents().back().back().data).a_squared);
 
          my_data = data(9.);
 
-         undo.commit(
+         undo.simple_commit(
          {
             my_data,
             [&](std::any& d)
@@ -79,9 +80,10 @@ namespace dak::tree_reader_tests
          Assert::AreEqual(9., my_data.a);
          Assert::AreEqual(81., my_data.a_squared);
 
-         Assert::AreEqual<size_t>(2, undo.Contents().size());
-         Assert::AreEqual(9., std::any_cast<const data&>(undo.Contents().back().data).a);
-         Assert::AreEqual(0., std::any_cast<const data&>(undo.Contents().back().data).a_squared);
+         Assert::AreEqual<size_t>(2, undo.contents().size());
+         Assert::AreEqual<size_t>(1, undo.contents().back().size());
+         Assert::AreEqual(9., std::any_cast<const data&>(undo.contents().back().back().data).a);
+         Assert::AreEqual(0., std::any_cast<const data&>(undo.contents().back().back().data).a_squared);
 
          undo.undo();
 
@@ -104,8 +106,8 @@ namespace dak::tree_reader_tests
 		{
          undo_stack undo;
 
-         undo.commit({ 1.5 });
-         undo.commit({ 3.5 });
+         undo.simple_commit({ 1.5 });
+         undo.simple_commit({ 3.5 });
 
          Assert::IsTrue(undo.has_undo());
          Assert::IsFalse(undo.has_redo());
@@ -153,8 +155,8 @@ namespace dak::tree_reader_tests
          undo.redo();
          undo.redo();
 
-         undo.commit({ 1.5 });
-         undo.commit({ 3.5 });
+         undo.simple_commit({ 1.5 });
+         undo.simple_commit({ 3.5 });
 
          undo.redo();
          undo.redo();

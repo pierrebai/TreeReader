@@ -37,6 +37,8 @@ add_executable(tree_filter_app WIN32
 target_link_libraries(tree_filter_app PUBLIC
    tree_reader
    QtAdditions
+   undo_redo
+   QWidgetListWidget
    Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
 )
 
@@ -45,6 +47,8 @@ target_compile_features(tree_filter_app PUBLIC cxx_std_20)
 target_include_directories(tree_filter_app PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
    "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
+   "${PROJECT_SOURCE_DIR}/SimpleUndoRedo/undo_redo/inc"
+   "${PROJECT_SOURCE_DIR}/QWidgetListWidget/QtAdditions/inc"
 )
 
 add_custom_command(TARGET tree_filter_app POST_BUILD

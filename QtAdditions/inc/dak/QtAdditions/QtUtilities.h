@@ -11,7 +11,7 @@
 #include <QtWidgets/qaction.h>
 #include <QtWidgets/qtoolbutton.h>
 
-namespace Qtadditions
+namespace dak::QtAdditions
 {
    ////////////////////////////////////////////////////////////////////////////
    //

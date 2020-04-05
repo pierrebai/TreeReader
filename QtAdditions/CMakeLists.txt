@@ -11,10 +11,6 @@ find_package(Qt5 COMPONENTS WinExtras REQUIRED)
 
 add_library(QtAdditions
    src/QtUtilities.cpp               inc/dak/QtAdditions/QtUtilities.h
-   src/QWidgetListItem.cpp           inc/dak/QtAdditions/QWidgetListItem.h
-   src/QWidgetScrollListWidget.cpp   inc/dak/QtAdditions/QWidgetScrollListWidget.h
-   src/QWidgetListWidget.cpp         inc/dak/QtAdditions/QWidgetListWidget.h
-                                     inc/dak/QtAdditions/QWidgetListMimeData.h
 )
 
 target_compile_features(QtAdditions PUBLIC cxx_std_20)

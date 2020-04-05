@@ -2,14 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
-    <name>Qtadditions::QWidgetListWidget</name>
-    <message>
-        <location filename="../QtAdditions/src/QWidgetListWidget.cpp" line="43"/>
-        <source>drop items here.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>dak::tree_reader::app::main_window</name>
     <message>
         <location filename="main_window.cpp" line="117"/>

@@ -26,7 +26,7 @@
 namespace dak::tree_reader::app
 {
    using namespace dak::tree_reader;
-   using namespace Qtadditions;
+   using namespace QtAdditions;
    using namespace std;
 
    ////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ namespace dak::tree_reader::app
          layout->addWidget(_filter_scroll);
 
          // note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-         _undo_redo.commit({ 0, nullptr, [self = this](const std::any&) { self->awaken_to_empty_filters(); } });
+         _undo_redo.simple_commit({ 0, nullptr, [self = this](const std::any&) { self->awaken_to_empty_filters(); } });
       }
 
       void connect_ui()
@@ -273,7 +273,7 @@ namespace dak::tree_reader::app
             return;
 
          update_editor_from_ui();
-         _undo_redo.commit(
+         _undo_redo.simple_commit(
             {
                convert_filter_to_text(_edited),
                [self = this](std::any& data) { self->deaden_filters(data); },

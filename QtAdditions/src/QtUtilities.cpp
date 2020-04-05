@@ -9,7 +9,7 @@
 
 #include <fstream>
 
-namespace Qtadditions
+namespace dak::QtAdditions
 {
    using namespace std;
 

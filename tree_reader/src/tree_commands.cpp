@@ -236,7 +236,7 @@ namespace dak::tree_reader
 
    void tree_commands::commit_filter_to_undo()
    {
-      _undo_redo->commit(
+      _undo_redo->simple_commit(
       {
          convert_filter_to_text(_filter),
          [self = this](std::any& data) { self->deaden_filters(data); },

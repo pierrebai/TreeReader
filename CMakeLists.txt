@@ -10,6 +10,8 @@ add_definitions(-D_UNICODE)
 add_subdirectory(tree_reader)
 add_subdirectory(tree_reader_tests)
 add_subdirectory(QtAdditions)
+add_subdirectory(QWidgetListWIdget/QtAdditions)
+add_subdirectory(SimpleUndoRedo/undo_redo)
 add_subdirectory(tree_filter)
 add_subdirectory(tree_filter_app)
 

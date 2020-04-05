@@ -13,7 +13,7 @@ class QMouseEvent;
 namespace dak::tree_reader::app
 {
    using tree_filter_ptr = tree_reader::tree_filter_ptr;
-   using QWidgetListItem = Qtadditions::QWidgetListItem;
+   using QWidgetListItem = QtAdditions::QWidgetListItem;
 
    struct tree_filter_list_widget;
 

@@ -33,7 +33,7 @@ namespace dak::tree_reader::app
    using undo_stack = tree_reader::undo_stack;
    using tree_commands_ptr = std::shared_ptr<tree_reader::tree_commands>;
 
-   using QWidgetScrollListWidget = Qtadditions::QWidgetScrollListWidget;
+   using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
 
    struct text_tree_sub_window;
 

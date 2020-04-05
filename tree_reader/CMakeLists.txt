@@ -19,11 +19,12 @@ add_library(tree_reader
 
    src/text.cpp                      inc/dak/utility/text.h
                                      inc/dak/utility/exceptions.h 
-   src/undo_stack.cpp                inc/dak/utility/undo_stack.h
 )
 
 target_include_directories(tree_reader PUBLIC
-   inc)
+   inc
+   "${PROJECT_SOURCE_DIR}/SimpleUndoRedo/undo_redo/inc"
+)
 
 target_compile_features(tree_reader PUBLIC cxx_std_20)
 

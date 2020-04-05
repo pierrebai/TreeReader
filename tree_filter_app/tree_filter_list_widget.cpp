@@ -25,9 +25,9 @@ namespace dak::tree_reader::app
    tree_filter_list_widget::tree_filter_list_widget(
       delete_callback_function del_func,
       edit_callback_function edit_func,
-      ListModifiedCallbackfunction modif_func,
+      ListModifiedCallbackFunction modif_func,
       bool stretch, QWidget* parent)
-   : QWidgetListWidget(modif_func, stretch, parent),
+   : QWidgetListWidget(modif_func, stretch, QBoxLayout::Direction::TopToBottom, parent),
      delete_callback(del_func),
      edit_callback(edit_func)
    {
