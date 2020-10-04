@@ -10,7 +10,7 @@ using namespace dak::utility;
 
 int wmain(int argc, wchar_t** argv)
 {
-   command_line ctx;
+   command_line_t ctx;
 
    wstring program_name = argc > 0 ? argv[0] : L"tree_filter";
    vector<wstring> args(argv + min(1, argc), argv + argc);

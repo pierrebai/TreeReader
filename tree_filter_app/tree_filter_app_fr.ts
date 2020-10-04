@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
-    <name>dak::tree_reader::app::main_window</name>
+    <name>dak::tree_reader::app::main_window_t</name>
     <message>
         <location filename="main_window.cpp" line="117"/>
         <source>Load Tree</source>
@@ -108,7 +108,7 @@
     </message>
 </context>
 <context>
-    <name>dak::tree_reader::app::text_tree_sub_window</name>
+    <name>dak::tree_reader::app::text_tree_sub_window_t</name>
     <message>
         <location filename="text_tree_sub_window.cpp" line="55"/>
         <source>close the tab</source>
@@ -142,7 +142,7 @@ Do you want to save it before </source>
     </message>
 </context>
 <context>
-    <name>dak::tree_reader::app::tree_filter_list_item</name>
+    <name>dak::tree_reader::app::tree_filter_list_item_t</name>
     <message>
         <location filename="tree_filter_list_item.cpp" line="219"/>
         <source>Edit this filter</source>

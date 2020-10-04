@@ -11,10 +11,10 @@ namespace dak::tree_reader
    // Beware that the string text pointers could theoretically moved while the vector
    // is filled, so don't rely on their address until all the lines have been read.
 
-   struct text_lines_text_holder : text_holder
+   struct text_lines_text_holder_t : text_holder_t
    {
-      typedef std::vector<std::wstring> text_lines;
+      typedef std::vector<std::wstring> text_lines_t;
 
-      text_lines lines;
+      text_lines_t lines;
    };
 }

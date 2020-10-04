@@ -79,7 +79,7 @@ namespace dak::tree_reader::app
    //
    // Create the main window.
 
-   main_window::main_window()
+   main_window_t::main_window_t()
    {
       build_ui();
       fill_ui();
@@ -90,7 +90,7 @@ namespace dak::tree_reader::app
    //
    // Create the UI elements.
 
-   void main_window::build_ui()
+   void main_window_t::build_ui()
    {
       setCorner(Qt::Corner::TopLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
       setCorner(Qt::Corner::BottomLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
@@ -108,7 +108,7 @@ namespace dak::tree_reader::app
       setWindowIcon(QIcon(QtWin::fromHICON((HICON)::LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 256, 256, 0))));
    }
 
-   void main_window::build_toolbar_ui()
+   void main_window_t::build_toolbar_ui()
    {
       auto toolbar = new QToolBar();
       toolbar->setObjectName("Main Toolbar");
@@ -155,7 +155,7 @@ namespace dak::tree_reader::app
       addToolBar(toolbar);
    }
 
-   void main_window::build_filters_ui()
+   void main_window_t::build_filters_ui()
    {
       auto filters_dock = new QDockWidget(tr("Tree filter"));
       filters_dock->setObjectName("Tree filter");
@@ -163,11 +163,11 @@ namespace dak::tree_reader::app
       auto filters_container = new QWidget();
       auto filters_layout = new QHBoxLayout(filters_container);
 
-      _available_filters_list = new tree_filter_list_widget;
+      _available_filters_list = new tree_filter_list_widget_t;
       _available_filters_scroll = new QWidgetScrollListWidget(_available_filters_list);
       filters_layout->addWidget(_available_filters_scroll);
 
-      _filter_editor = new filter_editor(_data.get_Filters(), _data.undo_redo(), filters_container);
+      _filter_editor = new filter_editor_t(_data.get_Filters(), _data.undo_redo(), filters_container);
       filters_layout->addWidget(_filter_editor);
 
       filters_dock->setWidget(filters_container);
@@ -175,7 +175,7 @@ namespace dak::tree_reader::app
       addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, filters_dock);
    }
 
-   void main_window::build_simple_search_ui()
+   void main_window_t::build_simple_search_ui()
    {
       auto simple_search_dock = new QDockWidget(tr("Tree Text Search"));
       simple_search_dock->setObjectName("Tree Text Search");
@@ -199,7 +199,7 @@ namespace dak::tree_reader::app
       addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, simple_search_dock);
    }
 
-   void main_window::build_tabbed_ui()
+   void main_window_t::build_tabbed_ui()
    {
       auto main_container = new QWidget;
       auto main_layout = new QVBoxLayout(main_container);
@@ -218,7 +218,7 @@ namespace dak::tree_reader::app
    //
    // Connect the signals of the UI elements.
 
-   void main_window::connect_ui()
+   void main_window_t::connect_ui()
    {
       /////////////////////////////////////////////////////////////////////////
       //
@@ -308,7 +308,7 @@ namespace dak::tree_reader::app
       //
       // The filter list UI call-backs.
 
-      _filter_editor->filter_changed = [self=this](const tree_filter_ptr& filter)
+      _filter_editor->filter_changed = [self=this](const tree_filter_ptr_t& filter)
       {
          auto window = self->get_current_sub_window();
          if (!window)
@@ -331,7 +331,7 @@ namespace dak::tree_reader::app
    //
    // Fill the UI with the intial data.
 
-   void main_window::fill_ui()
+   void main_window_t::fill_ui()
    {
       with_no_exceptions([self = this]() { self->_data.load_named_filters(get_filters_filename()); });
       with_no_exceptions([self = this]() { self->_data.load_options(get_options_filename()); });
@@ -343,7 +343,7 @@ namespace dak::tree_reader::app
       fill_available_filters_ui();
    }
 
-   void main_window::fill_filter_editor_ui()
+   void main_window_t::fill_filter_editor_ui()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -352,7 +352,7 @@ namespace dak::tree_reader::app
       _filter_editor->set_edited(window->tree->get_filter(), window->tree->get_filter_name());
    }
 
-   void main_window::fill_available_filters_ui()
+   void main_window_t::fill_available_filters_ui()
    {
       for (const auto& [name, filter] : _data.get_Filters().all())
          add_named_filter_to_available(filter);
@@ -365,8 +365,8 @@ namespace dak::tree_reader::app
       _available_filters_list->add_tree_filter(regex(L""));
       _available_filters_list->add_tree_filter(unique());
       _available_filters_list->add_tree_filter(not(nullptr));
-      _available_filters_list->add_tree_filter(any(vector<tree_filter_ptr>()));
-      _available_filters_list->add_tree_filter(all(vector<tree_filter_ptr>()));
+      _available_filters_list->add_tree_filter(any(vector<tree_filter_ptr_t>()));
+      _available_filters_list->add_tree_filter(all(vector<tree_filter_ptr_t>()));
       _available_filters_list->add_tree_filter(under(nullptr));
       _available_filters_list->add_tree_filter(no_child(nullptr));
       _available_filters_list->add_tree_filter(level_range(0, 100));
@@ -374,9 +374,9 @@ namespace dak::tree_reader::app
       _available_filters_list->add_tree_filter(if_sibling(nullptr));
    }
 
-   void main_window::add_named_filter_to_available(const tree_filter_ptr& filter)
+   void main_window_t::add_named_filter_to_available(const tree_filter_ptr_t& filter)
    {
-      auto del_func = [self = this](tree_filter_list_item* panel)
+      auto del_func = [self = this](tree_filter_list_item_t* panel)
       {
          if (!panel)
             return;
@@ -390,12 +390,12 @@ namespace dak::tree_reader::app
          }
       };
 
-      auto edit_func = [self = this](tree_filter_list_item* panel)
+      auto edit_func = [self = this](tree_filter_list_item_t* panel)
       {
          if (!panel)
             return;
 
-         if (auto named = dynamic_pointer_cast<named_tree_filter>(panel->filter))
+         if (auto named = dynamic_pointer_cast<named_tree_filter_t>(panel->filter))
          {
             if (named->filter)
             {
@@ -411,14 +411,14 @@ namespace dak::tree_reader::app
    //
    // Main window state.
 
-   void main_window::save_state()
+   void main_window_t::save_state()
    {
       ofstream stream(get_main_window_state_filename());
       QByteArray state = saveState();
       stream << state.toBase64().toStdString();
    }
 
-   void main_window::load_state()
+   void main_window_t::load_state()
    {
       ifstream stream(get_main_window_state_filename());
       string text;
@@ -431,7 +431,7 @@ namespace dak::tree_reader::app
    //
    // Closing and saving.
 
-   void main_window::closeEvent(QCloseEvent* ev)
+   void main_window_t::closeEvent(QCloseEvent* ev)
    {
       if (save_if_required(tr("close the window"), tr("closing the window")))
       {
@@ -448,7 +448,7 @@ namespace dak::tree_reader::app
       }
    }
 
-   bool main_window::save_if_required(const QString& action, const QString& actioning)
+   bool main_window_t::save_if_required(const QString& action, const QString& actioning)
    {
       for (auto window : get_all_sub_windows())
          if (!window->save_if_required(action, actioning))
@@ -457,15 +457,15 @@ namespace dak::tree_reader::app
       return true;
    }
 
-   void main_window::load_tree()
+   void main_window_t::load_tree()
    {
-      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(tree_commands::tree_file_types), this);
+      filesystem::path path = AskOpen(tr("Load Text Tree"), tr(tree_commands_t::tree_file_types), this);
       auto new_tree = _data.load_tree(path);
       add_text_tree_tab(new_tree);
       search_in_tree();
    }
 
-   bool main_window::save_filtered_tree(text_tree_sub_window* window)
+   bool main_window_t::save_filtered_tree(text_tree_sub_window_t* window)
    {
       if (!window)
          return true;
@@ -477,12 +477,12 @@ namespace dak::tree_reader::app
    //
    // Tab management.
 
-   void main_window::add_text_tree_tab(const tree_commands_ptr& new_tree)
+   void main_window_t::add_text_tree_tab(const tree_commands_ptr_t& new_tree)
    {
       if (!new_tree)
          return;
 
-      auto sub_window = new text_tree_sub_window(new_tree, _data.options);
+      auto sub_window = new text_tree_sub_window_t(new_tree, _data.options);
       _tabs->addSubWindow(sub_window);
       sub_window->showMaximized();
 
@@ -492,7 +492,7 @@ namespace dak::tree_reader::app
       update_create_tab_action();
    }
 
-   void main_window::update_active_tab()
+   void main_window_t::update_active_tab()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -502,13 +502,13 @@ namespace dak::tree_reader::app
       search_in_tree();
    }
 
-   void main_window::update_text_tree_tab()
+   void main_window_t::update_text_tree_tab()
    {
       auto window = get_current_sub_window();
       if (!window)
          return;
 
-      text_tree_ptr new_tree;
+      text_tree_ptr_t new_tree;
       if (window->tree->get_filtered_tree())
       {
          new_tree = window->tree->get_filtered_tree();
@@ -527,17 +527,17 @@ namespace dak::tree_reader::app
    //
    // Current tab.
 
-   text_tree_sub_window* main_window::get_current_sub_window()
+   text_tree_sub_window_t* main_window_t::get_current_sub_window()
    {
-      return dynamic_cast<text_tree_sub_window*>(_tabs->currentSubWindow());
+      return dynamic_cast<text_tree_sub_window_t*>(_tabs->currentSubWindow());
    }
 
-   vector<text_tree_sub_window*> main_window::get_all_sub_windows()
+   vector<text_tree_sub_window_t*> main_window_t::get_all_sub_windows()
    {
-      vector<text_tree_sub_window*> subs;
+      vector<text_tree_sub_window_t*> subs;
 
       for (auto window : _tabs->subWindowList())
-         if (auto treeWindow = dynamic_cast<text_tree_sub_window*>(window))
+         if (auto treeWindow = dynamic_cast<text_tree_sub_window_t*>(window))
             subs.push_back(treeWindow);
 
       return subs;
@@ -547,7 +547,7 @@ namespace dak::tree_reader::app
    //
    // Tree filtering.
 
-   void main_window::filter_tree()
+   void main_window_t::filter_tree()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -562,7 +562,7 @@ namespace dak::tree_reader::app
       _filtering_timer->start(10);
    }
 
-   void main_window::verify_async_filtering()
+   void main_window_t::verify_async_filtering()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -578,18 +578,18 @@ namespace dak::tree_reader::app
       }
    }
 
-   void main_window::abort_async_filtering()
+   void main_window_t::abort_async_filtering()
    {
       for (auto window : get_all_sub_windows())
          window->tree->abort_async_filter();
    }
 
-   void main_window::search_in_tree()
+   void main_window_t::search_in_tree()
    {
       search_in_tree(_simple_search->text());
    }
 
-   void main_window::search_in_tree(const QString& text)
+   void main_window_t::search_in_tree(const QString& text)
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -599,7 +599,7 @@ namespace dak::tree_reader::app
       _filtering_timer->start(10);
    }
 
-   void main_window::push_filter()
+   void main_window_t::push_filter()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -609,7 +609,7 @@ namespace dak::tree_reader::app
       add_text_tree_tab(new_tree);
    }
 
-   void main_window::update_create_tab_action()
+   void main_window_t::update_create_tab_action()
    {
       auto window = get_current_sub_window();
       if (!window)
@@ -622,7 +622,7 @@ namespace dak::tree_reader::app
    //
    // filter naming.
 
-   void main_window::name_filter()
+   void main_window_t::name_filter()
    {
       auto filter = _filter_editor->get_edited();
       if (!filter)
@@ -642,7 +642,7 @@ namespace dak::tree_reader::app
    //
    // options.
 
-   void main_window::open_options()
+   void main_window_t::open_options()
    {
       auto dialog = new options_dialog(_data.options, this);
       dialog->exec();
@@ -651,7 +651,7 @@ namespace dak::tree_reader::app
    /////////////////////////////////////////////////////////////////////////
    //
    // undo/redo.
-   void main_window::update_undo_redo_actions()
+   void main_window_t::update_undo_redo_actions()
    {
       _undo_action->setEnabled(_data.undo_redo().has_undo());
       _redo_action->setEnabled(_data.undo_redo().has_redo());

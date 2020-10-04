@@ -16,7 +16,7 @@ namespace dak::tree_reader_tests
 		
 		TEST_METHOD(Saveload_options)
 		{
-         global_commands ctx;
+         global_commands_t ctx;
 
          ctx.options.output_line_indent = L"abc";
          ctx.options.read_options.input_filter = L"def";
@@ -27,7 +27,7 @@ namespace dak::tree_reader_tests
          ctx.save_options(ostream);
 
          wistringstream istream(ostream.str());
-         global_commands ctx2;
+         global_commands_t ctx2;
          ctx2.load_options(istream);
 
          Assert::AreEqual(L"abc", ctx2.options.output_line_indent.c_str());

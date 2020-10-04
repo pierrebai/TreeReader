@@ -11,7 +11,7 @@ namespace dak::tree_reader
    //
    // options controling how the text is read and its indentation calculated.
 
-   struct load_simple_text_tree_options
+   struct load_simple_text_tree_options_t
    {
       // How many characters a tab represent to calculate line indentation.
       size_t tab_size = 8;
@@ -25,7 +25,7 @@ namespace dak::tree_reader
       // This allows cleaning up input lines.
       std::wstring input_filter;
 
-      bool operator!=(const load_simple_text_tree_options& other) const
+      bool operator!=(const load_simple_text_tree_options_t& other) const
       {
          return tab_size     != other.tab_size
              || input_indent != other.input_indent
@@ -39,6 +39,6 @@ namespace dak::tree_reader
    // Read a simple flat text file, using initial white-space indentation
    // to determine the tree structure.
 
-   text_tree load_simple_text_tree(const std::filesystem::path& path, const load_simple_text_tree_options& options = load_simple_text_tree_options());
-   text_tree load_simple_text_tree(std::wistream& stream, const load_simple_text_tree_options& options = load_simple_text_tree_options());
+   text_tree_t load_simple_text_tree(const std::filesystem::path& path, const load_simple_text_tree_options_t& options = load_simple_text_tree_options_t());
+   text_tree_t load_simple_text_tree(std::wistream& stream, const load_simple_text_tree_options_t& options = load_simple_text_tree_options_t());
 }

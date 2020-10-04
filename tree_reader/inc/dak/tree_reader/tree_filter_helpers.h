@@ -12,11 +12,11 @@ namespace dak::tree_reader
    //
    // (not visiting siblings also skip the initial node too.)
 
-   typedef std::function<bool(const tree_filter_ptr& filter)> filter_visit_function;
+   typedef std::function<bool(const tree_filter_ptr_t& filter)> filter_visit_function_t;
 
-   bool visit_filters(const tree_filter_ptr& filter, bool includeSelf, filter_visit_function func);
+   bool visit_filters(const tree_filter_ptr_t& filter, bool includeSelf, filter_visit_function_t func);
 
-   inline bool visit_filters(const tree_filter_ptr& filter, filter_visit_function func)
+   inline bool visit_filters(const tree_filter_ptr_t& filter, filter_visit_function_t func)
    {
       return visit_filters(filter, true, func);
    }

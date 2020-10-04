@@ -9,8 +9,8 @@
 namespace dak::tree_reader
 {
    using namespace std;
-   using result = tree_filter::result;
-   using node = text_tree::node;
+   using result = tree_filter_t::result_t;
+   using node = text_tree_t::node_t;
 
    constexpr result keep { false, false, true };
    constexpr result drop { false, false, false };
@@ -19,19 +19,19 @@ namespace dak::tree_reader
    constexpr result drop_and_skip { false, true, false };
    constexpr result keep_and_skip { false, true, true };
 
-   wstring tree_filter::get_name() const
+   wstring tree_filter_t::get_name() const
    {
       return get_short_name();
    }
 
-   delegate_tree_filter::delegate_tree_filter(const delegate_tree_filter& other)
+   delegate_tree_filter_t::delegate_tree_filter_t(const delegate_tree_filter_t& other)
    : sub_filter(other.sub_filter)
    {
       if (sub_filter)
          sub_filter = sub_filter->clone();
    }
 
-   result delegate_tree_filter::is_kept(const text_tree& tree, const text_tree::node& node, size_t level)
+   result delegate_tree_filter_t::is_kept(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
       if (!sub_filter)
          return keep;
@@ -39,37 +39,37 @@ namespace dak::tree_reader
       return sub_filter->is_kept(tree, node, level);
    }
 
-   result accept_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result accept_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       return keep;
    }
 
-   result stop_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result stop_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       return keep ? stop_and_keep : stop_and_drop;
    }
 
-   result until_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result until_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      return delegate_tree_filter::is_kept(tree, node, level).keep ? stop_and_drop : drop;
+      return delegate_tree_filter_t::is_kept(tree, node, level).keep ? stop_and_drop : drop;
    }
 
-   result contains_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result contains_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       return (wcsstr(node.text_ptr, contained.c_str()) != nullptr) ? keep : drop;
    }
    
-   int unique_tree_filter::hash::operator()(const wchar_t* text) const
+   int unique_tree_filter_t::hash::operator()(const wchar_t* text) const
    {
       int h = 0;  if (text) while (*text) { h += *text * 131; ++text; } return h & INT_MAX;
    }
 
-   bool unique_tree_filter::comp::operator()(const wchar_t* lhs, const wchar_t* rhs) const
+   bool unique_tree_filter_t::comp::operator()(const wchar_t* lhs, const wchar_t* rhs) const
    {
       return std::wcscmp(lhs, rhs) == 0;
    }
 
-   result unique_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result unique_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       if (_uniques.count(node.text_ptr) > 0)
          return drop;
@@ -78,17 +78,17 @@ namespace dak::tree_reader
       return keep;
    }
 
-   result text_address_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result text_address_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       return (exact_address == node.text_ptr) ? keep : drop;
    }
 
-   result regex_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result regex_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       return regex_search(node.text_ptr, regex) ? keep : drop;
    }
 
-   combine_tree_filter::combine_tree_filter(const combine_tree_filter& other)
+   combine_tree_filter_t::combine_tree_filter_t(const combine_tree_filter_t& other)
    : filters(other.filters)
    {
       for (auto& filter : filters)
@@ -96,16 +96,16 @@ namespace dak::tree_reader
             filter = filter->clone();
    }
 
-   result not_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result not_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      result result = delegate_tree_filter::is_kept(tree, node, level);
+      result_t result = delegate_tree_filter_t::is_kept(tree, node, level);
       result.keep = !result.keep;
       return result;
    }
 
-   result or_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result or_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      result result = drop;
+      result_t result = drop;
       for (const auto& filter : filters)
          if (filter)
             if (result = result | filter->is_kept(tree, node, level); result.keep)
@@ -113,9 +113,9 @@ namespace dak::tree_reader
       return result;
    }
 
-   result and_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result and_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      result result = keep;
+      result_t result = keep;
       for (const auto& filter : filters)
          if (filter)
             if (result = result & filter->is_kept(tree, node, level); !result.keep)
@@ -123,7 +123,7 @@ namespace dak::tree_reader
       return result;
    }
 
-   result under_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result under_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       // If we have found a match previously for the under filter,
       // then keep the nodes while we're still in levels deeper
@@ -138,7 +138,7 @@ namespace dak::tree_reader
 
       // If the node doesn't match the under filter, don't apply the other filter.
       // Just return the result of the other filter.
-      result result = delegate_tree_filter::is_kept(tree, node, level);
+      result_t result = delegate_tree_filter_t::is_kept(tree, node, level);
       if (!result.keep)
          return result;
 
@@ -157,15 +157,15 @@ namespace dak::tree_reader
       return result;
    }
 
-   result remove_children_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result remove_children_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      if (!delegate_tree_filter::is_kept(tree, node, level).keep)
+      if (!delegate_tree_filter_t::is_kept(tree, node, level).keep)
          return keep;
 
       return include_self ? drop_and_skip : keep_and_skip;
    }
 
-   result level_range_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result level_range_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
       if (level < min_level)
          return drop;
@@ -176,24 +176,24 @@ namespace dak::tree_reader
       return drop_and_skip;
    }
 
-   result stop_when_kept_tree_filter::is_kept(const text_tree& tree, const text_tree::node& node, size_t level)
+   result stop_when_kept_tree_filter_t::is_kept(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
-      result result = delegate_tree_filter::is_kept(tree, node, level);
+      result_t result = delegate_tree_filter_t::is_kept(tree, node, level);
       if (result.keep)
          result = result | stop_and_keep;
 
       return result;
    }
 
-   result if_subtree_tree_filter::is_kept(const text_tree& tree, const node& node, size_t level)
+   result if_subtree_tree_filter_t::is_kept(const text_tree_t& tree, const node& node, size_t level)
    {
-      stop_when_kept_tree_filter stop_when_kept(sub_filter);
-      filter_tree_visitor visitor(tree, _filtered, stop_when_kept);
+      stop_when_kept_tree_filter_t stop_when_kept(sub_filter);
+      filter_tree_visitor_t visitor(tree, _filtered, stop_when_kept);
       visit_in_order(tree, &node, false, visitor);
       return (_filtered.roots.size() > 0) ? keep : drop;
    }
 
-   result if_sibling_tree_filter::is_kept(const text_tree& tree, const node& a_node, size_t level)
+   result if_sibling_tree_filter_t::is_kept(const text_tree_t& tree, const node& a_node, size_t level)
    {
       const auto& children = a_node.parent ? a_node.parent->children : tree.roots;
       auto pos = children.begin();
@@ -202,7 +202,7 @@ namespace dak::tree_reader
       for (; pos != children.end(); ++pos)
       {
          const node& c_node = **pos;
-         const auto result = delegate_tree_filter::is_kept(tree, c_node, level);
+         const auto result = delegate_tree_filter_t::is_kept(tree, c_node, level);
          if (result.keep)
             return keep;
          if (result.stop)
@@ -212,7 +212,7 @@ namespace dak::tree_reader
       return drop;
    }
 
-   result named_tree_filter::is_kept(const text_tree& tree, const text_tree::node& node, size_t level)
+   result named_tree_filter_t::is_kept(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
       if (!filter)
          return keep;
@@ -250,50 +250,50 @@ namespace dak::tree_reader
       }
 
 
-   IMPLEMENT_SIMPLE_NAME(accept_tree_filter,          L"Do nothing",                      L"keeps all nodes")
-   IMPLEMENT_SIMPLE_NAME(stop_tree_filter,            L"stop",                            L"stops filtering")
-   IMPLEMENT_SIMPLE_NAME(until_tree_filter,           L"until",                           L"stops filtering when the sub-filter accepts a node")
-   IMPLEMENT_STREAM_NAME(contains_tree_filter,        L"Match", contained,                L"keeps the node if it matches the given text")
-   IMPLEMENT_SIMPLE_NAME(unique_tree_filter,          L"unique",                          L"keeps unique nodes (remove duplicates)")
-   IMPLEMENT_STREAM_NAME(text_address_tree_filter,    L"Exact node", exact_address,       L"keeps one exact, previously selected node")
-   IMPLEMENT_STREAM_NAME(regex_tree_filter,           L"Match regex", regex_text,         L"keeps the node if it matches the given regular expression")
-   IMPLEMENT_SIMPLE_NAME(not_tree_filter,             L"not",                             L"Inverses the result of the sub-filter")
-   IMPLEMENT_SIMPLE_NAME(or_tree_filter,              L"If any",                          L"keeps the node if any of the sub-filters accepts")
-   IMPLEMENT_SIMPLE_NAME(and_tree_filter,             L"If all",                          L"keeps the node if all of the sub-filters accepts")
-   IMPLEMENT_SIMPLE_NAME(under_tree_filter,           L"If, keep all under",              L"keeps all nodes under")
-   IMPLEMENT_SIMPLE_NAME(remove_children_tree_filter, L"remove all children",             L"removes all children nodes")
-   IMPLEMENT_STREAM_NAME(level_range_tree_filter,     L"keep levels", min_level << L"-" << max_level, L"keeps nodes that are within a range of tree depths")
-   IMPLEMENT_SIMPLE_NAME(if_subtree_tree_filter,      L"If a child",                      L"keeps the node if one if its child is accepted by the sub-filter")
-   IMPLEMENT_SIMPLE_NAME(if_sibling_tree_filter,      L"If a sibling",                    L"keeps the node if one if its sibling is accepted by the sub-filter")
-   IMPLEMENT_SIMPLE_NAME(named_tree_filter,           name,                               L"Delegates the decision to keep the node to the named filter")
-   IMPLEMENT_SIMPLE_NAME(stop_when_kept_tree_filter,  L"stop when kept",                  L"stops filtering when a sub-filter keeps a node.")
+   IMPLEMENT_SIMPLE_NAME(accept_tree_filter_t,          L"Do nothing",                      L"keeps all nodes")
+   IMPLEMENT_SIMPLE_NAME(stop_tree_filter_t,            L"stop",                            L"stops filtering")
+   IMPLEMENT_SIMPLE_NAME(until_tree_filter_t,           L"until",                           L"stops filtering when the sub-filter accepts a node")
+   IMPLEMENT_STREAM_NAME(contains_tree_filter_t,        L"Match", contained,                L"keeps the node if it matches the given text")
+   IMPLEMENT_SIMPLE_NAME(unique_tree_filter_t,          L"unique",                          L"keeps unique nodes (remove duplicates)")
+   IMPLEMENT_STREAM_NAME(text_address_tree_filter_t,    L"Exact node", exact_address,       L"keeps one exact, previously selected node")
+   IMPLEMENT_STREAM_NAME(regex_tree_filter_t,           L"Match regex", regex_text,         L"keeps the node if it matches the given regular expression")
+   IMPLEMENT_SIMPLE_NAME(not_tree_filter_t,             L"not",                             L"Inverses the result of the sub-filter")
+   IMPLEMENT_SIMPLE_NAME(or_tree_filter_t,              L"If any",                          L"keeps the node if any of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(and_tree_filter_t,             L"If all",                          L"keeps the node if all of the sub-filters accepts")
+   IMPLEMENT_SIMPLE_NAME(under_tree_filter_t,           L"If, keep all under",              L"keeps all nodes under")
+   IMPLEMENT_SIMPLE_NAME(remove_children_tree_filter_t, L"remove all children",             L"removes all children nodes")
+   IMPLEMENT_STREAM_NAME(level_range_tree_filter_t,     L"keep levels", min_level << L"-" << max_level, L"keeps nodes that are within a range of tree depths")
+   IMPLEMENT_SIMPLE_NAME(if_subtree_tree_filter_t,      L"If a child",                      L"keeps the node if one if its child is accepted by the sub-filter")
+   IMPLEMENT_SIMPLE_NAME(if_sibling_tree_filter_t,      L"If a sibling",                    L"keeps the node if one if its sibling is accepted by the sub-filter")
+   IMPLEMENT_SIMPLE_NAME(named_tree_filter_t,           name,                               L"Delegates the decision to keep the node to the named filter")
+   IMPLEMENT_SIMPLE_NAME(stop_when_kept_tree_filter_t,  L"stop when kept",                  L"stops filtering when a sub-filter keeps a node.")
 
    #undef IMPLEMENT_SIMPLE_NAME
    #undef IMPLEMENT_STREAM_NAME
 
    #define IMPLEMENT_CLONE(cl)                        \
-      tree_filter_ptr cl::clone() const               \
+      tree_filter_ptr_t cl::clone() const               \
       {                                               \
          return make_shared<cl>(*this);               \
       }                                               \
 
-   IMPLEMENT_CLONE(accept_tree_filter)
-   IMPLEMENT_CLONE(stop_tree_filter)
-   IMPLEMENT_CLONE(until_tree_filter)
-   IMPLEMENT_CLONE(contains_tree_filter)
-   IMPLEMENT_CLONE(unique_tree_filter)
-   IMPLEMENT_CLONE(text_address_tree_filter)
-   IMPLEMENT_CLONE(regex_tree_filter)
-   IMPLEMENT_CLONE(not_tree_filter)
-   IMPLEMENT_CLONE(or_tree_filter)
-   IMPLEMENT_CLONE(and_tree_filter)
-   IMPLEMENT_CLONE(under_tree_filter)
-   IMPLEMENT_CLONE(remove_children_tree_filter)
-   IMPLEMENT_CLONE(level_range_tree_filter)
-   IMPLEMENT_CLONE(if_subtree_tree_filter)
-   IMPLEMENT_CLONE(if_sibling_tree_filter)
-   IMPLEMENT_CLONE(named_tree_filter)
-   IMPLEMENT_CLONE(stop_when_kept_tree_filter)
+   IMPLEMENT_CLONE(accept_tree_filter_t)
+   IMPLEMENT_CLONE(stop_tree_filter_t)
+   IMPLEMENT_CLONE(until_tree_filter_t)
+   IMPLEMENT_CLONE(contains_tree_filter_t)
+   IMPLEMENT_CLONE(unique_tree_filter_t)
+   IMPLEMENT_CLONE(text_address_tree_filter_t)
+   IMPLEMENT_CLONE(regex_tree_filter_t)
+   IMPLEMENT_CLONE(not_tree_filter_t)
+   IMPLEMENT_CLONE(or_tree_filter_t)
+   IMPLEMENT_CLONE(and_tree_filter_t)
+   IMPLEMENT_CLONE(under_tree_filter_t)
+   IMPLEMENT_CLONE(remove_children_tree_filter_t)
+   IMPLEMENT_CLONE(level_range_tree_filter_t)
+   IMPLEMENT_CLONE(if_subtree_tree_filter_t)
+   IMPLEMENT_CLONE(if_sibling_tree_filter_t)
+   IMPLEMENT_CLONE(named_tree_filter_t)
+   IMPLEMENT_CLONE(stop_when_kept_tree_filter_t)
 
    #undef IMPLEMENT_CLONE
 }

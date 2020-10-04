@@ -9,7 +9,7 @@ namespace dak::tree_reader
    // Holds text as a vector of raw characters buffers.
    // Uses indirection to make sure each buffer does not change address.
 
-   struct buffers_text_holder : text_holder
+   struct buffers_text_holder_t : text_holder_t
    {
       typedef std::vector<wchar_t> buffer;
       typedef std::shared_ptr<buffer> buffer_ptr;
@@ -22,9 +22,9 @@ namespace dak::tree_reader
    //
    // Read text lines from an input stream and stores them in the holder.
 
-   struct buffers_text_holder_reader
+   struct buffers_text_holder_reader_t
    {
-      std::shared_ptr<buffers_text_holder> holder = std::make_shared<buffers_text_holder>();
+      std::shared_ptr<buffers_text_holder_t> holder = std::make_shared<buffers_text_holder_t>();
 
       wchar_t* pos_in_buffer = nullptr;
       wchar_t* buffer_end = nullptr;

@@ -23,7 +23,7 @@ namespace dak::tree_reader_tests
 			sstream.flush();
 			sstream.seekg(0);
 
-			text_tree tree = load_simple_text_tree(sstream);
+			text_tree_t tree = load_simple_text_tree(sstream);
 
 			wostringstream sstream2;
 			sstream2 << tree;
@@ -48,10 +48,10 @@ namespace dak::tree_reader_tests
 			sstream.flush();
 			sstream.seekg(0);
 
-			load_simple_text_tree_options options;
+			load_simple_text_tree_options_t options;
 			options.input_filter = L"([^bek]*)";
 
-			text_tree tree = load_simple_text_tree(sstream, options);
+			text_tree_t tree = load_simple_text_tree(sstream, options);
 
 			wostringstream sstream2;
 			sstream2 << tree;

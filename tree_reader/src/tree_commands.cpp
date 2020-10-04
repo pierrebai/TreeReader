@@ -12,7 +12,7 @@ namespace dak::tree_reader
 {
    using namespace std;
 
-   tree_commands::tree_commands(text_tree_ptr tree, wstring name, shared_ptr<named_filters> knownFilters, shared_ptr<undo_stack> undoRedo)
+   tree_commands_t::tree_commands_t(text_tree_ptr_t tree, wstring name, shared_ptr<named_filters_t> knownFilters, shared_ptr<undo_stack> undoRedo)
    : _tree(move(tree)), _tree_filename(move(name)), _known_filters(move(knownFilters)), _undo_redo(move(undoRedo))
    {
    }
@@ -21,7 +21,7 @@ namespace dak::tree_reader
    //
    // _filtered tree save.
 
-   void tree_commands::save_filtered_tree(const filesystem::path& filename, const commands_options& options)
+   void tree_commands_t::save_filtered_tree(const filesystem::path& filename, const commands_options_t& options)
    {
       if (_filtered)
       {
@@ -31,7 +31,7 @@ namespace dak::tree_reader
       }
    }
 
-   bool tree_commands::is_filtered_tree_saved() const
+   bool tree_commands_t::is_filtered_tree_saved() const
    {
       return _filtered_was_saved;
    }
@@ -40,28 +40,28 @@ namespace dak::tree_reader
    //
    // Current filter.
 
-   void tree_commands::set_filter(const tree_filter_ptr& a_filter)
+   void tree_commands_t::set_filter(const tree_filter_ptr_t& a_filter)
    {
       _filter = a_filter;
       commit_filter_to_undo();
    }
 
-   const tree_filter_ptr& tree_commands::get_filter() const
+   const tree_filter_ptr_t& tree_commands_t::get_filter() const
    {
       return _filter;
    }
 
-   const std::wstring& tree_commands::get_filter_name() const
+   const std::wstring& tree_commands_t::get_filter_name() const
    {
       return _filter_name;
    }
 
-   void tree_commands::set_filter_name(const std::wstring& name)
+   void tree_commands_t::set_filter_name(const std::wstring& name)
    {
       _filter_name = name;
    }
 
-   void tree_commands::apply_filter_to_tree(bool async)
+   void tree_commands_t::apply_filter_to_tree(bool async)
    {
       abort_async_filter();
 
@@ -73,7 +73,7 @@ namespace dak::tree_reader
          }
          else
          {
-            _filtered = make_shared<text_tree>();
+            _filtered = make_shared<text_tree_t>();
             filter_tree(*_tree, *_filtered, *_filter);
             _filtered_was_saved = false;
             apply_search_in_tree(async);
@@ -81,32 +81,32 @@ namespace dak::tree_reader
       }
       else
       {
-         _filtered = make_shared<text_tree>(*_tree);
+         _filtered = make_shared<text_tree_t>(*_tree);
          // note: pure copy of input tree are considered to have been saved.
          _filtered_was_saved = true;
          apply_search_in_tree(async);
       }
    }
 
-   void tree_commands::abort_async_filter()
+   void tree_commands_t::abort_async_filter()
    {
       if (_async_filtering.second)
          _async_filtering.second->abort = true;
-      _async_filtering = async_filter_tree_result();
+      _async_filtering = async_filter_tree_result_t();
 
       abort_async_search();
    }
 
-   bool tree_commands::is_async_filter_ready()
+   bool tree_commands_t::is_async_filter_ready()
    {
       if (_async_filtering.first.valid())
       {
          if (_async_filtering.first.wait_for(1us) != future_status::ready)
             return false;
 
-         _filtered = make_shared<text_tree>(_async_filtering.first.get());
+         _filtered = make_shared<text_tree_t>(_async_filtering.first.get());
          _filtered_was_saved = false;
-         _async_filtering = async_filter_tree_result();
+         _async_filtering = async_filter_tree_result_t();
 
          apply_search_in_tree(true);
       }
@@ -118,28 +118,28 @@ namespace dak::tree_reader
    //
    // Text search.
 
-   void tree_commands::abort_async_search()
+   void tree_commands_t::abort_async_search()
    {
       if (_async_searching.second)
          _async_searching.second->abort = true;
-      _async_searching = async_filter_tree_result();
+      _async_searching = async_filter_tree_result_t();
    }
 
-   bool tree_commands::is_async_search_ready()
+   bool tree_commands_t::is_async_search_ready()
    {
       if (_async_searching.first.valid())
       {
          if (_async_searching.first.wait_for(1us) != future_status::ready)
             return false;
 
-         _searched = make_shared<text_tree>(_async_searching.first.get());
-         _async_searching = async_filter_tree_result();
+         _searched = make_shared<text_tree_t>(_async_searching.first.get());
+         _async_searching = async_filter_tree_result_t();
       }
 
       return true;
    }
 
-   void tree_commands::search_in_tree(const std::wstring& text)
+   void tree_commands_t::search_in_tree(const std::wstring& text)
    {
       if (_searched_text == text)
          return;
@@ -149,7 +149,7 @@ namespace dak::tree_reader
       apply_search_in_tree(false);
    }
 
-   void tree_commands::search_in_tree_async(const std::wstring& text)
+   void tree_commands_t::search_in_tree_async(const std::wstring& text)
    {
       if (_searched_text == text)
          return;
@@ -159,7 +159,7 @@ namespace dak::tree_reader
       apply_search_in_tree(true);
    }
 
-   void tree_commands::apply_search_in_tree(bool async)
+   void tree_commands_t::apply_search_in_tree(bool async)
    {
       if (_searched_text.empty())
       {
@@ -167,7 +167,7 @@ namespace dak::tree_reader
          return;
       }
 
-      text_tree_ptr applyTo = _filtered ? _filtered : _tree;
+      text_tree_ptr_t applyTo = _filtered ? _filtered : _tree;
 
       if (!applyTo)
          return;
@@ -184,17 +184,17 @@ namespace dak::tree_reader
       }
       else
       {
-         _searched = make_shared<text_tree>();
+         _searched = make_shared<text_tree_t>();
          filter_tree(*applyTo, *_searched, *_filter);
       }
    }
 
-   text_tree_ptr tree_commands::get_original_tree() const
+   text_tree_ptr_t tree_commands_t::get_original_tree() const
    {
       return _tree;
    }
 
-   std::wstring tree_commands::get_original_tree_filename() const
+   std::wstring tree_commands_t::get_original_tree_filename() const
    {
       return _tree_filename;
    }
@@ -203,17 +203,17 @@ namespace dak::tree_reader
    //
    // Current filtered tree.
 
-   text_tree_ptr tree_commands::get_filtered_tree() const
+   text_tree_ptr_t tree_commands_t::get_filtered_tree() const
    {
       return _searched ? _searched : _filtered;
    }
 
-   std::wstring tree_commands::get_filtered_tree_filename() const
+   std::wstring tree_commands_t::get_filtered_tree_filename() const
    {
       return _filtered_filename;
    }
 
-   bool tree_commands::can_create_tree_from_filtered() const
+   bool tree_commands_t::can_create_tree_from_filtered() const
    {
       return _filtered != nullptr;
    }
@@ -223,18 +223,18 @@ namespace dak::tree_reader
    //
    // undo / redo.
 
-   void tree_commands::deaden_filters(std::any& data)
+   void tree_commands_t::deaden_filters(std::any& data)
    {
       data = convert_filter_to_text(_filter);
    }
 
-   void tree_commands::awaken_filters(const std::any& data)
+   void tree_commands_t::awaken_filters(const std::any& data)
    {
       // note: do not call set_filter as it would put it in undo/redo...
       _filter = convert_text_to_filter(any_cast<wstring>(data), *_known_filters);;
    }
 
-   void tree_commands::commit_filter_to_undo()
+   void tree_commands_t::commit_filter_to_undo()
    {
       _undo_redo->simple_commit(
       {

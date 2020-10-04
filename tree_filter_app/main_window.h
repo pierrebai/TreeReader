@@ -20,31 +20,31 @@ class QMdiArea;
 
 namespace dak::tree_reader
 {
-   struct text_tree;
-   struct tree_commands;
+   struct text_tree_t;
+   struct tree_commands_t;
 }
 
 namespace dak::tree_reader::app
 {
-   using tree_filter = tree_reader::tree_filter;
-   using tree_filter_ptr = tree_reader::tree_filter_ptr;
-   using text_tree_ptr = tree_reader::text_tree_ptr;
-   using global_commands = tree_reader::global_commands;
+   using tree_filter_t = tree_reader::tree_filter_t;
+   using tree_filter_ptr_t = tree_reader::tree_filter_ptr_t;
+   using text_tree_ptr_t = tree_reader::text_tree_ptr_t;
+   using global_commands_t = tree_reader::global_commands_t;
    using undo_stack = tree_reader::undo_stack;
-   using tree_commands_ptr = std::shared_ptr<tree_reader::tree_commands>;
+   using tree_commands_ptr_t = std::shared_ptr<tree_reader::tree_commands_t>;
 
    using QWidgetScrollListWidget = QtAdditions::QWidgetScrollListWidget;
 
-   struct text_tree_sub_window;
+   struct text_tree_sub_window_t;
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // The main window of the tree filter app.
 
-   struct main_window : QMainWindow
+   struct main_window_t : QMainWindow
    {
       // Create the main window.
-      main_window();
+      main_window_t();
 
    protected:
       // Create the UI elements.
@@ -70,16 +70,16 @@ namespace dak::tree_reader::app
       void closeEvent(QCloseEvent* ev);
       bool save_if_required(const QString& action, const QString& actioning);
       void load_tree();
-      bool save_filtered_tree(text_tree_sub_window* window);
+      bool save_filtered_tree(text_tree_sub_window_t* window);
 
       // Tab management.
-      void add_text_tree_tab(const tree_commands_ptr& newTree);
+      void add_text_tree_tab(const tree_commands_ptr_t& newTree);
       void update_active_tab(); 
       void update_text_tree_tab();
 
       // Current tab.
-      text_tree_sub_window* get_current_sub_window();
-      std::vector<text_tree_sub_window*> get_all_sub_windows();
+      text_tree_sub_window_t* get_current_sub_window();
+      std::vector<text_tree_sub_window_t*> get_all_sub_windows();
 
       // Main window state.
       void save_state();
@@ -97,13 +97,13 @@ namespace dak::tree_reader::app
 
       // filter naming.
       void name_filter();
-      void add_named_filter_to_available(const tree_filter_ptr& filter);
+      void add_named_filter_to_available(const tree_filter_ptr_t& filter);
 
       // options.
       void open_options();
 
       // data.
-      global_commands _data;
+      global_commands_t _data;
 
       // Toolbar buttons.
       QAction* _undo_action = nullptr;
@@ -134,8 +134,8 @@ namespace dak::tree_reader::app
 
       // UI elements.
       QLineEdit* _simple_search = nullptr;
-      filter_editor* _filter_editor = nullptr;
-      tree_filter_list_widget* _available_filters_list = nullptr;
+      filter_editor_t* _filter_editor = nullptr;
+      tree_filter_list_widget_t* _available_filters_list = nullptr;
       QWidgetScrollListWidget* _available_filters_scroll = nullptr;
       QTimer* _filtering_timer = nullptr;
 

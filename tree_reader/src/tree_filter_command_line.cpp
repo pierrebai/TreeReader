@@ -9,7 +9,7 @@ namespace dak::tree_reader
 {
    using namespace std;
 
-   wstring command_line::get_help() const
+   wstring command_line_t::get_help() const
    {
       wostringstream stream;
 
@@ -39,24 +39,24 @@ namespace dak::tree_reader
       return stream.str();
    }
 
-   void command_line::append_filter_text(const std::wstring& text)
+   void command_line_t::append_filter_text(const std::wstring& text)
    {
       if (!filter_text.empty())
          filter_text += L' ';
       filter_text += text;
    }
 
-   void command_line::clear_filter_text()
+   void command_line_t::clear_filter_text()
    {
       filter_text = L"";
    }
 
-   wstring command_line::create_filter()
+   wstring command_line_t::create_filter()
    {
       return create_filter(filter_text);
    }
 
-   wstring command_line::create_filter(const wstring& filterText)
+   wstring command_line_t::create_filter(const wstring& filterText)
    {
       if (!current_tree)
          return L"";
@@ -79,7 +79,7 @@ namespace dak::tree_reader
       return stream.str();
    }
 
-   wstring command_line::list_filters()
+   wstring command_line_t::list_filters()
    {
       wostringstream sstream;
       for (const auto& [name, filter] : _known_filters->all())
@@ -87,20 +87,20 @@ namespace dak::tree_reader
       return sstream.str();
    }
 
-   wstring command_line::parse_commands(const wstring& cmdText)
+   wstring command_line_t::parse_commands(const wstring& cmdText)
    {
       return parse_commands(utility::split(cmdText));
    }
 
-   wstring command_line::parse_commands(const vector<wstring>& cmds)
+   wstring command_line_t::parse_commands(const vector<wstring>& cmds)
    {
       wstring result;
 
       // Backup current settings to detect changes.
-      const commands_options previous_options = options;
+      const commands_options_t previous_options = options;
       auto previous_filter_text = filter_text;
       auto previous_tree_filename = current_tree ? current_tree->get_original_tree_filename() : wstring();
-      auto previous_filter = current_tree ? current_tree->get_filter() : tree_filter_ptr();
+      auto previous_filter = current_tree ? current_tree->get_filter() : tree_filter_ptr_t();
       auto previous_ctx = current_tree;
 
       filter_text = L"";

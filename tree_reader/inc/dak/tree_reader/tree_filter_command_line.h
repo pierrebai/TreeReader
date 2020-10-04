@@ -8,7 +8,7 @@ namespace dak::tree_reader
    //
    // Extra data used in teh command-line program.
 
-   struct command_line : global_commands
+   struct command_line_t : global_commands_t
    {
       // options.
 
@@ -16,7 +16,7 @@ namespace dak::tree_reader
       bool is_interactive = false;
       bool debug = false;
 
-      tree_commands_ptr current_tree;
+      tree_commands_ptr_t current_tree;
 
       // Help.
 
@@ -41,7 +41,7 @@ namespace dak::tree_reader
 
       // Comparison with other command-line.
 
-      bool operator!=(const command_line& other) const
+      bool operator!=(const command_line_t& other) const
       {
          return options        != other.options
              || use_v1         != other.use_v1

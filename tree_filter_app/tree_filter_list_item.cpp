@@ -26,91 +26,91 @@ namespace dak::tree_reader::app
 
    namespace
    {
-      using delete_callback_function = tree_filter_list_item::delete_callback_function;
-      using edit_callback_function = tree_filter_list_item::edit_callback_function;
+      using delete_callback_function_t = tree_filter_list_item_t::delete_callback_function_t;
+      using edit_callback_function_t = tree_filter_list_item_t::edit_callback_function_t;
 
       /////////////////////////////////////////////////////////////////////////
       //
       // filter panel creation helpers.
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<accept_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<accept_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<stop_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<stop_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<stop_when_kept_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<stop_when_kept_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<until_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<until_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<contains_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<contains_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, &filter->contained);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, &filter->contained);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<unique_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<unique_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<regex_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<regex_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, &filter->regex_text);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, &filter->regex_text);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<not_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<not_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<if_subtree_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<if_subtree_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<if_sibling_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<if_sibling_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<or_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<or_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<and_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<and_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<under_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<under_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, &filter->include_self);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr, &filter->include_self);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<remove_children_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<remove_children_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, &filter->include_self);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr, &filter->include_self);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<level_range_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<level_range_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr, nullptr, &filter->min_level, &filter->max_level);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr, nullptr, &filter->min_level, &filter->max_level);
       }
 
-      tree_filter_list_item* create_filter_panel(const shared_ptr<named_tree_filter>& filter, delete_callback_function delfunc, edit_callback_function editfunc)
+      tree_filter_list_item_t* create_filter_panel(const shared_ptr<named_tree_filter_t>& filter, delete_callback_function_t delfunc, edit_callback_function_t editfunc)
       {
-         return new tree_filter_list_item(filter, delfunc, editfunc, nullptr);
+         return new tree_filter_list_item_t(filter, delfunc, editfunc, nullptr);
       }
    }
 
@@ -118,38 +118,38 @@ namespace dak::tree_reader::app
    //
    // filter panel creation.
 
-   tree_filter_list_item* tree_filter_list_item::create(
-      const tree_filter_ptr& filter,
-      delete_callback_function delfunc,
-      edit_callback_function editfunc)
+   tree_filter_list_item_t* tree_filter_list_item_t::create(
+      const tree_filter_ptr_t& filter,
+      delete_callback_function_t delfunc,
+      edit_callback_function_t editfunc)
    {
       #define CALL_CONVERTER(a) if (auto ptr = dynamic_pointer_cast<a>(filter)) { return create_filter_panel(ptr, delfunc, editfunc); }
 
-      CALL_CONVERTER(accept_tree_filter)
-      CALL_CONVERTER(stop_tree_filter)
-      CALL_CONVERTER(stop_when_kept_tree_filter)
-      CALL_CONVERTER(until_tree_filter)
-      CALL_CONVERTER(contains_tree_filter)
-      CALL_CONVERTER(unique_tree_filter)
-      CALL_CONVERTER(regex_tree_filter)
-      CALL_CONVERTER(not_tree_filter)
-      CALL_CONVERTER(if_subtree_tree_filter)
-      CALL_CONVERTER(if_sibling_tree_filter)
-      CALL_CONVERTER(or_tree_filter)
-      CALL_CONVERTER(and_tree_filter)
-      CALL_CONVERTER(under_tree_filter)
-      CALL_CONVERTER(remove_children_tree_filter)
-      CALL_CONVERTER(level_range_tree_filter)
-      CALL_CONVERTER(named_tree_filter)
+      CALL_CONVERTER(accept_tree_filter_t)
+      CALL_CONVERTER(stop_tree_filter_t)
+      CALL_CONVERTER(stop_when_kept_tree_filter_t)
+      CALL_CONVERTER(until_tree_filter_t)
+      CALL_CONVERTER(contains_tree_filter_t)
+      CALL_CONVERTER(unique_tree_filter_t)
+      CALL_CONVERTER(regex_tree_filter_t)
+      CALL_CONVERTER(not_tree_filter_t)
+      CALL_CONVERTER(if_subtree_tree_filter_t)
+      CALL_CONVERTER(if_sibling_tree_filter_t)
+      CALL_CONVERTER(or_tree_filter_t)
+      CALL_CONVERTER(and_tree_filter_t)
+      CALL_CONVERTER(under_tree_filter_t)
+      CALL_CONVERTER(remove_children_tree_filter_t)
+      CALL_CONVERTER(level_range_tree_filter_t)
+      CALL_CONVERTER(named_tree_filter_t)
 
       #undef CALL_CONVERTER
 
       return nullptr;
    }
 
-   tree_filter_list_item::tree_filter_list_item(
-      const shared_ptr<tree_filter>& a_filter,
-      delete_callback_function delfunc, edit_callback_function editfunc,
+   tree_filter_list_item_t::tree_filter_list_item_t(
+      const shared_ptr<tree_filter_t>& a_filter,
+      delete_callback_function_t delfunc, edit_callback_function_t editfunc,
       wstring* textContent, bool* includeSelf, size_t* count, size_t* count2)
       : filter(a_filter)
    {
@@ -254,20 +254,20 @@ namespace dak::tree_reader::app
          });
       }
 
-      if (auto combine = dynamic_pointer_cast<combine_tree_filter>(a_filter))
+      if (auto combine = dynamic_pointer_cast<combine_tree_filter_t>(a_filter))
       {
-         sub_list = new tree_filter_list_widget(delfunc, editfunc, {}, false);
+         sub_list = new tree_filter_list_widget_t(delfunc, editfunc, {}, false);
          sub_list->setAcceptDrops(true);
          container_layout->addWidget(sub_list);
       }
    }
 
-   tree_filter_list_item* tree_filter_list_item::clone() const
+   tree_filter_list_item_t* tree_filter_list_item_t::clone() const
    {
       return clone(nullptr, nullptr);
    }
 
-   tree_filter_list_item* tree_filter_list_item::clone(delete_callback_function delfunc, edit_callback_function editfunc) const
+   tree_filter_list_item_t* tree_filter_list_item_t::clone(delete_callback_function_t delfunc, edit_callback_function_t editfunc) const
    {
       return create(filter->clone(), delfunc, editfunc);
    }

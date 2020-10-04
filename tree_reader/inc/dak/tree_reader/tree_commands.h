@@ -12,8 +12,8 @@
 
 namespace dak::tree_reader
 {
-   struct commands_options;
-   using undo_stack = utility::undo_stack;
+   struct commands_options_t;
+   using undo_stack = utility::undo_stack_t;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -22,27 +22,27 @@ namespace dak::tree_reader
    //
    // The tree filter command context keeps a stack of these.
 
-   struct tree_commands
+   struct tree_commands_t
    {
       // Create a new tree command for the given tree.
 
-      tree_commands(text_tree_ptr tree, std::wstring name, std::shared_ptr<named_filters> knownFilters, std::shared_ptr<undo_stack> undoRedo);
+      tree_commands_t(text_tree_ptr_t tree, std::wstring name, std::shared_ptr<named_filters_t> knownFilters, std::shared_ptr<undo_stack> undoRedo);
 
       // Current filter.
 
-      void set_filter(const tree_filter_ptr& filter);
-      const tree_filter_ptr& get_filter() const;
+      void set_filter(const tree_filter_ptr_t& filter);
+      const tree_filter_ptr_t& get_filter() const;
       const std::wstring& get_filter_name() const;
       void set_filter_name(const std::wstring& name);
 
       // Tree.
 
-      text_tree_ptr get_original_tree() const;
+      text_tree_ptr_t get_original_tree() const;
       std::wstring get_original_tree_filename() const;
 
       // _filtered tree.
 
-      text_tree_ptr get_filtered_tree() const;
+      text_tree_ptr_t get_filtered_tree() const;
       std::wstring get_filtered_tree_filename() const;
       bool can_create_tree_from_filtered() const;
 
@@ -64,7 +64,7 @@ namespace dak::tree_reader
       // _filtered tree save.
 
       static constexpr char tree_file_types[] = "Text Tree files (*.txt *.log);;Text files (*.txt);;Log files (*.log)";
-      void save_filtered_tree(const std::filesystem::path& filename, const commands_options& options);
+      void save_filtered_tree(const std::filesystem::path& filename, const commands_options_t& options);
       bool is_filtered_tree_saved() const;
 
    private:
@@ -74,29 +74,29 @@ namespace dak::tree_reader
       void commit_filter_to_undo();
 
       // Asynchronous filtering and searching.
-      async_filter_tree_result _async_filtering;
-      async_filter_tree_result _async_searching;
+      async_filter_tree_result_t _async_filtering;
+      async_filter_tree_result_t _async_searching;
 
       // Search text. Applied on top of the filters.
       std::wstring _searched_text;
-      text_tree_ptr _searched;
+      text_tree_ptr_t _searched;
 
       std::wstring _tree_filename;
-      text_tree_ptr _tree;
+      text_tree_ptr_t _tree;
 
       std::wstring _filtered_filename;
-      text_tree_ptr _filtered;
+      text_tree_ptr_t _filtered;
       bool _filtered_was_saved = false;
 
       std::wstring _filter_name;
-      tree_filter_ptr _filter;
+      tree_filter_ptr_t _filter;
 
       // Known named filters.
-      std::shared_ptr<named_filters> _known_filters = std::make_shared<named_filters>();
+      std::shared_ptr<named_filters_t> _known_filters = std::make_shared<named_filters_t>();
 
       // undo/redo stack.
       std::shared_ptr<undo_stack> _undo_redo;
    };
 
-   using tree_commands_ptr = std::shared_ptr<tree_commands>;
+   using tree_commands_ptr_t = std::shared_ptr<tree_commands_t>;
 }

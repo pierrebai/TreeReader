@@ -16,9 +16,9 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(add_and_get_named_filter)
       {
-         shared_ptr<tree_filter> filter = contains(L"abc");
+         shared_ptr<tree_filter_t> filter = contains(L"abc");
 
-         named_filters filters;
+         named_filters_t filters;
          filters.add(L"def", filter);
 
          Assert::AreEqual<size_t>(1, filters.all().size());
@@ -28,19 +28,19 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(save_and_load_named_filter)
       {
-         named_filters filters;
+         named_filters_t filters;
          filters.add(L"def", contains(L"abc"));
 
          wstringstream sstream;
          save_named_filters(sstream, filters);
 
-         named_filters new_filters = load_named_filters(sstream);
+         named_filters_t new_filters = load_named_filters(sstream);
 
          Assert::AreEqual<size_t>(1, new_filters.all().size());
          Assert::IsTrue(new_filters.get(L"def") != nullptr);
          Assert::IsTrue(new_filters.get(L"def")->filter != nullptr);
-         Assert::IsTrue(dynamic_pointer_cast<contains_tree_filter>(new_filters.get(L"def")->filter).get());
-         Assert::AreEqual(wstring(L"abc"), dynamic_pointer_cast<contains_tree_filter>(new_filters.get(L"def")->filter)->contained);
+         Assert::IsTrue(dynamic_pointer_cast<contains_tree_filter_t>(new_filters.get(L"def")->filter).get());
+         Assert::AreEqual(wstring(L"abc"), dynamic_pointer_cast<contains_tree_filter_t>(new_filters.get(L"def")->filter)->contained);
       }
    };
 }

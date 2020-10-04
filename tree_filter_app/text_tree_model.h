@@ -6,15 +6,15 @@
 
 namespace dak::tree_reader::app
 {
-   using text_tree_ptr = tree_reader::text_tree_ptr;
+   using text_tree_ptr_t = tree_reader::text_tree_ptr_t;
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // Tree model containing all lines of a text tree.
 
-   struct text_tree_model : QAbstractItemModel
+   struct text_tree_model_t : QAbstractItemModel
    {
-      text_tree_ptr tree;
+      text_tree_ptr_t tree;
 
       void reset();
 

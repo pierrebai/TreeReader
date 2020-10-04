@@ -16,13 +16,13 @@ add_library(tree_reader_tests SHARED
 
 target_link_libraries(tree_reader_tests PUBLIC
    tree_reader
-   undo_redo
+   utility
 )
 
 target_compile_features(tree_reader_tests PUBLIC cxx_std_20)
 
 target_include_directories(tree_reader_tests PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
-   "${PROJECT_SOURCE_DIR}/SimpleUndoRedo/undo_redo/inc"
+   "${PROJECT_SOURCE_DIR}/dak_utility/utility/include"
 )
 

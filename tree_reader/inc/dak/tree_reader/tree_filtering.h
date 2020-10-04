@@ -8,38 +8,38 @@
 
 namespace dak::tree_reader
 {
-   struct tree_filter;
-   typedef std::shared_ptr<tree_filter> tree_filter_ptr;
+   struct tree_filter_t;
+   typedef std::shared_ptr<tree_filter_t> tree_filter_ptr_t;
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // named_filters a source tree into a filtered tree using the given filter.
 
-   void filter_tree(const text_tree& sourceTree, text_tree& filteredTree, tree_filter& filter);
-   void filter_tree(const text_tree& sourceTree, text_tree& filteredTree, const tree_filter_ptr& filter);
+   void filter_tree(const text_tree_t& sourceTree, text_tree_t& filteredTree, tree_filter_t& filter);
+   void filter_tree(const text_tree_t& sourceTree, text_tree_t& filteredTree, const tree_filter_ptr_t& filter);
 
-   using async_filter_tree_result = std::pair<std::future<text_tree>, std::shared_ptr<can_abort_tree_visitor>>;
+   using async_filter_tree_result_t = std::pair<std::future<text_tree_t>, std::shared_ptr<can_abort_tree_visitor>>;
 
-   async_filter_tree_result filter_tree_async(const text_tree_ptr& sourceTree, const tree_filter_ptr& filter);
+   async_filter_tree_result_t filter_tree_async(const text_tree_ptr_t& sourceTree, const tree_filter_ptr_t& filter);
 
    ////////////////////////////////////////////////////////////////////////////
    //
    // The tree visitor that actually does the filtering.
 
-   struct filter_tree_visitor : simple_tree_visitor
+   struct filter_tree_visitor_t : simple_tree_visitor_t
    {
-      text_tree& filtered_tree;
-      tree_filter& filter;
+      text_tree_t& filtered_tree;
+      tree_filter_t& filter;
 
-      filter_tree_visitor(const text_tree& sourceTree, text_tree& filteredTree, tree_filter& filter);
+      filter_tree_visitor_t(const text_tree_t& sourceTree, text_tree_t& filteredTree, tree_filter_t& filter);
 
-      result visit(const text_tree& tree, const text_tree::node& sourcenode, const size_t sourceLevel) override;
+      result_t visit(const text_tree_t& tree, const text_tree_t::node_t& sourcenode, const size_t sourceLevel) override;
 
    private:
       // This keeps the current branch of nodes we have created.
       // We will keep one entry per source level, even when some
       // levels were filtered out.
-      std::vector<text_tree::node*> _filtered_branch_nodes;
+      std::vector<text_tree_t::node_t*> _filtered_branch_nodes;
       std::vector<bool> _fill_children;
    };
 

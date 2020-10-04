@@ -36,14 +36,14 @@ namespace dak::tree_reader::app
    class filters_editor_ui
    {
    public:
-      filters_editor_ui(const named_filters& known, undo_stack& undoRedo, filter_editor& parent)
+      filters_editor_ui(const named_filters_t& known, undo_stack& undoRedo, filter_editor_t& parent)
       : _known_filters(known), _undo_redo(undoRedo), _editor(parent)
       {
          build_ui(parent);
          connect_ui();
       }
 
-      tree_filter_ptr get_edited()
+      tree_filter_ptr_t get_edited()
       {
          update_editor_from_ui();
          return _edited;
@@ -54,7 +54,7 @@ namespace dak::tree_reader::app
          return _filter_name;
       }
 
-      void set_edited(const tree_filter_ptr& ed, const wstring& name, bool forced)
+      void set_edited(const tree_filter_ptr_t& ed, const wstring& name, bool forced)
       {
          if (ed == _edited && !forced)
             return;
@@ -73,12 +73,12 @@ namespace dak::tree_reader::app
       //
       // UI setup.
 
-      void build_ui(filter_editor& parent)
+      void build_ui(filter_editor_t& parent)
       {
          QVBoxLayout* layout = new QVBoxLayout(&parent);
          layout->setContentsMargins(0, 0, 0, 0);
 
-         auto del_func = [self = this](tree_filter_list_item* panel)
+         auto del_func = [self = this](tree_filter_list_item_t* panel)
          {
             // When a filter gets deleted, update the edited filter if it is no
             // longer the root.
@@ -97,7 +97,7 @@ namespace dak::tree_reader::app
             self->commit_filter_changes_to_undo();
          };
 
-         _filter_list = new tree_filter_list_widget(del_func, {}, list_changed_callback);
+         _filter_list = new tree_filter_list_widget_t(del_func, {}, list_changed_callback);
 
          _filter_list->setAcceptDrops(true);
          _filter_list->setEnabled(true);
@@ -113,18 +113,18 @@ namespace dak::tree_reader::app
       {
       }
 
-      static bool is_under(const tree_filter_ptr& filter, const tree_filter_ptr& child)
+      static bool is_under(const tree_filter_ptr_t& filter, const tree_filter_ptr_t& child)
       {
          if (filter == child)
             return true;
 
-         if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
+         if (auto combine = dynamic_pointer_cast<combine_tree_filter_t>(filter))
          {
             for (const auto& c : combine->filters)
                if (is_under(c, child))
                   return true;
          }
-         else if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
+         else if (auto delegate = dynamic_pointer_cast<delegate_tree_filter_t>(filter))
          {
             return is_under(delegate->sub_filter, child);
          }
@@ -136,10 +136,10 @@ namespace dak::tree_reader::app
       {
          DisableFeedback df(_filter_list, _disable_feedback);
 
-         deque<pair<shared_ptr<combine_tree_filter>, tree_filter_list_widget*>> combineFilters;
+         deque<pair<shared_ptr<combine_tree_filter_t>, tree_filter_list_widget_t*>> combineFilters;
 
          _filter_list->clear();
-         dak::tree_reader::visit_filters(_edited, true, [self = this, &combineFilters](const tree_filter_ptr& filter) -> bool
+         dak::tree_reader::visit_filters(_edited, true, [self = this, &combineFilters](const tree_filter_ptr_t& filter) -> bool
          {
             QWidgetListItem* widget = nullptr;
             for (auto& [combineFilter, combineWidget] : combineFilters)
@@ -155,11 +155,11 @@ namespace dak::tree_reader::app
             if (!widget)
                widget = self->_filter_list->add_tree_filter(filter);
 
-            if (tree_filter_list_item* filterWidget = dynamic_cast<tree_filter_list_item*>(widget))
+            if (tree_filter_list_item_t* filterWidget = dynamic_cast<tree_filter_list_item_t*>(widget))
             {
                if (filterWidget->sub_list)
                {
-                  if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
+                  if (auto combine = dynamic_pointer_cast<combine_tree_filter_t>(filter))
                   {
                      combineFilters.emplace_front(combine, filterWidget->sub_list);
                   }
@@ -174,24 +174,24 @@ namespace dak::tree_reader::app
       //
       // Transfer from UI to data.
 
-      static tree_filter_ptr disconnect_filter(tree_filter_ptr filter)
+      static tree_filter_ptr_t disconnect_filter(tree_filter_ptr_t filter)
       {
-         if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(filter))
+         if (auto delegate = dynamic_pointer_cast<delegate_tree_filter_t>(filter))
          {
             delegate->sub_filter = nullptr;
          }
-         else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(filter))
+         else if (auto combine = dynamic_pointer_cast<combine_tree_filter_t>(filter))
          {
             combine->filters.clear();
          }
          return filter;
       }
 
-      static void fill_filters_from_ui(const std::vector<QWidgetListItem*>& widgets, tree_filter_ptr& root, vector<tree_filter_ptr>& previous)
+      static void fill_filters_from_ui(const std::vector<QWidgetListItem*>& widgets, tree_filter_ptr_t& root, vector<tree_filter_ptr_t>& previous)
       {
          for (auto& widget : widgets)
          {
-            auto tfw = dynamic_cast<tree_filter_list_item*>(widget);
+            auto tfw = dynamic_cast<tree_filter_list_item_t*>(widget);
             if (!tfw)
                continue;
             if (!tfw->filter)
@@ -208,7 +208,7 @@ namespace dak::tree_reader::app
                bool placed = false;
                while (previous.size() > 0)
                {
-                  if (auto delegate = dynamic_pointer_cast<delegate_tree_filter>(previous.back()))
+                  if (auto delegate = dynamic_pointer_cast<delegate_tree_filter_t>(previous.back()))
                   {
                      if (!delegate->sub_filter)
                      {
@@ -217,7 +217,7 @@ namespace dak::tree_reader::app
                         break;
                      }
                   }
-                  else if (auto combine = dynamic_pointer_cast<combine_tree_filter>(previous.back()))
+                  else if (auto combine = dynamic_pointer_cast<combine_tree_filter_t>(previous.back()))
                   {
                      combine->filters.push_back(filter);
                      placed = true;
@@ -237,7 +237,7 @@ namespace dak::tree_reader::app
 
             if (tfw->sub_list)
             {
-               vector<tree_filter_ptr> sub_previous;
+               vector<tree_filter_ptr_t> sub_previous;
                sub_previous.push_back(filter);
                fill_filters_from_ui(tfw->sub_list->getItems(), filter, sub_previous);
 
@@ -257,8 +257,8 @@ namespace dak::tree_reader::app
 
       void update_editor_from_ui()
       {
-         vector<tree_filter_ptr> previous;
-         tree_filter_ptr root;
+         vector<tree_filter_ptr_t> previous;
+         tree_filter_ptr_t root;
          fill_filters_from_ui(_filter_list->getItems(), root, previous);
          _edited = root;
       }
@@ -304,13 +304,13 @@ namespace dak::tree_reader::app
       //
       // data.
 
-      const named_filters& _known_filters;
+      const named_filters_t& _known_filters;
       undo_stack& _undo_redo;
-      filter_editor& _editor;
-      tree_filter_ptr _edited;
+      filter_editor_t& _editor;
+      tree_filter_ptr_t _edited;
       wstring _filter_name;
 
-      tree_filter_list_widget* _filter_list;
+      tree_filter_list_widget_t* _filter_list;
       QWidgetScrollListWidget* _filter_scroll;
 
       int _disable_feedback = 0;
@@ -320,12 +320,12 @@ namespace dak::tree_reader::app
    //
    // A QWidget to select and order filters.
 
-   filter_editor::filter_editor(const named_filters& known, undo_stack& undoRedo, QWidget* parent)
+   filter_editor_t::filter_editor_t(const named_filters_t& known, undo_stack& undoRedo, QWidget* parent)
    : QWidget(parent), _ui(make_unique<filters_editor_ui>(known, undoRedo, *this))
    {
    }
 
-   void filter_editor::set_edited(const tree_filter_ptr& edited, const wstring& name, bool forced)
+   void filter_editor_t::set_edited(const tree_filter_ptr_t& edited, const wstring& name, bool forced)
    {
       if (!_ui)
          return;
@@ -333,7 +333,7 @@ namespace dak::tree_reader::app
       _ui->set_edited(edited, name, forced);
    }
 
-   tree_filter_ptr filter_editor::get_edited() const
+   tree_filter_ptr_t filter_editor_t::get_edited() const
    {
       if (!_ui)
          return {};
@@ -341,7 +341,7 @@ namespace dak::tree_reader::app
       return _ui->get_edited();
    }
 
-   wstring filter_editor::get_edited_name() const
+   wstring filter_editor_t::get_edited_name() const
    {
       if (!_ui)
          return {};

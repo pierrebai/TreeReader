@@ -6,7 +6,7 @@ namespace dak::tree_reader
 {
    using namespace std;
 
-   pair<wchar_t*, size_t> buffers_text_holder_reader::read_line(wistream& stream)
+   pair<wchar_t*, size_t> buffers_text_holder_reader_t::read_line(wistream& stream)
    {
       bool skip_newlines = true;
 
@@ -21,7 +21,7 @@ namespace dak::tree_reader
             const size_t buffer_size = max(size_t(64 * 1024), amount_read_so_far * 2);
 
             // allocate new buffer.
-            holder->text_buffers.emplace_back(make_shared<buffers_text_holder::buffer>());
+            holder->text_buffers.emplace_back(make_shared<buffers_text_holder_t::buffer>());
             auto buffer = holder->text_buffers.back();
             // note: allocate one more character to be able to always put a terminating null.
             buffer->resize(buffer_size + 1);

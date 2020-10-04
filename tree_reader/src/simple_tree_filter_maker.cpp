@@ -45,14 +45,14 @@ namespace dak::tree_reader
          return count;
       }
 
-      tree_filter_ptr convert_text_to_filter(wistream& stream, const named_filters& named)
+      tree_filter_ptr_t convert_text_to_filter(wistream& stream, const named_filters_t& named)
       {
-         tree_filter_ptr result;
-         tree_filter_ptr previous;
-         tree_filter_ptr* needed_filter = nullptr;
-         shared_ptr<combine_tree_filter> current_combiner;
+         tree_filter_ptr_t result;
+         tree_filter_ptr_t previous;
+         tree_filter_ptr_t* needed_filter = nullptr;
+         shared_ptr<combine_tree_filter_t> current_combiner;
 
-         auto add_filter = [&](tree_filter_ptr filter, bool asCombiner = false)
+         auto add_filter = [&](tree_filter_ptr_t filter, bool asCombiner = false)
          {
             if (needed_filter)
             {
@@ -65,14 +65,14 @@ namespace dak::tree_reader
             }
             else if (previous)
             {
-               if (auto combiner = dynamic_pointer_cast<combine_tree_filter>(filter); asCombiner && combiner)
+               if (auto combiner = dynamic_pointer_cast<combine_tree_filter_t>(filter); asCombiner && combiner)
                {
                   current_combiner = combiner;
                   filter = nullptr;
                }
                else
                {
-                  current_combiner = make_shared<and_tree_filter>();
+                  current_combiner = make_shared<and_tree_filter_t>();
                }
 
                current_combiner->filters.push_back(previous);
@@ -86,7 +86,7 @@ namespace dak::tree_reader
             }
             else
             {
-               if (auto combiner = dynamic_pointer_cast<combine_tree_filter>(filter); asCombiner && combiner)
+               if (auto combiner = dynamic_pointer_cast<combine_tree_filter_t>(filter); asCombiner && combiner)
                {
                   current_combiner = combiner;
                   result = current_combiner;
@@ -111,7 +111,7 @@ namespace dak::tree_reader
             }
             else if (part == L"!" || part == L"not")
             {
-               auto filter = make_shared<not_tree_filter>();
+               auto filter = make_shared<not_tree_filter_t>();
                add_filter(filter);
                needed_filter = &filter->sub_filter;
             }
@@ -123,29 +123,29 @@ namespace dak::tree_reader
             }
             else if (part == L"?=" || part == L"sibling")
             {
-               auto filter = make_shared<if_sibling_tree_filter>();
+               auto filter = make_shared<if_sibling_tree_filter_t>();
                add_filter(filter);
                needed_filter = &filter->sub_filter;
             }
             else if (part == L"?>" || part == L"child")
             {
-               auto filter = make_shared<if_subtree_tree_filter>();
+               auto filter = make_shared<if_subtree_tree_filter_t>();
                add_filter(filter);
                needed_filter = &filter->sub_filter;
             }
             else if (part == L"|" || part == L"or" || part == L"any")
             {
-               if (!dynamic_pointer_cast<or_tree_filter>(current_combiner))
+               if (!dynamic_pointer_cast<or_tree_filter_t>(current_combiner))
                {
-                  auto filter = make_shared<or_tree_filter>();
+                  auto filter = make_shared<or_tree_filter_t>();
                   add_filter(filter, true);
                }
             }
             else if (part == L"&" || part == L"and" || part == L"all")
             {
-               if (!dynamic_pointer_cast<and_tree_filter>(current_combiner))
+               if (!dynamic_pointer_cast<and_tree_filter_t>(current_combiner))
                {
-                  auto filter = make_shared<and_tree_filter>();
+                  auto filter = make_shared<and_tree_filter_t>();
                   add_filter(filter, true);
                }
             }
@@ -166,7 +166,7 @@ namespace dak::tree_reader
             }
             else if (part == L">" || part == L"under")
             {
-               auto filter = make_shared<under_tree_filter>();
+               auto filter = make_shared<under_tree_filter_t>();
                add_filter(filter);
                needed_filter = &filter->sub_filter;
             }
@@ -176,7 +176,7 @@ namespace dak::tree_reader
             }
             else if (part == L"~" || part == L"until")
             {
-               auto filter = make_shared<until_tree_filter>();
+               auto filter = make_shared<until_tree_filter_t>();
                add_filter(filter);
                needed_filter = &filter->sub_filter;
             }
@@ -198,16 +198,16 @@ namespace dak::tree_reader
          return result ? result : previous;
       }
 
-      tree_filter_ptr convert_text_to_filter(const wstring& text, const named_filters& named)
+      tree_filter_ptr_t convert_text_to_filter(const wstring& text, const named_filters_t& named)
       {
          wistringstream stream(text);
-         tree_filter_ptr filter = convert_text_to_filter(stream, named);
+         tree_filter_ptr_t filter = convert_text_to_filter(stream, named);
          update_named_filters(filter, named);
          return filter;
       }
    }
 
-   tree_filter_ptr convert_simple_text_to_filter(const wstring& text, const named_filters& named)
+   tree_filter_ptr_t convert_simple_text_to_filter(const wstring& text, const named_filters_t& named)
    {
       return S1::convert_text_to_filter(text, named);
    }

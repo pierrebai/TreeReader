@@ -18,7 +18,7 @@ namespace dak::tree_reader::app
    using namespace QtAdditions;
    using namespace std;
 
-   text_tree_sub_window::text_tree_sub_window(const tree_commands_ptr& a_tree, commands_options& options)
+   text_tree_sub_window_t::text_tree_sub_window_t(const tree_commands_ptr_t& a_tree, commands_options_t& options)
    : tree(a_tree), _options(options)
    {
       _tree_view = new QTreeView;
@@ -26,7 +26,7 @@ namespace dak::tree_reader::app
       _tree_view->setHeaderHidden(true);
       _tree_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-      _model = new text_tree_model;
+      _model = new text_tree_model_t;
       _model->tree = tree->get_original_tree();
 
       auto old_model = _tree_view->model();
@@ -39,7 +39,7 @@ namespace dak::tree_reader::app
       setAttribute(Qt::WA_DeleteOnClose);
    }
 
-   void text_tree_sub_window::update_shown_model(const text_tree_ptr& a_tree)
+   void text_tree_sub_window_t::update_shown_model(const text_tree_ptr_t& a_tree)
    {
       // note: we don't change the OriginalTree variable, only which tree is shown (original tree or filtered).
       _model->tree = a_tree;
@@ -50,7 +50,7 @@ namespace dak::tree_reader::app
    //
    // Closing and saving.
 
-   void text_tree_sub_window::closeEvent(QCloseEvent* ev)
+   void text_tree_sub_window_t::closeEvent(QCloseEvent* ev)
    {
       if (save_if_required(tr("close the tab"), tr("closing the tab")))
       {
@@ -64,7 +64,7 @@ namespace dak::tree_reader::app
       }
    }
 
-   bool text_tree_sub_window::save_if_required(const QString& action, const QString& actioning)
+   bool text_tree_sub_window_t::save_if_required(const QString& action, const QString& actioning)
    {
       if (tree->get_filtered_tree() && !tree->is_filtered_tree_saved())
       {
@@ -82,12 +82,12 @@ namespace dak::tree_reader::app
       return true;
    }
 
-   bool text_tree_sub_window::save_filtered_tree(const commands_options& options)
+   bool text_tree_sub_window_t::save_filtered_tree(const commands_options_t& options)
    {
       if (!tree->get_filtered_tree())
          return true;
 
-      auto path = AskSave(tr("Save Filtered Text Tree"), tr(tree_commands::tree_file_types), "", this);
+      auto path = AskSave(tr("Save Filtered Text Tree"), tr(tree_commands_t::tree_file_types), "", this);
 
       tree->save_filtered_tree(path, options);
 

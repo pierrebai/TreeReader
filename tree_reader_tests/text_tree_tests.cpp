@@ -18,7 +18,7 @@ namespace dak::tree_reader_tests
 		TEST_METHOD(print_empty_tree)
 		{
 			wostringstream sstream;
-			sstream << text_tree();
+			sstream << text_tree_t();
 
 			const wchar_t expected_output[] = L"";
 			Assert::AreEqual(expected_output, sstream.str().c_str());
@@ -26,7 +26,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(count_simple_tree)
 		{
-			const text_tree tree = create_simple_tree();
+			const text_tree_t tree = create_simple_tree();
 
          Assert::AreEqual<size_t>(1, tree.roots.size());
 

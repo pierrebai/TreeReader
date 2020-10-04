@@ -11,7 +11,7 @@
 namespace dak::tree_reader::app
 {
    // Create the options dialog.
-   options_dialog::options_dialog(commands_options& options, QWidget* parent)
+   options_dialog::options_dialog(commands_options_t& options, QWidget* parent)
    : QDialog(parent), _options(options)
    {
       build_ui();

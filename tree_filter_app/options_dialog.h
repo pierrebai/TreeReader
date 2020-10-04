@@ -9,7 +9,7 @@ class QDialogButtonBox;
 
 namespace dak::tree_reader::app
 {
-   using commands_options = tree_reader::commands_options;
+   using commands_options_t = tree_reader::commands_options_t;
 
    ////////////////////////////////////////////////////////////////////////////
    //
@@ -18,7 +18,7 @@ namespace dak::tree_reader::app
    struct options_dialog : QDialog
    {
       // Create the options dialog.
-      options_dialog(commands_options& options, QWidget* parent = nullptr);
+      options_dialog(commands_options_t& options, QWidget* parent = nullptr);
 
       void accept() override;
 
@@ -36,7 +36,7 @@ namespace dak::tree_reader::app
       void save_ui();
 
       // data.
-      commands_options& _options;
+      commands_options_t& _options;
 
       QLineEdit* _output_line_indent_edit = nullptr;
       QLineEdit* _input_indent_edit = nullptr;

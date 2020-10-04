@@ -24,7 +24,7 @@ namespace dak::tree_reader::app
       app_translator.load("TreeFilterApp_" + QLocale::system().name());
       app->installTranslator(&app_translator);
 
-      auto window = new main_window;
+      auto window = new main_window_t;
       window->resize(1000, 800);
       window->show();
 

@@ -10,20 +10,20 @@ namespace dak::tree_reader
 {
    using namespace std;
    using namespace std::filesystem;
-   using node = text_tree::node;
+   using node = text_tree_t::node_t;
 
-   struct buffers_text_holder_with_filtered_lines : buffers_text_holder
+   struct buffers_text_holder_with_filtered_lines : buffers_text_holder_t
    {
       list<wstring> filtered_lines;
    };
 
-   text_tree load_simple_text_tree(const path& path, const load_simple_text_tree_options& options)
+   text_tree_t load_simple_text_tree(const path& path, const load_simple_text_tree_options_t& options)
    {
       wifstream stream(path);
       return load_simple_text_tree(stream, options);
    }
 
-   static std::pair<size_t, size_t> getIndent(const wchar_t* line, size_t count, const load_simple_text_tree_options& options)
+   static std::pair<size_t, size_t> getIndent(const wchar_t* line, size_t count, const load_simple_text_tree_options_t& options)
    {
       const size_t text_index = wcsspn(line, options.input_indent.c_str());
       size_t indent = text_index;
@@ -33,9 +33,9 @@ namespace dak::tree_reader
       return make_pair(indent, text_index);
 }
 
-   text_tree load_simple_text_tree(wistream& stream, const load_simple_text_tree_options& options)
+   text_tree_t load_simple_text_tree(wistream& stream, const load_simple_text_tree_options_t& options)
    {
-      buffers_text_holder_reader reader;
+      buffers_text_holder_reader_t reader;
 
       // Reset the text holder for this private version that can hold extra filtered lines.
       shared_ptr<buffers_text_holder_with_filtered_lines> holder;
@@ -85,7 +85,7 @@ namespace dak::tree_reader
          }
       }
 
-      text_tree tree;
+      text_tree_t tree;
 
       tree.source_text_lines = reader.holder;
 

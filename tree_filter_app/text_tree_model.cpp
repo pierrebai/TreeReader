@@ -4,15 +4,15 @@ namespace dak::tree_reader::app
 {
    using namespace std;
    using namespace dak::tree_reader;
-   using node = text_tree::node;
+   using node = text_tree_t::node_t;
 
-   void text_tree_model::reset()
+   void text_tree_model_t::reset()
    {
       beginResetModel();
       endResetModel();
    }
 
-   QVariant text_tree_model::data(const QModelIndex& index, int role) const
+   QVariant text_tree_model_t::data(const QModelIndex& index, int role) const
    {
       if (!tree)
          return QVariant();
@@ -30,12 +30,12 @@ namespace dak::tree_reader::app
       return QVariant(QString::fromWCharArray(a_node->text_ptr));
    }
 
-   QVariant text_tree_model::headerData(int section, Qt::Orientation orientation, int role) const
+   QVariant text_tree_model_t::headerData(int section, Qt::Orientation orientation, int role) const
    {
       return QVariant();
    }
 
-   QModelIndex text_tree_model::index(int row, int column, const QModelIndex& parent) const
+   QModelIndex text_tree_model_t::index(int row, int column, const QModelIndex& parent) const
    {
       if (!tree)
          return QModelIndex();
@@ -48,7 +48,7 @@ namespace dak::tree_reader::app
       return createIndex(row, column, static_cast<void*>(nodes[row]));
    }
 
-   QModelIndex text_tree_model::parent(const QModelIndex& index) const
+   QModelIndex text_tree_model_t::parent(const QModelIndex& index) const
    {
       if (!tree)
          return QModelIndex();
@@ -66,7 +66,7 @@ namespace dak::tree_reader::app
       return createIndex(int(a_node->index_in_parent), 0, static_cast<void*>(a_node->parent));
    }
 
-   int text_tree_model::rowCount(const QModelIndex& parent) const
+   int text_tree_model_t::rowCount(const QModelIndex& parent) const
    {
       if (!tree)
          return 0;
@@ -80,7 +80,7 @@ namespace dak::tree_reader::app
 
       return int(a_node->children.size());
    }
-   int text_tree_model::columnCount(const QModelIndex& parent) const
+   int text_tree_model_t::columnCount(const QModelIndex& parent) const
    {
       if (!tree)
          return 0;

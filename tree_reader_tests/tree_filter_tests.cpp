@@ -18,7 +18,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(PrintSimpleTreeWithcontainsFilter)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, *contains(L"g"));
 
 			wostringstream sstream;
@@ -30,7 +30,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithuniqueFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, *unique());
 
          wostringstream sstream;
@@ -50,8 +50,8 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithexact_addressFilter)
       {
-         text_tree tree = create_simple_tree();
-         text_tree filtered;
+         text_tree_t tree = create_simple_tree();
+         text_tree_t filtered;
          filter_tree(tree, filtered, *exact_address(tree.roots[0]->text_ptr));
 
          wostringstream sstream;
@@ -63,7 +63,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithnotFilter)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, not(contains(L"f")));
 
 			wostringstream sstream;
@@ -82,7 +82,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, if_subtree(contains(L"k")));
 
          wostringstream sstream;
@@ -96,7 +96,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndstopFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, and(if_subtree(contains(L"f")), stop()));
 
          wostringstream sstream;
@@ -109,7 +109,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithIfSiblingFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, if_sibling(contains(L"t")));
 
          wostringstream sstream;
@@ -123,7 +123,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, or(contains(L"f"), contains(L"m")));
 
 			wostringstream sstream;
@@ -137,7 +137,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(PrintSimpleTreeWithremovechildrenFilter)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, no_child(contains(L"g")));
 
 			wostringstream sstream;
@@ -153,7 +153,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(PrintSimpleTreeWithUnder)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, and(under(contains(L"g"), false), contains(L"s")));
 
 			wostringstream sstream;
@@ -166,7 +166,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(PrintSimpleTreeWithUnderAndSelf)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, under(contains(L"g"), true));
 
 			wostringstream sstream;
@@ -183,7 +183,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithremovechildrenAndSelfFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, no_child(contains(L"g"), true));
 
          wostringstream sstream;
@@ -198,7 +198,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithLevelRangeFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, level_range(2, 3));
 
          wostringstream sstream;
@@ -214,7 +214,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithMinLevelFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, min_level(2));
 
          wostringstream sstream;
@@ -231,7 +231,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithMaxLevelFilter)
       {
-         text_tree filtered;
+         text_tree_t filtered;
          filter_tree(create_simple_tree(), filtered, max_level(1));
 
          wostringstream sstream;
@@ -246,7 +246,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithnotregex)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, not(dak::tree_reader::regex(L"[g]")));
 
 			wostringstream sstream;
@@ -266,7 +266,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
-			text_tree filtered;
+			text_tree_t filtered;
 			filter_tree(create_simple_tree(), filtered, or(contains(L"d"), contains(L"s")));
 
 			wostringstream sstream;
@@ -280,7 +280,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(PrintSimpleTreeWithAsynccontainsFilter)
       {
-         auto tree = make_shared<text_tree>(create_simple_tree());
+         auto tree = make_shared<text_tree_t>(create_simple_tree());
          auto [fut, abort] = filter_tree_async(tree, contains(L"g"));
 
          wostringstream sstream;

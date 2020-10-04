@@ -5,9 +5,9 @@ namespace dak::tree_reader_tests
 	using namespace std;
 	using namespace dak::tree_reader;
 
-	shared_ptr<text_lines_text_holder> create_text_lines()
+	shared_ptr<text_lines_text_holder_t> create_text_lines()
 	{
-		auto text_lines = make_shared<text_lines_text_holder>();
+		auto text_lines = make_shared<text_lines_text_holder_t>();
 
 		text_lines->lines.push_back(L"abc");
 		text_lines->lines.push_back(L"def");
@@ -21,9 +21,9 @@ namespace dak::tree_reader_tests
 		return text_lines;
 	}
 
-	text_tree create_simple_tree()
+	text_tree_t create_simple_tree()
 	{
-		text_tree textTree;
+		text_tree_t textTree;
 
        auto text_lines = create_text_lines();
        textTree.source_text_lines = text_lines;

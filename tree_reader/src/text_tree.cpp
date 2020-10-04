@@ -4,16 +4,16 @@ namespace dak::tree_reader
 {
    using namespace std;
 
-   void text_tree::reset()
+   void text_tree_t::reset()
    {
       roots.clear();
       _nodes.clear();
    }
 
-   text_tree::node* text_tree::add_child(node* undernode, const wchar_t* text)
+   text_tree_t::node_t* text_tree_t::add_child(node_t* undernode, const wchar_t* text)
    {
       _nodes.emplace_back(text, undernode);
-      node* newnode = &_nodes.back();
+      node_t* newnode = &_nodes.back();
       if (!undernode)
       {
          newnode->index_in_parent = roots.size();
@@ -27,7 +27,7 @@ namespace dak::tree_reader
       return newnode;
    }
 
-   size_t text_tree::count_siblings(const node* node) const
+   size_t text_tree_t::count_siblings(const node_t* node) const
    {
       if (!node)
          return 0;
@@ -35,7 +35,7 @@ namespace dak::tree_reader
       return count_children(node->parent);
    }
 
-   size_t text_tree::count_children(const node* node) const
+   size_t text_tree_t::count_children(const node_t* node) const
    {
       if (!node)
          return roots.size();
@@ -43,7 +43,7 @@ namespace dak::tree_reader
       return node->children.size();
    }
 
-   size_t text_tree::count_ancestors(const node* node) const
+   size_t text_tree_t::count_ancestors(const node_t* node) const
    {
       if (!node)
          return 0;

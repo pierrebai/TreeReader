@@ -36,9 +36,8 @@ add_executable(tree_filter_app WIN32
 
 target_link_libraries(tree_filter_app PUBLIC
    tree_reader
+   utility
    QtAdditions
-   undo_redo
-   QWidgetListWidget
    Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
 )
 
@@ -46,9 +45,8 @@ target_compile_features(tree_filter_app PUBLIC cxx_std_20)
 
 target_include_directories(tree_filter_app PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
-   "${PROJECT_SOURCE_DIR}/QtAdditions/inc"
-   "${PROJECT_SOURCE_DIR}/SimpleUndoRedo/undo_redo/inc"
-   "${PROJECT_SOURCE_DIR}/QWidgetListWidget/QtAdditions/inc"
+   "${PROJECT_SOURCE_DIR}/QtAdditions/include"
+   "${PROJECT_SOURCE_DIR}/dak_utility/utility/include"
 )
 
 add_custom_command(TARGET tree_filter_app POST_BUILD
@@ -69,17 +67,24 @@ set(CPACK_GENERATOR NSIS)
 set(CPACK_PACKAGE_NAME "TreeFilterApp")
 set(CPACK_PACKAGE_VENDOR "Pierre Baillargeon")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Tree filter App - An application to filter trees of text.")
-set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VERSION "1.0.1")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Tree filter App")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Tree Filter")
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
 set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/tree_filter_app/icon.ico")
 set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/tree_filter_app/icon.ico")
 set(CPACK_NSIS_INSTALLED_ICON_NAME "tree_filter_app.exe")
-set(CPACK_NSIS_DISPLAY_NAME "Tree filter App")
+set(CPACK_NSIS_DISPLAY_NAME "Tree Filter")
+
+set(CPACK_NSIS_CREATE_ICONS_EXTRA
+    "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Tree Filter.lnk' '$INSTDIR\\\\tree_filter_app.exe'"
+)
+set(CPACK_NSIS_DELETE_ICONS_EXTRA
+    "Delete '$SMPROGRAMS\\\\$START_MENU\\\\Tree Filter.lnk'"
+)
 
 INCLUDE(CPack)
 

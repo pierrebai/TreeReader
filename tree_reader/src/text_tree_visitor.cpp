@@ -3,24 +3,24 @@
 namespace dak::tree_reader
 {
    using namespace std;
-   using result = tree_visitor::result;
-   using node = text_tree::node;
+   using result = tree_visitor_t::result_t;
+   using node = text_tree_t::node_t;
    using Iter = vector<node *>::const_iterator;
    using IterPair = pair<Iter, Iter>;
    constexpr result continue_visit{ false, false };
    constexpr result stop_visit{ true, false };
 
-   result simple_tree_visitor::go_deeper(size_t deeperLevel)
+   result simple_tree_visitor_t::go_deeper(size_t deeperLevel)
    {
       return continue_visit;
    }
 
-   result simple_tree_visitor::go_higher(size_t higherLevel)
+   result simple_tree_visitor_t::go_higher(size_t higherLevel)
    {
       return continue_visit;
    }
 
-   result delegate_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
+   result delegate_tree_visitor::visit(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
       if (!visitor)
          return stop_visit;
@@ -28,12 +28,12 @@ namespace dak::tree_reader
       return visitor->visit(tree, node, level);
    }
 
-   result function_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
+   result function_tree_visitor_t::visit(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
       return func(tree, node, level);
    }
 
-   result can_abort_tree_visitor::visit(const text_tree& tree, const text_tree::node& node, size_t level)
+   result can_abort_tree_visitor::visit(const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
    {
       if (abort)
          return stop_visit;
@@ -41,7 +41,7 @@ namespace dak::tree_reader
       return delegate_tree_visitor::visit(tree, node, level);
    }
 
-   void visit_in_order(const text_tree& tree, const node* a_node, bool siblings, tree_visitor& visitor)
+   void visit_in_order(const text_tree_t& tree, const node* a_node, bool siblings, tree_visitor_t& visitor)
    {
       IterPair pos;
       if (a_node)
@@ -109,9 +109,9 @@ namespace dak::tree_reader
       }
    }
 
-   void visit_in_order(const text_tree& tree, const node* node, bool siblings, const node_visit_function& func)
+   void visit_in_order(const text_tree_t& tree, const node* node, bool siblings, const node_visit_function_t& func)
    {
-      function_tree_visitor visitor(func);
+      function_tree_visitor_t visitor(func);
       visit_in_order(tree, node, siblings, visitor);
    }
 }

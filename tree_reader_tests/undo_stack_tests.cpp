@@ -13,7 +13,7 @@ namespace dak::tree_reader_tests
 		
 		TEST_METHOD(undo_stack_undo_redo)
 		{
-         undo_stack undo;
+         undo_stack_t undo;
 
          Assert::IsFalse(undo.has_undo());
          Assert::IsFalse(undo.has_redo());
@@ -104,7 +104,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(undo_stack_without_deaded_awaken)
 		{
-         undo_stack undo;
+         undo_stack_t undo;
 
          undo.simple_commit({ 1.5 });
          undo.simple_commit({ 3.5 });
@@ -135,7 +135,7 @@ namespace dak::tree_reader_tests
 
 		TEST_METHOD(undo_stack_empty_noop)
 		{
-         undo_stack undo;
+         undo_stack_t undo;
 
          undo.undo();
          undo.undo();
