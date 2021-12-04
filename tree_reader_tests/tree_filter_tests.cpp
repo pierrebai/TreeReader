@@ -64,7 +64,7 @@ namespace dak::tree_reader_tests
       TEST_METHOD(PrintSimpleTreeWithnotFilter)
 		{
 			text_tree_t filtered;
-			filter_tree(create_simple_tree(), filtered, not(contains(L"f")));
+			filter_tree(create_simple_tree(), filtered, not_(contains(L"f")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -97,7 +97,7 @@ namespace dak::tree_reader_tests
       TEST_METHOD(PrintSimpleTreeWithIfSubTreeAndstopFilter)
       {
          text_tree_t filtered;
-         filter_tree(create_simple_tree(), filtered, and(if_subtree(contains(L"f")), stop()));
+         filter_tree(create_simple_tree(), filtered, and_(if_subtree(contains(L"f")), stop()));
 
          wostringstream sstream;
          sstream << filtered;
@@ -124,7 +124,7 @@ namespace dak::tree_reader_tests
       TEST_METHOD(PrintSimpleTreeWithOrFilter)
 		{
 			text_tree_t filtered;
-			filter_tree(create_simple_tree(), filtered, or(contains(L"f"), contains(L"m")));
+			filter_tree(create_simple_tree(), filtered, or_(contains(L"f"), contains(L"m")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -154,7 +154,7 @@ namespace dak::tree_reader_tests
 		TEST_METHOD(PrintSimpleTreeWithUnder)
 		{
 			text_tree_t filtered;
-			filter_tree(create_simple_tree(), filtered, and(under(contains(L"g"), false), contains(L"s")));
+			filter_tree(create_simple_tree(), filtered, and_(under(contains(L"g"), false), contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -247,7 +247,7 @@ namespace dak::tree_reader_tests
       TEST_METHOD(PrintSimpleTreeWithnotregex)
 		{
 			text_tree_t filtered;
-			filter_tree(create_simple_tree(), filtered, not(dak::tree_reader::regex(L"[g]")));
+			filter_tree(create_simple_tree(), filtered, not_(dak::tree_reader::regex(L"[g]")));
 
 			wostringstream sstream;
 			sstream << filtered;
@@ -267,7 +267,7 @@ namespace dak::tree_reader_tests
 		TEST_METHOD(PrintSimpleTreeWithMultiTreeFilters)
 		{
 			text_tree_t filtered;
-			filter_tree(create_simple_tree(), filtered, or(contains(L"d"), contains(L"s")));
+			filter_tree(create_simple_tree(), filtered, or_(contains(L"d"), contains(L"s")));
 
 			wostringstream sstream;
 			sstream << filtered;

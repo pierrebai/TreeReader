@@ -2,6 +2,19 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>color_editor_t</name>
+    <message>
+        <location filename="../dak/ui_qt/src/color_editor.cpp" line="73"/>
+        <source>Select %s Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dak/ui_qt/src/color_editor.cpp" line="75"/>
+        <source>Select Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>dak::tree_reader::app::main_window_t</name>
     <message>
         <location filename="main_window.cpp" line="117"/>

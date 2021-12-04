@@ -364,7 +364,7 @@ namespace dak::tree_reader::app
       _available_filters_list->add_tree_filter(contains(L""));
       _available_filters_list->add_tree_filter(regex(L""));
       _available_filters_list->add_tree_filter(unique());
-      _available_filters_list->add_tree_filter(not(nullptr));
+      _available_filters_list->add_tree_filter(not_(nullptr));
       _available_filters_list->add_tree_filter(any(vector<tree_filter_ptr_t>()));
       _available_filters_list->add_tree_filter(all(vector<tree_filter_ptr_t>()));
       _available_filters_list->add_tree_filter(under(nullptr));

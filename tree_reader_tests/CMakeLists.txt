@@ -23,6 +23,6 @@ target_compile_features(tree_reader_tests PUBLIC cxx_std_20)
 
 target_include_directories(tree_reader_tests PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
-   "${PROJECT_SOURCE_DIR}/dak_utility/utility/include"
+   "${PROJECT_SOURCE_DIR}/dak/utility/include"
 )
 

@@ -92,7 +92,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(ConvertToTextnotacceptFilter)
       {
-         auto filter = not(accept());
+         auto filter = not_(accept());
 
          const wstring text = convert_filter_to_text(filter);
 
@@ -105,7 +105,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(ConvertToTextOrFilter)
       {
-         auto filter = or(contains(L"a"), contains(L"b"));
+         auto filter = or_(contains(L"a"), contains(L"b"));
 
          const wstring text = convert_filter_to_text(filter);
 
@@ -127,7 +127,7 @@ namespace dak::tree_reader_tests
 
       TEST_METHOD(ConvertToTextAndFilter)
       {
-         auto filter = and(contains(L"a"), unique());
+         auto filter = and_(contains(L"a"), unique());
 
          const wstring text = convert_filter_to_text(filter);
 

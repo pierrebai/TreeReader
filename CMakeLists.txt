@@ -14,5 +14,5 @@ add_subdirectory(tree_filter)
 add_subdirectory(tree_filter_app)
 
 add_subdirectory(QtAdditions)
-add_subdirectory(dak_utility/utility)
+add_subdirectory(dak/utility)
 

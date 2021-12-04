@@ -270,7 +270,7 @@ namespace dak::tree_reader
 
          eat_closing_brace(sstream);
 
-         return not(filter);
+         return not_(filter);
       }
 
       template <>

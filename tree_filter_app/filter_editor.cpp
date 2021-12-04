@@ -106,7 +106,7 @@ namespace dak::tree_reader::app
          layout->addWidget(_filter_scroll);
 
          // note: allow undoing back to an empty filter list. To enable this, there must be an empty initial commit.
-         _undo_redo.simple_commit({ 0, nullptr, [self = this](const std::any&) { self->awaken_to_empty_filters(); } });
+         _undo_redo.commit({ 0, nullptr, [self = this](const std::any&) { self->awaken_to_empty_filters(); } });
       }
 
       void connect_ui()
@@ -229,7 +229,7 @@ namespace dak::tree_reader::app
 
                if (!placed)
                {
-                  auto new_root = and(root, filter);
+                  auto new_root = and_(root, filter);
                   root = new_root;
                   previous.push_back(root);
                }
@@ -273,7 +273,7 @@ namespace dak::tree_reader::app
             return;
 
          update_editor_from_ui();
-         _undo_redo.simple_commit(
+         _undo_redo.commit(
             {
                convert_filter_to_text(_edited),
                [self = this](std::any& data) { self->deaden_filters(data); },

@@ -46,7 +46,7 @@ target_compile_features(tree_filter_app PUBLIC cxx_std_20)
 target_include_directories(tree_filter_app PUBLIC
    "${PROJECT_SOURCE_DIR}/tree_reader/inc"
    "${PROJECT_SOURCE_DIR}/QtAdditions/include"
-   "${PROJECT_SOURCE_DIR}/dak_utility/utility/include"
+   "${PROJECT_SOURCE_DIR}/dak/utility/include"
 )
 
 add_custom_command(TARGET tree_filter_app POST_BUILD

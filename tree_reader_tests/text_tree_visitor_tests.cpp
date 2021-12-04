@@ -16,11 +16,12 @@ namespace dak::tree_reader_tests
       TEST_METHOD(visitEmptyTree)
       {
          size_t visits = 0;
-         visit_in_order(text_tree_t(), function_tree_visitor_t([&visits](const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
-         {
-            visits += 1;
-            return tree_visitor_t::result_t();
-         }));
+         auto visitor = function_tree_visitor_t([&visits](const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
+            {
+               visits += 1;
+               return tree_visitor_t::result_t();
+            });
+         visit_in_order(text_tree_t(), visitor);
 
          Assert::AreEqual<size_t>(0, visits);
       }
@@ -28,11 +29,12 @@ namespace dak::tree_reader_tests
       TEST_METHOD(visitSimpleTree)
       {
          size_t visits = 0;
-         visit_in_order(create_simple_tree(), function_tree_visitor_t([&visits](const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
-         {
-            visits += 1;
-            return tree_visitor_t::result_t();
-         }));
+         auto visitor = function_tree_visitor_t([&visits](const text_tree_t& tree, const text_tree_t::node_t& node, size_t level)
+            {
+               visits += 1;
+               return tree_visitor_t::result_t();
+            });
+         visit_in_order(create_simple_tree(), visitor);
 
          Assert::AreEqual<size_t>(8, visits);
       }
@@ -46,7 +48,8 @@ namespace dak::tree_reader_tests
             return tree_visitor_t::result_t();
          });
          
-         visit_in_order(create_simple_tree(), delegate_tree_visitor(visitor));
+         delegate_tree_visitor delegate(visitor);
+         visit_in_order(create_simple_tree(), delegate);
 
          Assert::AreEqual<size_t>(8, visits);
       }

@@ -386,9 +386,9 @@ namespace dak::tree_reader
    inline std::shared_ptr<text_address_tree_filter_t> exact_address(const wchar_t* text) { return std::make_shared<text_address_tree_filter_t>(text); }
    inline std::shared_ptr<regex_tree_filter_t> regex(const wchar_t* reg) { return std::make_shared<regex_tree_filter_t>(reg ? reg : L""); }
    inline std::shared_ptr<regex_tree_filter_t> regex(const std::wstring& reg) { return std::make_shared<regex_tree_filter_t>(reg); }
-   inline std::shared_ptr<not_tree_filter_t> not(const tree_filter_ptr_t& filter) { return std::make_shared<not_tree_filter_t>(filter); }
-   inline std::shared_ptr<or_tree_filter_t> or(const tree_filter_ptr_t& lhs, const tree_filter_ptr_t& rhs) { return std::make_shared<or_tree_filter_t>(lhs, rhs); }
-   inline std::shared_ptr<and_tree_filter_t> and(const tree_filter_ptr_t& lhs, const tree_filter_ptr_t& rhs) { return std::make_shared<and_tree_filter_t>(lhs, rhs); }
+   inline std::shared_ptr<not_tree_filter_t> not_(const tree_filter_ptr_t& filter) { return std::make_shared<not_tree_filter_t>(filter); }
+   inline std::shared_ptr<or_tree_filter_t> or_(const tree_filter_ptr_t& lhs, const tree_filter_ptr_t& rhs) { return std::make_shared<or_tree_filter_t>(lhs, rhs); }
+   inline std::shared_ptr<and_tree_filter_t> and_(const tree_filter_ptr_t& lhs, const tree_filter_ptr_t& rhs) { return std::make_shared<and_tree_filter_t>(lhs, rhs); }
    inline std::shared_ptr<or_tree_filter_t> any(const std::vector<tree_filter_ptr_t>& filters) { return std::make_shared<or_tree_filter_t>(filters); }
    inline std::shared_ptr<and_tree_filter_t> all(const std::vector<tree_filter_ptr_t>& filters) { return std::make_shared<and_tree_filter_t>(filters); }
    inline std::shared_ptr<under_tree_filter_t> under(const tree_filter_ptr_t& filter, bool includeSelf = true) { return std::make_shared<under_tree_filter_t>(filter, includeSelf); }
