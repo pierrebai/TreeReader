@@ -23,8 +23,9 @@ add_library(tree_reader
 
 target_include_directories(tree_reader PUBLIC
    inc
-   "${PROJECT_SOURCE_DIR}/dak/utility/include"
 )
+
+target_link_libraries(tree_reader dak_utility)
 
 target_compile_features(tree_reader PUBLIC cxx_std_20)
 

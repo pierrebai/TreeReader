@@ -36,18 +36,12 @@ add_executable(tree_filter_app WIN32
 
 target_link_libraries(tree_filter_app PUBLIC
    tree_reader
-   utility
+   dak_utility
    QtAdditions
    Qt5::Widgets Qt5::Gui Qt5::Core Qt5::WinExtras
 )
 
 target_compile_features(tree_filter_app PUBLIC cxx_std_20)
-
-target_include_directories(tree_filter_app PUBLIC
-   "${PROJECT_SOURCE_DIR}/tree_reader/inc"
-   "${PROJECT_SOURCE_DIR}/QtAdditions/include"
-   "${PROJECT_SOURCE_DIR}/dak/utility/include"
-)
 
 add_custom_command(TARGET tree_filter_app POST_BUILD
    COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:tree_filter_app>"
